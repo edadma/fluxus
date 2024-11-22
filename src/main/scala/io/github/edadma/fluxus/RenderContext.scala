@@ -18,7 +18,7 @@ case class ComponentInstance(
     render: () => VNode,
     hooks: ArrayBuffer[Any] = ArrayBuffer.empty,
 ) {
-  private var hookIndex: Int = 0
+  private[fluxus] var hookIndex: Int = 0
 
   def nextHook[T]: T = {
     val hook = hooks(hookIndex).asInstanceOf[T]

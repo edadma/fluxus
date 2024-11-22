@@ -4,7 +4,8 @@ sealed trait VNode
 
 case class ElementNode(
     tag: String,
-    props: Map[String, Any] = Map.empty,
+    attributes: Map[String, String] = Map.empty,
+    events: Map[String, () => Unit] = Map.empty,
     children: List[VNode] = List.empty,
 ) extends VNode
 
