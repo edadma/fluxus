@@ -19,7 +19,8 @@ lazy val fluxus = project
       "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
       "org.scalatest"     %%% "scalatest"       % "3.2.19" % "test",
       "com.lihaoyi"       %%% "pprint"          % "0.9.0"  % "test",
-      "org.scala-js"      %%% "scalajs-dom"     % "2.4.0",
+//      "org.scala-js"      %%% "scalajs-logging" % "1.1.1",
+      "org.scala-js" %%% "scalajs-dom" % "2.4.0",
     ),
     //    Compile / npmDependencies ++= Seq(
 //      "socket.io" -> "4.7.3",

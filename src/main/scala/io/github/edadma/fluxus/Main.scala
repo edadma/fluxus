@@ -1,4 +1,4 @@
-package io.guthub.edadma.fluxus
+package io.github.edadma.fluxus
 
 @main def run(): Unit =
   println("Hello world!")
