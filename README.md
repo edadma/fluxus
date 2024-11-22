@@ -1,2 +1,5 @@
-Scala.js Template
-=================
+Fluxus
+======
+
+(Not) The Ultimate App Framework
+--------------------------------

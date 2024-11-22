@@ -1,24 +1,27 @@
-ThisBuild / licenses += "ISC" -> url("https://opensource.org/licenses/ISC")
-ThisBuild / versionScheme     := Some("semver-spec")
+ThisBuild / licenses += "ISC"  -> url("https://opensource.org/licenses/ISC")
+ThisBuild / versionScheme      := Some("semver-spec")
+ThisBuild / evictionErrorLevel := Level.Warn
 
 publish / skip := true
 
-lazy val scalajs_template = project
+lazy val fluxus = project
   .in(file("."))
   .enablePlugins(ScalaJSPlugin)
 //  .enablePlugins(ScalablyTypedConverterPlugin)
   .settings(
-    name             := "scalajs-template",
+    name             := "fluxus",
     version          := "0.0.1",
     scalaVersion     := "3.5.2",
     organization     := "io.github.edadma",
     githubOwner      := "edadma",
     githubRepository := name.value,
-//    libraryDependencies += "com.raquo" %%% "laminar" % "16.0.0",
-//    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.19" % "test",
-//    libraryDependencies += "com.lihaoyi" %%% "pprint" % "0.9.0" % "test",
-//    Compile / npmDependencies ++= Seq(
+    libraryDependencies ++= Seq(
+      "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
+      "org.scalatest"     %%% "scalatest"       % "3.2.19" % "test",
+      "com.lihaoyi"       %%% "pprint"          % "0.9.0"  % "test",
+      "org.scala-js"      %%% "scalajs-dom"     % "2.4.0",
+    ),
+    //    Compile / npmDependencies ++= Seq(
 //      "socket.io" -> "4.7.3",
 //    ),
     jsEnv                                  := new org.scalajs.jsenv.nodejs.NodeJSEnv(),
