@@ -11,15 +11,14 @@ def App(appProps: Props): FluxusNode =
   val (items, setItems) = useState(List(1, 2, 3))
 
   div(
-    h1("Simple Scala.js App Framework"),
+    "class" -> "container mx-auto p-4",
+    h1("class" -> "text-3xl font-bold mb-4", "Simple Scala.js App Framework"),
     p(s"Current count: $count"),
-    button(
-      "Increment",
-      "onClick" -> (() => setCount(count + 1)),
-    ),
+    button("class"                  -> "btn btn-primary", "Increment", "onClick" -> (() => setCount(count + 1))),
     CounterComponent("initialCount" -> 5),
     div(
       button(
+        "class" -> "btn btn-secondary",
         "Add Item",
         "onClick" -> (() => setItems(items :+ (items.length + 1))),
       ),

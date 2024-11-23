@@ -1,0 +1,12 @@
+/* tailwind.css */
+
+/* Tailwind base styles */
+@tailwind base;
+
+/* Tailwind components */
+@tailwind components;
+
+/* Tailwind utilities */
+@tailwind utilities;
+
+/* DaisyUI components (optional, as DaisyUI registers components automatically) */
