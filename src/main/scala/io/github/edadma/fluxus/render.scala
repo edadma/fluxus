@@ -11,7 +11,7 @@ object GlobalState {
   val componentInstances: mutable.Map[String, ComponentInstance] = mutable.Map.empty
 }
 
-def render(vnode: VNode, parent: dom.Element): Unit = vnode match {
+def render(vnode: FluxusNode, parent: dom.Element): Unit = vnode match {
   case TextNode(text) =>
     val textNode = dom.document.createTextNode(text)
     parent.appendChild(textNode)

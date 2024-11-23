@@ -7,7 +7,7 @@ import scala.language.postfixOps
   renderApp("app")
 
 // The root component of the app
-def App(appProps: Props): VNode = {
+def App(appProps: Props): FluxusNode = {
   // Use state within the component
   val (count, setCount) = useState(0)
   val (items, setItems) = useState(List(1, 2, 3))
@@ -37,7 +37,7 @@ def App(appProps: Props): VNode = {
 
 }
 
-def ListItemComponent(props: Props): VNode = {
+def ListItemComponent(props: Props): FluxusNode = {
   val value = props.getOrElse("value", "").toString
 
   // Use useState if needed; for this example, we'll add a counter
@@ -53,7 +53,7 @@ def ListItemComponent(props: Props): VNode = {
 }
 
 // A nested component that takes props
-def CounterComponent(componentProps: Props): VNode = {
+def CounterComponent(componentProps: Props): FluxusNode = {
   val initialCount      = componentProps("initialCount").asInstanceOf[Int]
   val (count, setCount) = useState(initialCount)
 
