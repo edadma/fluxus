@@ -4,11 +4,14 @@ import scala.collection.mutable.ArrayBuffer
 
 def component(componentFunction: Props => VNode)(props: (String, Any)*): VNode = {
   val propsMap = makeProps(props*)
+  val key      = propsMap.get("key").map(_.toString)
   ComponentNode(
+    key = key,
     componentFunction = componentFunction,
     props = propsMap,
   )
 }
+
 // Represents an instance of a component with its own hooks (state)
 case class ComponentInstance(
     renderFunction: Props => VNode,                 // The component function that returns a VNode

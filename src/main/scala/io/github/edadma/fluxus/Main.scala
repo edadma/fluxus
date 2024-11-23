@@ -13,6 +13,7 @@ var rootInstance: ComponentInstance = null
 def App(appProps: Props): VNode = {
   // Use state within the component
   val (count, setCount) = useState(0)
+  val (items, setItems) = useState(List(1, 2, 3))
 
   div(
     h1("Simple Scala.js App Framework"),
@@ -23,6 +24,34 @@ def App(appProps: Props): VNode = {
     ),
     // Include a nested component with a unique ID
     component(CounterComponent)("initialCount" -> 5),
+    div(
+      button(
+        "Add Item",
+        "onClick" -> (() => setItems(items :+ (items.length + 1))),
+      ),
+      ul(
+        items.map { item =>
+          // Include the ListItemComponent, providing a 'key' prop
+          component(ListItemComponent)("key" -> item.toString, "value" -> item)
+        }: _*,
+      ),
+    ),
+  )
+
+}
+
+def ListItemComponent(props: Props): VNode = {
+  val value = props.getOrElse("value", "").toString
+
+  // Use useState if needed; for this example, we'll add a counter
+  val (count, setCount) = useState(0)
+
+  li(
+    s"Item: $value, Count: $count",
+    button(
+      "Increment",
+      "onClick" -> (() => setCount(count + 1)),
+    ),
   )
 }
 

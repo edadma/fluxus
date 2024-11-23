@@ -33,11 +33,15 @@ def render(vnode: VNode, parent: dom.Element): Unit = vnode match {
 
     parent.appendChild(element)
 
-  case ComponentNode(componentFunction, props) =>
+  case ComponentNode(keyOption, componentFunction, props) =>
     import GlobalState._
 
-    // Assign an ID based on the component ID counter
-    val id = RenderContext.componentIdCounter.toString
+    val id = keyOption.getOrElse {
+      // Use the component ID counter if no key is provided
+      val id = RenderContext.componentIdCounter.toString
+      RenderContext.componentIdCounter += 1
+      id
+    }
     RenderContext.componentIdCounter += 1
 
     // Retrieve or create the component instance
