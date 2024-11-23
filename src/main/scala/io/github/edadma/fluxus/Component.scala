@@ -5,7 +5,7 @@ import scala.collection.mutable.ArrayBuffer
 // Represents an instance of a component with its own hooks (state)
 case class ComponentInstance(
     renderFunction: Props => VNode,                 // The component function that returns a VNode
-    props: Props,                                   // The props passed to the component
+    var props: Props,                               // The props passed to the component
     var hooks: ArrayBuffer[Any] = ArrayBuffer.empty, // The hooks (state) used by the component
 ) {
   // Index to keep track of the current hook during rendering

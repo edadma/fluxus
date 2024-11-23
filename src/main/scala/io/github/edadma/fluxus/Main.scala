@@ -6,8 +6,11 @@ import org.scalajs.dom
   // Call renderApp to render the app for the first time
   renderApp()
 
+// Declare a variable to hold the rootInstance
+var rootInstance: ComponentInstance = null
+
 // The root component of the app
-def App(props: Props): VNode = {
+def App(appProps: Props): VNode = {
   // Use state within the component
   val (count, setCount) = useState(0)
 
@@ -16,16 +19,20 @@ def App(props: Props): VNode = {
     p(s"Current count: $count"),
     button(
       "Increment",
-      // Event handler to update the state
       "onClick" -> (() => setCount(count + 1)),
     ),
-    // Include a nested component and pass props to it
-    CounterComponent(props("initialCount").asInstanceOf[Int]),
+    // Include a nested component with a unique ID
+    ComponentNode(
+      id = "CounterComponent1", // Unique ID for this instance
+      componentFunction = CounterComponent,
+      props = makeProps("initialCount" -> 5),
+    ),
   )
 }
 
 // A nested component that takes props
-def CounterComponent(initialCount: Int): VNode = {
+def CounterComponent(componentProps: Props): VNode = {
+  val initialCount      = componentProps("initialCount").asInstanceOf[Int]
   val (count, setCount) = useState(initialCount)
 
   div(
@@ -46,8 +53,13 @@ def renderApp(): Unit = {
   // Clear previous content
   mountPoint.innerHTML = ""
 
-  // Create a new component instance for the root component
-  val rootInstance = ComponentInstance(App, props("initialCount" -> 5))
+  // If rootInstance is null (first render), create it
+  if (rootInstance == null) {
+    rootInstance = ComponentInstance(App, makeProps())
+  } else {
+    // Before re-rendering, reset hooks
+    rootInstance.resetHooks()
+  }
 
   // Push the root instance onto the render context stack
   RenderContext.push(rootInstance)

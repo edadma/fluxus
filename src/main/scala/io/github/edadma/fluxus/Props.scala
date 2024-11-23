@@ -4,4 +4,4 @@ package io.github.edadma.fluxus
 type Props = Map[String, Any]
 
 // Helper function to create props
-def props(pairs: (String, Any)*): Props = Map(pairs*)
+def makeProps(pairs: (String, Any)*): Props = Map(pairs*)

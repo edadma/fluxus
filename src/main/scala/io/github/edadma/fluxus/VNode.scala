@@ -34,3 +34,10 @@ def div(args: (VNode | String | (String, String) | (String, () => Unit))*): VNod
 def span(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode   = element("span")(args*)
 def h1(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode     = element("h1")(args*)
 def p(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode      = element("p")(args*)
+
+// Represents a component node that needs to be rendered
+case class ComponentNode(
+    id: String,                        // Unique identifier for the component instance
+    componentFunction: Props => VNode, // The component function
+    props: Props,                      // The props to pass to the component
+) extends VNode

@@ -2,6 +2,13 @@ package io.github.edadma.fluxus
 
 import org.scalajs.dom
 
+import scala.collection.mutable
+
+// Global map to store component instances by ID
+object GlobalState {
+  val componentInstances: mutable.Map[String, ComponentInstance] = mutable.Map.empty
+}
+
 // The render function takes a VNode and a parent DOM element to mount to
 def render(vnode: VNode, parent: dom.Element): Unit = vnode match {
   case TextNode(text) =>
@@ -29,4 +36,28 @@ def render(vnode: VNode, parent: dom.Element): Unit = vnode match {
 
     // Append the element to the parent
     parent.appendChild(element)
+
+  case ComponentNode(id, componentFunction, props) =>
+    import GlobalState._
+
+    // Retrieve or create the component instance
+    val instance = componentInstances.getOrElseUpdate(id, ComponentInstance(componentFunction, props))
+
+    // Update props in case they have changed
+    instance.props = props
+
+    // Push the instance onto the render context stack
+    RenderContext.push(instance)
+
+    // Reset hooks before rendering
+    instance.resetHooks()
+
+    // Render the component to get the VNode
+    val childVNode = instance.renderFunction(instance.props)
+
+    // Render the child VNode into the parent
+    render(childVNode, parent)
+
+    // Pop the instance from the render context stack
+    RenderContext.pop()
 }
