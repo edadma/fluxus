@@ -6,9 +6,11 @@ import scala.compiletime.uninitialized
 
 var rootInstance: ComponentInstance = uninitialized
 var rootId: String                  = uninitialized
+var rootComponent: FluxusComponent  = uninitialized
 
-def renderApp(root: String): Unit = {
-  rootId = root
+def renderApp(id: String, component: FluxusComponent): Unit = {
+  rootId = id
+  rootComponent = component
   renderApp()
 }
 
@@ -17,7 +19,7 @@ private[fluxus] def renderApp(): Unit = {
   mountPoint.innerHTML = ""
 
   if (rootInstance == null) {
-    rootInstance = ComponentInstance(App, makeProps())
+    rootInstance = ComponentInstance(rootComponent, makeProps())
   } else {
     rootInstance.resetHooks()
   }

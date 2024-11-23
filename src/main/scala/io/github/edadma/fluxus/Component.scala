@@ -2,7 +2,7 @@ package io.github.edadma.fluxus
 
 import scala.collection.mutable.ArrayBuffer
 
-def component(componentFunction: Props => FluxusNode)(props: (String, Any)*): FluxusNode = {
+def component(componentFunction: FluxusComponent)(props: (String, Any)*): FluxusNode = {
   val propsMap = makeProps(props*)
   val key      = propsMap.get("key").map(_.toString)
   ComponentNode(
@@ -14,7 +14,7 @@ def component(componentFunction: Props => FluxusNode)(props: (String, Any)*): Fl
 
 // Represents an instance of a component with its own hooks (state)
 case class ComponentInstance(
-                              renderFunction: Props => FluxusNode, // The component function that returns a VNode
+                              renderFunction: FluxusComponent, // The component function that returns a VNode
                               var props: Props, // The props passed to the component
                               var hooks: ArrayBuffer[Any] = ArrayBuffer.empty, // The hooks (state) used by the component
 ) {

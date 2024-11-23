@@ -4,7 +4,7 @@ import scala.language.postfixOps
 
 @main def run(): Unit =
   // Call renderApp to render the app for the first time
-  renderApp("app")
+  renderApp("app", App)
 
 // The root component of the app
 def App(appProps: Props): FluxusNode = {

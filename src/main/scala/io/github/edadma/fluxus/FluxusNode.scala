@@ -41,6 +41,6 @@ def li(args: (FluxusNode | String | (String, String) | (String, () => Unit))*): 
 // Represents a component node that needs to be rendered
 case class ComponentNode(
     key: Option[String],
-    componentFunction: Props => FluxusNode, // The component function
+    componentFunction: FluxusComponent, // The component function
     props: Props,                           // The props to pass to the component
 ) extends FluxusNode
