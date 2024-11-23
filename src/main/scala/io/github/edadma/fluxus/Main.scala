@@ -22,11 +22,7 @@ def App(appProps: Props): VNode = {
       "onClick" -> (() => setCount(count + 1)),
     ),
     // Include a nested component with a unique ID
-    ComponentNode(
-      id = "CounterComponent1", // Unique ID for this instance
-      componentFunction = CounterComponent,
-      props = makeProps("initialCount" -> 5),
-    ),
+    component(CounterComponent)("initialCount" -> 5),
   )
 }
 

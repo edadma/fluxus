@@ -37,7 +37,6 @@ def p(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode 
 
 // Represents a component node that needs to be rendered
 case class ComponentNode(
-    id: String,                        // Unique identifier for the component instance
     componentFunction: Props => VNode, // The component function
     props: Props,                      // The props to pass to the component
 ) extends VNode
