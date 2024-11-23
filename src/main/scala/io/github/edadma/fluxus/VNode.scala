@@ -11,11 +11,22 @@ case class ElementNode(
 
 case class TextNode(text: String) extends VNode
 
-// Helpers for creating VNodes
-def div(children: VNode*): VNode    = ElementNode("div", children = children.toList)
-def h1(children: VNode*): VNode     = ElementNode("h1", children = children.toList)
-def button(children: VNode*): VNode = ElementNode("button", children = children.toList)
+def element(tag: String)(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode = {
+  var attributes = Map.empty[String, String]
+  var events     = Map.empty[String, () => Unit]
+  val children   = List.newBuilder[VNode]
 
-// Event listener helper
-case class EventProp(name: String, handler: () => Unit)
-def onClick(handler: () => Unit): EventProp = EventProp("onClick", handler)
+  args.foreach {
+    case vnode: VNode                => children += vnode
+    case text: String                => children += TextNode(text)
+    case attr: (String, String)      => attributes += attr
+    case event: (String, () => Unit) => events += event
+  }
+
+  ElementNode(tag, attributes, events, children.result())
+}
+
+// Specialized helpers
+def button(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode = element("button")(args*)
+def div(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode    = element("div")(args*)
+def h1(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode     = element("h1")(args*)
