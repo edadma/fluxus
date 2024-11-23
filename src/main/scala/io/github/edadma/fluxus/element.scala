@@ -1,16 +1,9 @@
 package io.github.edadma.fluxus
 
-class Attr(name: String):
-  def :=(value: String): AttrArg = AttrArg(name, value)
+extension (sym: Symbol)
+  def :=(value: Any): (String, Any) = (sym.name, value)
 
-case class AttrArg(name: String, value: String)
-
-class EventAttr(name: String):
-  def :=(handler: () => Unit): EventAttrArg = EventAttrArg(name, handler)
-
-case class EventAttrArg(name: String, handler: () => Unit)
-
-type ElementArg = FluxusNode | String | AttrArg | EventAttrArg
+type ElementArg = FluxusNode | String | (String, Any)
 
 def element(tag: String)(args: ElementArg*): FluxusNode = {
   var attributes = Map.empty[String, String]
@@ -18,30 +11,31 @@ def element(tag: String)(args: ElementArg*): FluxusNode = {
   val children   = List.newBuilder[FluxusNode]
 
   args.foreach {
-    case node: FluxusNode                                 => children += node
-    case text: String                                     => children += TextNode(text)
-    case EventAttrArg(key: String, handler: (() => Unit)) => events += (key     -> handler)
-    case AttrArg(key: String, value: String)              => attributes += (key -> value)
-    case null                                             =>
+    case node: FluxusNode                                             => children += node
+    case text: String                                                 => children += TextNode(text)
+    case (key: String, handler: (() => Unit)) if key.startsWith("on") => events += (key     -> handler)
+    case (key: String, value: String)                                 => attributes += (key -> value)
+    case null                                                         =>
+    case (_, _)                                                       => ???
   }
 
   ElementNode(tag, attributes, events, children.result())
 }
 
-val cls         = Attr("class")
-val id          = Attr("id")
-val href        = Attr("href")
-val src         = Attr("src")
-val alt         = Attr("alt")
-val style       = Attr("style")
-val value       = Attr("value")
-val typ         = Attr("type")
-val placeholder = Attr("placeholder")
-val name        = Attr("name")
+val cls         = Symbol("class")
+val id          = Symbol("id")
+val href        = Symbol("href")
+val src         = Symbol("src")
+val alt         = Symbol("alt")
+val style       = Symbol("style")
+val value       = Symbol("value")
+val typ         = Symbol("type")
+val placeholder = Symbol("placeholder")
+val name        = Symbol("name")
 
-val onClick   = EventAttr("onClick")
-val onChange  = EventAttr("onChange")
-val onSubmit  = EventAttr("onSubmit")
-val onInput   = EventAttr("onInput")
-val onKeyUp   = EventAttr("onKeyUp")
-val onKeyDown = EventAttr("onKeyDown")
+val onClick   = Symbol("onClick")
+val onChange  = Symbol("onChange")
+val onSubmit  = Symbol("onSubmit")
+val onInput   = Symbol("onInput")
+val onKeyUp   = Symbol("onKeyUp")
+val onKeyDown = Symbol("onKeyDown")
