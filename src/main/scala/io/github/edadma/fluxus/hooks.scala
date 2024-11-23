@@ -1,32 +1,35 @@
-package io.github.edadma.fluxus
+/* Hooks.scala
 
-// The useState hook allows components to have state
+This file defines the `useState` hook, which allows components to have stateful logic.
+The `useState` function is modeled after React's useState hook, providing a way to manage state within functional components.
+
+Key components:
+- `useState` function: Allows components to initialize and manage state variables.
+- Integration with `RenderContext` and `ComponentInstance` to ensure state is preserved across renders.
+
+ */
+
+package io.github.edadma.fluxus // Define the package namespace for the Fluxus framework
+
+// The `useState` hook allows components to have state
 def useState[T](initialValue: T): (T, T => Unit) = {
-  // Get the current component instance
-  val instance = RenderContext.currentInstance
+  val instance = RenderContext.currentInstance // Get the current component instance from RenderContext
 
-  // Capture the current hook index
-  val currentHookIndex = instance.hookIndex
+  val currentHookIndex = instance.hookIndex // Capture the current hook index for this hook
 
-  // If this is the first render, initialize the state
+  // If this is the first render or the hook hasn't been initialized, initialize the state
   if (instance.hooks.size <= currentHookIndex) {
-    instance.hooks += initialValue
+    instance.hooks += initialValue // Add the initial value to the hooks array
   }
 
-  // Get the current state value
-  val state = instance.hooks(currentHookIndex).asInstanceOf[T]
+  val state = instance.hooks(currentHookIndex).asInstanceOf[T] // Retrieve the current state value from the hooks array
 
-  // Increment the hook index for the next hook
-  instance.hookIndex += 1
+  instance.hookIndex += 1 // Increment the hook index for the next hook
 
-  // Define the setState function to update the state and re-render
   val setState: T => Unit = (newValue: T) => {
-    // Update the state in the hooks array
-    instance.hooks(currentHookIndex) = newValue
-
-    // Re-render the app starting from the root component
-    renderApp()
+    instance.hooks(currentHookIndex) = newValue // Update the state in the hooks array with the new value
+    renderApp()                                 // Re-render the app starting from the root component
   }
 
-  (state, setState)
+  (state, setState) // Return the current state and the setState function as a tuple
 }

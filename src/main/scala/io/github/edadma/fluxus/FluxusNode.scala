@@ -17,7 +17,7 @@ def element(tag: String)(args: (FluxusNode | String | (String, String) | (String
   val children   = List.newBuilder[FluxusNode]
 
   args.foreach {
-    case vnode: FluxusNode                                            => children += vnode
+    case node: FluxusNode                                             => children += node
     case text: String                                                 => children += TextNode(text)
     case (key: String, handler: (() => Unit)) if key.startsWith("on") => events += (key -> handler)
     case attr: (String, String)                                       => attributes += attr
@@ -42,5 +42,5 @@ def li(args: (FluxusNode | String | (String, String) | (String, () => Unit))*): 
 case class ComponentNode(
     key: Option[String],
     componentFunction: FluxusComponent, // The component function
-    props: Props,                           // The props to pass to the component
+    props: Props,                       // The props to pass to the component
 ) extends FluxusNode
