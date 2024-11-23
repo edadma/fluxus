@@ -43,29 +43,20 @@ def CounterComponent(componentProps: Props): VNode = {
 
 // The function to render the app
 def renderApp(): Unit = {
-  // Get the mount point from the DOM
   val mountPoint = dom.document.getElementById("app")
-
-  // Clear previous content
   mountPoint.innerHTML = ""
 
-  // If rootInstance is null (first render), create it
   if (rootInstance == null) {
     rootInstance = ComponentInstance(App, makeProps())
   } else {
-    // Before re-rendering, reset hooks
     rootInstance.resetHooks()
   }
 
-  // Push the root instance onto the render context stack
+  // Reset the component ID counter at the beginning of each render
+  RenderContext.componentIdCounter = 0
+
   RenderContext.push(rootInstance)
-
-  // Render the root component to a VNode
   val appVNode = rootInstance.renderFunction(rootInstance.props)
-
-  // Render the VNode to the real DOM
   render(appVNode, mountPoint)
-
-  // Pop the root instance from the render context stack
   RenderContext.pop()
 }
