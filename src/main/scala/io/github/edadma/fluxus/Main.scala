@@ -2,11 +2,11 @@ package io.github.edadma.fluxus
 
 import scala.language.postfixOps
 
+import Implicits.*
+
 @main def run(): Unit = renderApp("app", App)
 
-// The root component of the app
-def App(appProps: Props): FluxusNode = {
-  // Use state within the component
+def App(appProps: Props): FluxusNode =
   val (count, setCount) = useState(0)
   val (items, setItems) = useState(List(1, 2, 3))
 
@@ -17,8 +17,7 @@ def App(appProps: Props): FluxusNode = {
       "Increment",
       "onClick" -> (() => setCount(count + 1)),
     ),
-    // Include a nested component with a unique ID
-    component(CounterComponent)("initialCount" -> 5),
+    CounterComponent("initialCount" -> 5),
     div(
       button(
         "Add Item",
@@ -27,18 +26,14 @@ def App(appProps: Props): FluxusNode = {
       ul(
         items.map { item =>
           // Include the ListItemComponent, providing a 'key' prop
-          component(ListItemComponent)("key" -> item.toString, "value" -> item)
+          ListItemComponent("key" -> item.toString, "value" -> item)
         }*,
       ),
     ),
   )
 
-}
-
-def ListItemComponent(props: Props): FluxusNode = {
-  val value = props.getOrElse("value", "").toString
-
-  // Use useState if needed; for this example, we'll add a counter
+val ListItemComponent: FluxusComponent = (props: Props) =>
+  val value             = props.getOrElse("value", "").toString
   val (count, setCount) = useState(0)
 
   li(
@@ -48,10 +43,9 @@ def ListItemComponent(props: Props): FluxusNode = {
       "onClick" -> (() => setCount(count + 1)),
     ),
   )
-}
 
 // A nested component that takes props
-def CounterComponent(componentProps: Props): FluxusNode = {
+val CounterComponent: FluxusComponent = (componentProps: Props) =>
   val initialCount      = componentProps("initialCount").asInstanceOf[Int]
   val (count, setCount) = useState(initialCount)
 
@@ -63,4 +57,3 @@ def CounterComponent(componentProps: Props): FluxusNode = {
       "onClick" -> (() => setCount(count + 1)),
     ),
   )
-}
