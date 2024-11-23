@@ -37,10 +37,7 @@ val ListItemComponent: FluxusComponent = (props: Props) =>
 
   li(
     s"Item: $value, Count: $count",
-    button(
-      "Increment",
-      "onClick" -> (() => setCount(count + 1)),
-    ),
+    button("class" -> "btn btn-accent", "Increment", "onClick" -> (() => setCount(count + 1))),
   )
 
 // A nested component that takes props
