@@ -17,10 +17,12 @@ def element(tag: String)(args: (VNode | String | (String, String) | (String, () 
   val children   = List.newBuilder[VNode]
 
   args.foreach {
-    case vnode: VNode                => children += vnode
-    case text: String                => children += TextNode(text)
-    case attr: (String, String)      => attributes += attr
-    case event: (String, () => Unit) => events += event
+    case vnode: VNode                                                 => children += vnode
+    case text: String                                                 => children += TextNode(text)
+    case (key: String, handler: (() => Unit)) if key.startsWith("on") => events += (key -> handler)
+    case attr: (String, String)                                       => attributes += attr
+    case other =>
+      throw new IllegalStateException(s"Unsupported argument type: $other")
   }
 
   ElementNode(tag, attributes, events, children.result())
