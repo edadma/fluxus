@@ -1,40 +1,31 @@
 package io.github.edadma.fluxus
 
-def useState[T](initial: T): (T, T => Unit) = {
-  val instance = RenderContext.current
+// The useState hook allows components to have state
+def useState[T](initialValue: T): (T, T => Unit) = {
+  // Get the current component instance
+  val instance = RenderContext.currentInstance
 
-  println(s"DEBUG: useState called with initial value: $initial at hookIndex: ${instance.hookIndex}")
-
-  // Add initial state if this hook has not been initialized
-  if (instance.hooks.size <= instance.hookIndex) {
-    println(s"DEBUG: Adding initial state: $initial")
-    instance.addHook(initial)
-  }
-
-  // Ensure hookIndex is valid
-  if (instance.hookIndex >= instance.hooks.size) {
-    throw new IllegalStateException(
-      s"Invalid hook access: hookIndex=${instance.hookIndex}, total hooks=${instance.hooks.size}",
-    )
-  }
-
-  // Capture the current hookIndex
+  // Capture the current hook index
   val currentHookIndex = instance.hookIndex
 
-  // Retrieve state for the current hook index
+  // If this is the first render, initialize the state
+  if (instance.hooks.size <= currentHookIndex) {
+    instance.hooks += initialValue
+  }
+
+  // Get the current state value
   val state = instance.hooks(currentHookIndex).asInstanceOf[T]
-  println(s"DEBUG: Accessing hook at index: $currentHookIndex, state: $state")
 
-  // Increment hookIndex after successful access
+  // Increment the hook index for the next hook
   instance.hookIndex += 1
-  println(s"DEBUG: Incremented hookIndex to $currentHookIndex")
 
-  // Define the state updater function
-  val setState: T => Unit = (newState: T) => {
-    println(s"DEBUG: Updating state at hookIndex=${currentHookIndex} from $state to $newState")
-    instance.hooks(currentHookIndex) = newState
-    println(s"DEBUG: Current hooks after update: ${instance.hooks.mkString(", ")}")
-    render(instance.render, "#app") // Trigger re-render
+  // Define the setState function to update the state and re-render
+  val setState: T => Unit = (newValue: T) => {
+    // Update the state in the hooks array
+    instance.hooks(currentHookIndex) = newValue
+
+    // Re-render the app starting from the root component
+    renderApp()
   }
 
   (state, setState)

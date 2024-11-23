@@ -31,4 +31,6 @@ def element(tag: String)(args: (VNode | String | (String, String) | (String, () 
 // Specialized helpers
 def button(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode = element("button")(args*)
 def div(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode    = element("div")(args*)
+def span(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode   = element("span")(args*)
 def h1(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode     = element("h1")(args*)
+def p(args: (VNode | String | (String, String) | (String, () => Unit))*): VNode      = element("p")(args*)
