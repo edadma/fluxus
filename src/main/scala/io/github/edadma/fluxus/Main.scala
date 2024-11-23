@@ -1,15 +1,10 @@
 package io.github.edadma.fluxus
 
-import org.scalajs.dom
-
 import scala.language.postfixOps
 
 @main def run(): Unit =
   // Call renderApp to render the app for the first time
-  renderApp()
-
-// Declare a variable to hold the rootInstance
-var rootInstance: ComponentInstance = null
+  renderApp("app")
 
 // The root component of the app
 def App(appProps: Props): VNode = {
@@ -70,24 +65,4 @@ def CounterComponent(componentProps: Props): VNode = {
       "onClick" -> (() => setCount(count + 1)),
     ),
   )
-}
-
-// The function to render the app
-def renderApp(): Unit = {
-  val mountPoint = dom.document.getElementById("app")
-  mountPoint.innerHTML = ""
-
-  if (rootInstance == null) {
-    rootInstance = ComponentInstance(App, makeProps())
-  } else {
-    rootInstance.resetHooks()
-  }
-
-  // Reset the component ID counter at the beginning of each render
-  RenderContext.componentIdCounter = 0
-
-  RenderContext.push(rootInstance)
-  val appVNode = rootInstance.renderFunction(rootInstance.props)
-  render(appVNode, mountPoint)
-  RenderContext.pop()
 }
