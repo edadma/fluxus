@@ -11,16 +11,16 @@ def App(appProps: Props): FluxusNode =
   val (items, setItems) = useState(List(1, 2, 3))
 
   div(
-    "class" -> "container mx-auto p-4",
-    h1("class" -> "text-3xl font-bold mb-4", "Simple Scala.js App Framework"),
-    p(s"Current count: $count"),
-    button("class"                  -> "btn btn-primary", "Increment", "onClick" -> (() => setCount(count + 1))),
+    cls := "container mx-auto p-4",
+    h1(cls                          := "text-3xl font-bold mb-4", "Simple Scala.js App Framework"),
+    p(cls                           := "stat-value text-secondary", s"Current count: $count"),
+    button(cls                      := "btn btn-primary", "Increment", onClick := (() => setCount(count + 1))),
     CounterComponent("initialCount" -> 5),
     div(
       button(
-        "class" -> "btn btn-secondary",
+        cls := "btn btn-secondary",
         "Add Item",
-        "onClick" -> (() => setItems(items :+ (items.length + 1))),
+        onClick := (() => setItems(items :+ (items.length + 1))),
       ),
       ul(
         items.map { item =>
@@ -37,7 +37,7 @@ val ListItemComponent: FluxusComponent = (props: Props) =>
 
   li(
     s"Item: $value, Count: $count",
-    button("class" -> "btn btn-accent", "Increment", "onClick" -> (() => setCount(count + 1))),
+    button(cls := "btn btn-accent", "Increment", onClick := (() => setCount(count + 1))),
   )
 
 // A nested component that takes props
@@ -47,9 +47,6 @@ val CounterComponent: FluxusComponent = (componentProps: Props) =>
 
   div(
     h1("Nested Counter Component"),
-    p(s"Nested count: $count"),
-    button(
-      "Increment Nested Counter",
-      "onClick" -> (() => setCount(count + 1)),
-    ),
+    p(cls      := "stat-value text-primary", s"Nested count: $count"),
+    button(cls := "btn btn-warning", "Increment Nested Counter", onClick := (() => setCount(count + 1))),
   )
