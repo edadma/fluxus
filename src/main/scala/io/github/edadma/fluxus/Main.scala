@@ -2,6 +2,8 @@ package io.github.edadma.fluxus
 
 import org.scalajs.dom
 
+import scala.language.postfixOps
+
 @main def run(): Unit =
   // Call renderApp to render the app for the first time
   renderApp()
@@ -33,7 +35,7 @@ def App(appProps: Props): VNode = {
         items.map { item =>
           // Include the ListItemComponent, providing a 'key' prop
           component(ListItemComponent)("key" -> item.toString, "value" -> item)
-        }: _*,
+        }*,
       ),
     ),
   )
