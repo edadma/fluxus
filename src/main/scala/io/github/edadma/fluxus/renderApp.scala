@@ -12,9 +12,10 @@ Key components:
 
 package io.github.edadma.fluxus // Define the package namespace for the Fluxus framework
 
-import org.scalajs.dom // Import the DOM library for interacting with the browser's DOM
+import org.scalajs.dom
 
-import scala.compiletime.uninitialized // Import `uninitialized` to declare uninitialized variables
+import scala.compiletime.uninitialized
+import scala.scalajs.js // Import `uninitialized` to declare uninitialized variables
 
 // Variables to store the root component instance, its ID, and the component function
 var rootInstance: ComponentInstance = uninitialized // The root component instance of the app
@@ -30,9 +31,28 @@ def renderApp(id: String, component: FluxusComponent): Unit = {
   renderApp()               // Call the internal renderApp to perform the rendering
 }
 
+object PerformanceMonitor {
+  private var lastRender  = js.Date.now()
+  private var renderCount = 0
+
+  def logRender(): Unit = {
+    renderCount += 1
+    val now                 = js.Date.now()
+    val timeSinceLastRender = now - lastRender
+    println(s"Render #$renderCount, Time since last render: ${timeSinceLastRender}ms")
+    lastRender = now
+
+    // Log heap size if available
+    val mem = js.Dynamic.global.console.memory
+
+    println(s"Used JS heap size: ${mem.usedJSHeapSize.asInstanceOf[Double] / (1024 * 1024)}MB")
+  }
+}
+
 // The internal `renderApp` function performs the actual rendering of the app
 private[fluxus] def renderApp(): Unit = {
-  val startTime  = System.currentTimeMillis()
+  PerformanceMonitor.logRender()
+
   val mountPoint = dom.document.getElementById(rootId)
 
   if (rootInstance == null) {
@@ -42,9 +62,7 @@ private[fluxus] def renderApp(): Unit = {
   }
 
   RenderContext.push(rootInstance)
-  val beforeRender = System.currentTimeMillis()
-  val newVNode     = rootInstance.renderFunction(rootInstance.props)
-  val afterRender  = System.currentTimeMillis()
+  val newVNode = rootInstance.renderFunction(rootInstance.props)
   RenderContext.pop()
 
   rootInstance.renderedVNode = Some(newVNode)
@@ -54,13 +72,8 @@ private[fluxus] def renderApp(): Unit = {
     val domNode = renderDomNode(newVNode)
     mountPoint.appendChild(domNode)
   } else {
-    val beforeDiff = System.currentTimeMillis()
     diff(oldVNode, newVNode, mountPoint)
-    val afterDiff = System.currentTimeMillis()
-    println(s"Diff took: ${afterDiff - beforeDiff}ms")
   }
 
   oldVNode = newVNode
-  val endTime = System.currentTimeMillis()
-  println(s"Total render took: ${endTime - startTime}ms")
 }

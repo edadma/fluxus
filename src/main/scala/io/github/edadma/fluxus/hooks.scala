@@ -23,6 +23,7 @@ def useState[T](initialValue: T): (T, (T | Update[T]) => Unit) = {
   if (instance.hooks.size <= currentHookIndex) {
     var stateHook: StateHook[T] = null
     val setState: (T | Update[T]) => Unit = newValueOrFunc => {
+      RenderTracker.logStateUpdate()
       val newValue = newValueOrFunc match {
         case Update(func: (T => T) @unchecked) => func(stateHook.state)
         case value: T @unchecked               => value

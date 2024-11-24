@@ -37,58 +37,37 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
       }
 
     case (oldComponentNode: ComponentNode, newComponentNode: ComponentNode) =>
-      val shouldReplace = (oldComponentNode.componentFunction ne newComponentNode.componentFunction) ||
-        oldComponentNode.props != newComponentNode.props
+      // First, ensure instance reuse
+      newComponentNode.instance = oldComponentNode.instance
 
-      println(s"Component hooks before update: ${oldComponentNode.instance.map(_.hooks.size).getOrElse(0)}")
-
-      if (shouldReplace) {
-        // Clear old effects if there's an instance
-        oldComponentNode.instance.foreach(_.effects.clear())
-
-        // Re-render the component
-        val newDomNode = renderDomNode(newComponentNode)
-        val oldDomNode = oldComponentNode.domNode.getOrElse {
-          throw new IllegalStateException("oldComponentNode.domNode is None")
-        }
-        parent.replaceChild(newDomNode, oldDomNode)
-        newComponentNode.domNode = Some(newDomNode)
-      } else {
-        // Reuse the old component instance
-        newComponentNode.instance = oldComponentNode.instance
-
-        val instance = newComponentNode.instance.getOrElse {
-          throw new IllegalStateException("Component instance is None")
-        }
-
-        println(s"Component hooks after reuse: ${instance.hooks.size}")
-        println(s"Hook types: ${instance.hooks.map(_.getClass.getName).mkString(", ")}")
-
-        // Clear previous effects before rendering
-        instance.effects.clear()
-
-        instance.props = newComponentNode.props
-
-        RenderContext.push(instance)
-        instance.resetHooks()
-        val childVNode = instance.renderFunction(instance.props)
-        RenderContext.pop()
-
-        println(s"Component hooks after render: ${instance.hooks.size}")
-
-        val oldChildVNode = instance.renderedVNode.getOrElse {
-          throw new IllegalStateException("ComponentInstance.renderedVNode is None")
-        }
-
-        diff(oldChildVNode, childVNode, parent)
-
-        instance.renderedVNode = Some(childVNode)
-        newComponentNode.domNode = childVNode.domNode
-
-        // Execute the effects
-        instance.effects.foreach(effect => effect())
-        instance.effects.clear() // Clear effects after execution
+      val instance = newComponentNode.instance.getOrElse {
+        throw new IllegalStateException("Component instance is None")
       }
+
+      // Always update props
+      instance.props = newComponentNode.props
+
+      // Always re-render since state might have changed
+      RenderContext.push(instance)
+      instance.resetHooks()
+      val childVNode = instance.renderFunction(instance.props)
+      RenderContext.pop()
+
+      // Get the old child node for diffing
+      val oldChildVNode = instance.renderedVNode.getOrElse {
+        throw new IllegalStateException("ComponentInstance.renderedVNode is None")
+      }
+
+      // Diff children to update DOM
+      diff(oldChildVNode, childVNode, parent)
+
+      // Update references
+      instance.renderedVNode = Some(childVNode)
+      newComponentNode.domNode = childVNode.domNode
+
+      // Execute effects
+      instance.effects.foreach(effect => effect())
+      instance.effects.clear()
     case _ =>
       // Nodes are of different types, replace old with new
       val oldDomNode = oldNode.domNode.getOrElse {
