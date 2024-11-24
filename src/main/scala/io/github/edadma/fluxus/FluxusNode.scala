@@ -11,7 +11,8 @@ case class ElementNode(
     attributes: Map[String, String] = Map.empty,
     events: Map[String, () => Unit] = Map.empty,
     children: List[FluxusNode] = List.empty,
-) extends FluxusNode
+) extends FluxusNode:
+  var eventListenerWrappers: Map[String, dom.Event => Unit] = Map.empty
 
 case class TextNode(text: String) extends FluxusNode
 

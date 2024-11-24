@@ -29,7 +29,7 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
         // Update attributes and events
         val domElement = oldElemNode.domNode.get.asInstanceOf[dom.Element]
         updateAttributes(domElement, oldElemNode.attributes, newElemNode.attributes)
-        updateEvents(domElement, oldElemNode.events, newElemNode.events)
+        updateEvents(domElement, oldElemNode.events, newElemNode.events, oldElemNode, newElemNode)
         newElemNode.domNode = Some(domElement)
 
         // Diff children
@@ -103,10 +103,17 @@ def renderDomNode(vnode: FluxusNode): dom.Node = vnode match {
       element.setAttribute(name, value)
     }
 
-    events.foreach { case (eventName, handler) =>
-      val jsEventName = eventName.stripPrefix("on").toLowerCase
-      element.addEventListener(jsEventName, (_: dom.Event) => handler())
+    // Initialize eventListenerWrappers
+    val eventListenerWrappers = events.map { case (eventName, handler) =>
+      val jsEventName                = eventName.stripPrefix("on").toLowerCase
+      val wrapper: dom.Event => Unit = (_: dom.Event) => handler()
+      element.addEventListener(jsEventName, wrapper)
+      (eventName, wrapper)
     }
+
+    // Assign the wrappers to the vnode
+    val elementNode = vnode.asInstanceOf[ElementNode]
+    elementNode.eventListenerWrappers = eventListenerWrappers
 
     children.foreach { child =>
       val childDomNode = renderDomNode(child)
@@ -172,16 +179,30 @@ def updateEvents(
     domElement: dom.Element,
     oldEvents: Map[String, () => Unit],
     newEvents: Map[String, () => Unit],
+    oldVnode: ElementNode,
+    newVnode: ElementNode,
 ): Unit = {
-  // For simplicity, re-add events
-  oldEvents.foreach { case (eventName, handler) =>
-    val jsEventName = eventName.stripPrefix("on").toLowerCase
-    domElement.removeEventListener(jsEventName, (_: dom.Event) => handler())
+  // Remove event listeners that are no longer present or have changed
+  oldEvents.foreach { case (eventName, oldHandler) =>
+    if (!newEvents.contains(eventName) || oldHandler != newEvents(eventName)) {
+      val jsEventName = eventName.stripPrefix("on").toLowerCase
+      val wrapper     = oldVnode.eventListenerWrappers(eventName)
+      domElement.removeEventListener(jsEventName, wrapper)
+    }
   }
 
+  // Add new event listeners
   newEvents.foreach { case (eventName, handler) =>
-    val jsEventName = eventName.stripPrefix("on").toLowerCase
-    domElement.addEventListener(jsEventName, (_: dom.Event) => handler())
+    if (!oldEvents.contains(eventName) || oldEvents(eventName) != handler) {
+      val jsEventName                = eventName.stripPrefix("on").toLowerCase
+      val wrapper: dom.Event => Unit = (_: dom.Event) => handler()
+      domElement.addEventListener(jsEventName, wrapper)
+      // Update newVnode's eventListenerWrappers
+      newVnode.eventListenerWrappers += (eventName -> wrapper)
+    } else {
+      // If the event listener hasn't changed, carry over the old wrapper
+      newVnode.eventListenerWrappers += (eventName -> oldVnode.eventListenerWrappers(eventName))
+    }
   }
 }
 
