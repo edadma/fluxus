@@ -31,37 +31,36 @@ def renderApp(id: String, component: FluxusComponent): Unit = {
 }
 
 // The internal `renderApp` function performs the actual rendering of the app
-private[fluxus] def renderApp(): Unit =
-  val mountPoint = dom.document.getElementById(rootId) // Get the DOM element by ID where the app will be mounted
+private[fluxus] def renderApp(): Unit = {
+  val startTime  = System.currentTimeMillis()
+  val mountPoint = dom.document.getElementById(rootId)
 
   if (rootInstance == null) {
-    rootInstance =
-      ComponentInstance(rootComponent, makeProps()) // Create a new ComponentInstance for the root component
+    rootInstance = ComponentInstance(rootComponent, makeProps())
   } else {
-    rootInstance.resetHooks() // Reset hooks if the root instance already exists
+    rootInstance.resetHooks()
   }
 
-  // Reset the component ID counter at the beginning of each render
-  RenderContext.componentIdCounter = 0 // Ensures consistent IDs across renders
-
-  RenderContext.push(rootInstance) // Push the root instance onto the RenderContext stack
-
-  val newVNode = rootInstance.renderFunction(rootInstance.props)
+  RenderContext.push(rootInstance)
+  val beforeRender = System.currentTimeMillis()
+  val newVNode     = rootInstance.renderFunction(rootInstance.props)
+  val afterRender  = System.currentTimeMillis()
   RenderContext.pop()
 
-  // Store the rendered VDOM in the root instance
   rootInstance.renderedVNode = Some(newVNode)
 
-  // Perform the diff and update the DOM
   if (oldVNode == null) {
-    // First render
-    mountPoint.innerHTML = "" // Clear the mount point's content before rendering
+    mountPoint.innerHTML = ""
     val domNode = renderDomNode(newVNode)
     mountPoint.appendChild(domNode)
   } else {
-    // Diff the old and new VDOM and update the DOM
+    val beforeDiff = System.currentTimeMillis()
     diff(oldVNode, newVNode, mountPoint)
+    val afterDiff = System.currentTimeMillis()
+    println(s"Diff took: ${afterDiff - beforeDiff}ms")
   }
 
-  // Update the old VDOM reference
   oldVNode = newVNode
+  val endTime = System.currentTimeMillis()
+  println(s"Total render took: ${endTime - startTime}ms")
+}

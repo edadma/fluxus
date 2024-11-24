@@ -22,11 +22,10 @@ def useState[T](initialValue: T): (T, (T | Update[T]) => Unit) = {
 
   if (instance.hooks.size <= currentHookIndex) {
     var stateHook: StateHook[T] = null
-    val setState: ((T | Update[T]) => Unit) = (newValueOrFunc: (T | Update[T])) => {
+    val setState: (T | Update[T]) => Unit = newValueOrFunc => {
       val newValue = newValueOrFunc match {
-        case Update(func: (T => T) @unchecked) =>
-          func(stateHook.state)
-        case value: T @unchecked => value
+        case Update(func: (T => T) @unchecked) => func(stateHook.state)
+        case value: T @unchecked               => value
       }
       stateHook.state = newValue
       renderApp()
