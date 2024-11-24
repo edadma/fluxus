@@ -40,6 +40,8 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
       val shouldReplace = (oldComponentNode.componentFunction ne newComponentNode.componentFunction) ||
         oldComponentNode.props != newComponentNode.props
 
+      println(s"Component hooks before update: ${oldComponentNode.instance.map(_.hooks.size).getOrElse(0)}")
+
       if (shouldReplace) {
         // Clear old effects if there's an instance
         oldComponentNode.instance.foreach(_.effects.clear())
@@ -59,6 +61,9 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
           throw new IllegalStateException("Component instance is None")
         }
 
+        println(s"Component hooks after reuse: ${instance.hooks.size}")
+        println(s"Hook types: ${instance.hooks.map(_.getClass.getName).mkString(", ")}")
+
         // Clear previous effects before rendering
         instance.effects.clear()
 
@@ -68,6 +73,8 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
         instance.resetHooks()
         val childVNode = instance.renderFunction(instance.props)
         RenderContext.pop()
+
+        println(s"Component hooks after render: ${instance.hooks.size}")
 
         val oldChildVNode = instance.renderedVNode.getOrElse {
           throw new IllegalStateException("ComponentInstance.renderedVNode is None")
@@ -175,6 +182,8 @@ def updateEvents(
     oldVnode: ElementNode,
     newVnode: ElementNode,
 ): Unit = {
+  println(s"Active event wrappers before cleanup: ${oldVnode.eventListenerWrappers.size}")
+
   // First, remove ALL old event listeners
   oldVnode.eventListenerWrappers.foreach { case (eventName, wrapper) =>
     val jsEventName = eventName.stripPrefix("on").toLowerCase
@@ -189,8 +198,9 @@ def updateEvents(
     domElement.addEventListener(jsEventName, wrapper)
     newVnode.eventListenerWrappers += (eventName -> wrapper)
   }
-}
 
+  println(s"New event wrappers after update: ${newVnode.eventListenerWrappers.size}")
+}
 def diffChildren(oldChildren: List[FluxusNode], newChildren: List[FluxusNode], parent: dom.Element): Unit = {
   val maxLength = Math.max(oldChildren.length, newChildren.length)
   for (i <- 0 until maxLength) {

@@ -40,4 +40,5 @@ case class ComponentInstance(
   var effects: ArrayBuffer[() => Unit] = ArrayBuffer.empty // Stores effects and dependencies
 
   // Resets the hook index before rendering
-  def resetHooks(): Unit = hookIndex = 0
+  def resetHooks(): Unit =
+    hookIndex = 0
