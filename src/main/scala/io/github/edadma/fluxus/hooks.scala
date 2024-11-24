@@ -12,7 +12,9 @@ Key components:
 package io.github.edadma.fluxus // Define the package namespace for the Fluxus framework
 
 // The `useState` hook allows components to have state
-def useState[T](initialValue: T): (T, T => Unit) = {
+case class Update[T](func: T => T)
+
+def useState[T](initialValue: T): (T, (T | Update[T]) => Unit) = {
   val instance = RenderContext.currentInstance // Get the current component instance from RenderContext
 
   val currentHookIndex = instance.hookIndex // Capture the current hook index for this hook
@@ -26,7 +28,13 @@ def useState[T](initialValue: T): (T, T => Unit) = {
 
   instance.hookIndex += 1 // Increment the hook index for the next hook
 
-  val setState: T => Unit = (newValue: T) => {
+  val setState: ((T | Update[T]) => Unit) = (newValueOrFunc: (T | Update[T])) => {
+    val newValue = newValueOrFunc match {
+      case Update(func: (T => T)) =>
+        val f = func.asInstanceOf[T => T]
+        f(state)
+      case value: T @unchecked => value
+    }
     instance.hooks(currentHookIndex) = newValue // Update the state in the hooks array with the new value
     renderApp()                                 // Re-render the app starting from the root component
   }
@@ -35,24 +43,45 @@ def useState[T](initialValue: T): (T, T => Unit) = {
 }
 
 // The `useEffect` hook allows side-effects in functional components.
-def useEffect(effect: () => (() => Unit) | Unit, deps: Seq[Any] = Seq.empty): Unit = {
+case class EffectHook(
+    deps: Seq[Any],
+    cleanup: Option[() => Unit],
+)
+
+def useEffect(effect: () => Unit | (() => Unit), deps: Seq[Any] = Seq.empty): Unit = {
   val instance         = RenderContext.currentInstance
   val currentHookIndex = instance.hookIndex
-  instance.hookIndex += 1
 
-  if (currentHookIndex >= instance.hooks.size) {
-    println(s"Registering effect at index $currentHookIndex with deps: $deps")
-    // First render: store the dependencies and register the effect
-    instance.hooks += deps
-    instance.effects += (((effect, deps), None))
+  if (instance.hooks.size <= currentHookIndex) {
+    // First time, no cleanup
+    instance.hooks += EffectHook(deps, None)
+    // Schedule the effect to be run after rendering
+    instance.effects += (() => {
+      val cleanup = effect() match {
+        case c: (() => Unit) => Some(c)
+        case _               => None
+      }
+      // Update the hook with the cleanup function
+      instance.hooks(currentHookIndex) = EffectHook(deps, cleanup)
+    })
   } else {
-    val prevDeps = instance.hooks(currentHookIndex).asInstanceOf[Seq[Any]]
-    if (!deps.equals(prevDeps)) {
-      // Dependencies have changed; update the stored deps and the effect
-      instance.hooks(currentHookIndex) = deps
-      val cleanup = instance.effects(currentHookIndex)._2
-      cleanup.foreach(_()) // Run the cleanup for the previous effect
-      instance.effects(currentHookIndex) = (((effect, deps), None))
+    val hook = instance.hooks(currentHookIndex).asInstanceOf[EffectHook]
+    if (deps != hook.deps) {
+      // Deps have changed, run cleanup and effect
+      hook.cleanup.foreach(c => c()) // Run cleanup
+      // Schedule the new effect
+      instance.effects += (() => {
+        val cleanup = effect() match {
+          case c: (() => Unit) => Some(c)
+          case _               => None
+        }
+        // Update the hook with new deps and cleanup
+        instance.hooks(currentHookIndex) = EffectHook(deps, cleanup)
+      })
+    } else {
+      // Deps haven't changed; do nothing
     }
   }
+
+  instance.hookIndex += 1
 }
