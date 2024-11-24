@@ -81,7 +81,7 @@ val TimerComponent: FluxusComponent = (_: Props) => {
   useEffect(
     () => {
       val intervalId = timers.setInterval(1000) {
-        setSeconds(Update(prev => prev + 1))
+        setSeconds((prev: Int) => prev + 1)
       }
 
       () => timers.clearInterval(intervalId)
