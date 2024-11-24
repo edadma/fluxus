@@ -1,6 +1,10 @@
 package io.github.edadma.fluxus
 
-sealed trait FluxusNode
+import org.scalajs.dom
+
+sealed trait FluxusNode {
+  var domNode: Option[dom.Node] = None
+}
 
 case class ElementNode(
     tag: String,
