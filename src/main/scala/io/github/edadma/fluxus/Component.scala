@@ -34,28 +34,9 @@ case class ComponentInstance(
     var props: Props,                // The props passed to the component (mutable to allow updates when props change)
     var hooks: ArrayBuffer[Any] =
       ArrayBuffer.empty, // Mutable collection of hooks (state variables) used by the component
-    var effects: ArrayBuffer[((() => (() => Unit) | Unit, Seq[Any]), Option[() => Unit])] =
-      ArrayBuffer.empty, // Stores effects and dependencies
+    var effects: ArrayBuffer[() => Unit] = ArrayBuffer.empty, // Stores effects and dependencies
 ):
   var hookIndex: Int = 0 // Index to keep track of the current hook during rendering
 
   // Resets the hook index before rendering
-  def resetHooks(): Unit = {
-    println("Resetting hooks and clearing effects...")
-    hookIndex = 0
-//    effects.clear()
-  }
-
-  def runEffects(): Unit = {
-    println(s"Running effects for instance with ${effects.size} effects.")
-    for ((effect, cleanupOpt) <- effects) {
-      val (effectFn, deps) = effect
-      println(s"Executing effect with deps: $deps")
-      val cleanup = effectFn() match {
-        case fn: (() => Unit) => Some(fn)
-        case _                => None
-      }
-      cleanupOpt.foreach(_()) // Run any existing cleanup function
-      effects.update(effects.indexOf(effect), effect -> cleanup)
-    }
-  }
+  def resetHooks(): Unit = hookIndex = 0

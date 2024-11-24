@@ -87,6 +87,10 @@ def render(vnode: FluxusNode, parent: dom.Element): Unit = vnode match {
     // Render the child VNode into the parent
     render(childVNode, parent) // Recursively render the component's virtual DOM into the parent
 
+    // Now execute the effects
+    instance.effects.foreach(effect => effect())
+    instance.effects.clear()
+
     // Pop the instance from the render context stack
     RenderContext.pop() // Restore the previous rendering context
 }

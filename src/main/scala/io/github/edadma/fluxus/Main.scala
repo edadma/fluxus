@@ -5,6 +5,7 @@ import Implicits.*
 
 import language.deprecated.symbolLiterals
 import scala.scalajs.js
+import scala.scalajs.js.timers
 
 @main def run(): Unit = renderApp("app", App)
 
@@ -22,7 +23,7 @@ def App(appProps: Props): FluxusNode =
       button(
         cls := "btn btn-secondary",
         "Add Item",
-        onClick := (() => setItems(items :+ (items.length + 1))),
+        onClick := (() => setItems(items :+ (items.length + 1))), // prev => prev :+ (prev.length + 1))
       ),
       ul(
         items.map { item =>
@@ -54,36 +55,42 @@ val CounterComponent: FluxusComponent = (componentProps: Props) =>
     button(cls := "btn btn-warning", "Increment Nested Counter", onClick := (() => setCount(count + 1))),
   )
 
-val TimerComponent: FluxusComponent = (props: Props) =>
+//val TimerComponent: FluxusComponent = (props: Props) =>
+//  val (seconds, setSeconds) = useState(0)
+//
+//  useEffect(
+//    () => {
+//      val interval = js.timers.setInterval(1000) {
+//        setSeconds(seconds + 1)
+//      }
+//
+//      () => {
+//        js.timers.clearInterval(interval)
+//      }
+//    },
+//    Seq(seconds),
+//  )
+//
+//  div(
+//    p(s"Timer: $seconds seconds"),
+//  )
+
+val TimerComponent: FluxusComponent = (_: Props) => {
   val (seconds, setSeconds) = useState(0)
 
   useEffect(
     () => {
-      println(s"Setting up interval: seconds = $seconds")
-      val interval = js.timers.setInterval(1000) {
-        println(s"Updating seconds: $seconds -> ${seconds + 1}")
-        setSeconds(seconds + 1)
+      val intervalId = timers.setInterval(1000) {
+        setSeconds(Update(prev => prev + 1))
       }
 
-      () => {
-        println(s"Clearing interval: seconds = $seconds")
-        js.timers.clearInterval(interval)
-      }
+      () => timers.clearInterval(intervalId)
     },
     Seq(seconds),
   )
 
   div(
-    p(s"Timer: $seconds seconds"),
+    h1("Timer Component"),
+    p(s"Seconds elapsed: $seconds"),
   )
-
-//val TimerComponent: FluxusComponent = (props: Props) =>
-//  val (seconds, setSeconds) = useState(0)
-//
-//  div(
-//    p(s"Timer: $seconds seconds"),
-//    button(
-//      "Increment",
-//      onClick := (() => setSeconds(seconds + 1)), // Manually increment to verify `useState`
-//    ),
-//  )
+}
