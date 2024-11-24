@@ -55,33 +55,13 @@ val CounterComponent: FluxusComponent = (componentProps: Props) =>
     button(cls := "btn btn-warning", "Increment Nested Counter", onClick := (() => setCount(count + 1))),
   )
 
-//val TimerComponent: FluxusComponent = (props: Props) =>
-//  val (seconds, setSeconds) = useState(0)
-//
-//  useEffect(
-//    () => {
-//      val interval = js.timers.setInterval(1000) {
-//        setSeconds(seconds + 1)
-//      }
-//
-//      () => {
-//        js.timers.clearInterval(interval)
-//      }
-//    },
-//    Seq(seconds),
-//  )
-//
-//  div(
-//    p(s"Timer: $seconds seconds"),
-//  )
-
 val TimerComponent: FluxusComponent = (_: Props) => {
   val (seconds, setSeconds) = useState(0)
 
   useEffect(
     () => {
       val intervalId = timers.setInterval(1000) {
-        setSeconds((prev: Int) => prev + 1)
+        setSeconds((_: Int) + 1)
       }
 
       () => timers.clearInterval(intervalId)
