@@ -161,71 +161,48 @@ def updateEvents(
 
   // First, find events that need to be removed (in old but not in new)
   val eventsToRemove = oldEvents.keySet.diff(newEvents.keySet)
-  FluxusLogger.Events.debug(s"Events to fully remove: ${eventsToRemove.mkString(", ")}")
 
   eventsToRemove.foreach { eventName =>
     val jsEventName = eventName.stripPrefix("on").toLowerCase
     oldVnode.eventListenerWrappers.get(eventName) match {
       case Some(wrapper) =>
         FluxusLogger.Events.cleanup("element", 1)
-        FluxusLogger.Events.debug(
-          s"Removing deprecated event: $eventName",
-          Map(
-            "jsName"      -> jsEventName,
-            "handlerHash" -> wrapper.hashCode(),
-          ),
-        )
         domElement.removeEventListener(jsEventName, wrapper)
         oldVnode.eventListenerWrappers.remove(eventName)
       case None =>
-        FluxusLogger.Events.warn(s"Missing wrapper for event $eventName that should be removed")
+        FluxusLogger.Events.warn(s"Missing wrapper for event $eventName")
     }
   }
 
-  // Then process new/updated events
+  // Then handle new/updated events
   newEvents.foreach { case (eventName, handler) =>
     val jsEventName = eventName.stripPrefix("on").toLowerCase
 
-    FluxusLogger.Events.debug(
-      s"Processing event: $eventName",
-      Map(
-        "handlerHash"        -> handler.hashCode(),
-        "hasExistingWrapper" -> oldVnode.eventListenerWrappers.contains(eventName),
-      ),
-    )
-
-    // Remove old wrapper if it exists
+    // Get existing wrapper if any
     oldVnode.eventListenerWrappers.get(eventName) match {
-      case Some(oldWrapper) =>
-        FluxusLogger.Events.cleanup("element", 1)
-        FluxusLogger.Events.debug(
-          s"Removing existing wrapper for $eventName",
-          Map(
-            "oldWrapperHash" -> oldWrapper.hashCode(),
-          ),
-        )
-        domElement.removeEventListener(jsEventName, oldWrapper)
+      case Some(existingWrapper) =>
+        // Reuse wrapper if handler is the same
+        val oldHandler = oldEvents.get(eventName)
+        if (oldHandler.map(_.hashCode()) == Some(handler.hashCode())) {
+          newVnode.eventListenerWrappers(eventName) = existingWrapper
+        } else {
+          // Handler changed, remove old and add new
+          FluxusLogger.Events.cleanup("element", 1)
+          domElement.removeEventListener(jsEventName, existingWrapper)
+          val newWrapper: dom.Event => Unit = (_: dom.Event) => handler()
+          domElement.addEventListener(jsEventName, newWrapper)
+          newVnode.eventListenerWrappers(eventName) = newWrapper
+          FluxusLogger.Events.add("element", jsEventName)
+        }
       case None =>
-        FluxusLogger.Events.debug(s"No existing wrapper found for $eventName")
+        // No existing wrapper, add new one
+        val wrapper: dom.Event => Unit = (_: dom.Event) => handler()
+        domElement.addEventListener(jsEventName, wrapper)
+        newVnode.eventListenerWrappers(eventName) = wrapper
+        FluxusLogger.Events.add("element", jsEventName)
     }
-
-    // Add new wrapper
-    val wrapper: dom.Event => Unit = (_: dom.Event) => handler()
-    FluxusLogger.Events.add("element", jsEventName)
-    FluxusLogger.Events.debug(
-      s"Adding new wrapper for $eventName",
-      Map(
-        "newWrapperHash" -> wrapper.hashCode(),
-        "elementId"      -> Option(domElement.id).getOrElse(""),
-        "elementClasses" -> Option(domElement.getAttribute("class")).getOrElse(""),
-      ),
-    )
-
-    domElement.addEventListener(jsEventName, wrapper)
-    newVnode.eventListenerWrappers(eventName) = wrapper
   }
 
-  // Final state logging
   FluxusLogger.Events.debug(
     "Event update complete",
     Map(
