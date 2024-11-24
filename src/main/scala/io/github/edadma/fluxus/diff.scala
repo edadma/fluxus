@@ -4,9 +4,10 @@ import org.scalajs.dom
 
 def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
   // If the nodes are the same, do nothing
-  if (oldNode == newNode)
+  if (oldNode eq newNode) {
     newNode.domNode = oldNode.domNode
     return
+  }
 
   (oldNode, newNode) match {
     case (oldTextNode: TextNode, newTextNode: TextNode) =>
@@ -50,7 +51,6 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
       } else {
         // Reuse the old component instance
         newComponentNode.instance = oldComponentNode.instance
-        newComponentNode.domNode = oldComponentNode.domNode
 
         val instance = newComponentNode.instance.getOrElse {
           throw new IllegalStateException("Component instance is None")
@@ -66,16 +66,14 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
           throw new IllegalStateException("ComponentInstance.renderedVNode is None")
         }
 
-        // Corrected: Use the component's DOM node as the parent
-        val componentDomNode = newComponentNode.domNode.getOrElse {
-          throw new IllegalStateException("ComponentNode.domNode is None")
-        }
-
-        // Diff the child VDOM with the component's DOM node as parent
-        diff(oldChildVNode, childVNode, componentDomNode)
+        // Use the same parent node for the child diffing
+        diff(oldChildVNode, childVNode, parent)
 
         // Update the rendered VDOM reference
         instance.renderedVNode = Some(childVNode)
+
+        // Update newComponentNode.domNode with the child domNode
+        newComponentNode.domNode = childVNode.domNode
 
         // Execute the effects
         instance.effects.foreach(effect => effect())
@@ -144,8 +142,9 @@ def renderDomNode(vnode: FluxusNode): dom.Node = vnode match {
     // Render the child VNode into a DOM node
     val domNode = renderDomNode(childVNode)
 
-    // Store the DOM node reference in the vnode
+    // Store the DOM node reference in both vnode and rendered VDOM
     vnode.domNode = Some(domNode)
+    instance.renderedVNode.get.domNode = Some(domNode)
 
     // Execute the effects
     instance.effects.foreach(effect => effect())
