@@ -11,12 +11,12 @@ def element(tag: String)(args: ElementArg*): FluxusNode = {
   val children   = List.newBuilder[FluxusNode]
 
   args foreach {
-    case node: FluxusNode                                             => children += node
-    case text: String                                                 => children += TextNode(text)
-    case (key: String, handler: (() => Unit)) if key.startsWith("on") => events += (key     -> handler)
-    case (key: String, value: String)                                 => attributes += (key -> value)
-    case null                                                         =>
-    case (_, _)                                                       => ???
+    case node: FluxusNode                                                        => children += node
+    case text: String                                                            => children += TextNode(text)
+    case (key: String, handler: (() => Unit) @unchecked) if key.startsWith("on") => events += (key     -> handler)
+    case (key: String, value: String)                                            => attributes += (key -> value)
+    case null                                                                    =>
+    case (_, _)                                                                  => ???
   }
 
   ElementNode(tag, attributes, events, children.result())

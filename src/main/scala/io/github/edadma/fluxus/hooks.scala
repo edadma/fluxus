@@ -30,7 +30,7 @@ def useState[T](initialValue: T): (T, (T | Update[T]) => Unit) = {
 
   val setState: ((T | Update[T]) => Unit) = (newValueOrFunc: (T | Update[T])) => {
     val newValue = newValueOrFunc match {
-      case Update(func: (T => T)) =>
+      case Update(func: (T => T) @unchecked) =>
         val f = func.asInstanceOf[T => T]
         f(state)
       case value: T @unchecked => value
