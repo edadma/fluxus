@@ -1,0 +1,23 @@
+; Fluxus project code
+
+; index.html for the test app
+./public
+index.html
+
+; code files for package io.github.edadma.fluxus
+./src/main/scala/io/github/edadma/fluxus
+Component.scala
+diff.scala
+element.scala
+FluxusNode.scala
+helpers.scala
+hooks.scala
+Implicits.scala
+package.scala
+Props.scala
+renderApp.scala
+RenderContext.scala
+render.scala
+
+; test app
+Main.scala
