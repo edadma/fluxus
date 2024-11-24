@@ -41,6 +41,9 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
         oldComponentNode.props != newComponentNode.props
 
       if (shouldReplace) {
+        // Clear old effects if there's an instance
+        oldComponentNode.instance.foreach(_.effects.clear())
+
         // Re-render the component
         val newDomNode = renderDomNode(newComponentNode)
         val oldDomNode = oldComponentNode.domNode.getOrElse {
@@ -55,6 +58,10 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
         val instance = newComponentNode.instance.getOrElse {
           throw new IllegalStateException("Component instance is None")
         }
+
+        // Clear previous effects before rendering
+        instance.effects.clear()
+
         instance.props = newComponentNode.props
 
         RenderContext.push(instance)
@@ -66,18 +73,14 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
           throw new IllegalStateException("ComponentInstance.renderedVNode is None")
         }
 
-        // Use the same parent node for the child diffing
         diff(oldChildVNode, childVNode, parent)
 
-        // Update the rendered VDOM reference
         instance.renderedVNode = Some(childVNode)
-
-        // Update newComponentNode.domNode with the child domNode
         newComponentNode.domNode = childVNode.domNode
 
         // Execute the effects
         instance.effects.foreach(effect => effect())
-        instance.effects.clear()
+        instance.effects.clear() // Clear effects after execution
       }
     case _ =>
       // Nodes are of different types, replace old with new
@@ -123,40 +126,31 @@ def renderDomNode(vnode: FluxusNode): dom.Node = vnode match {
     element
 
   case componentNode @ ComponentNode(_, componentFunction, props, instanceOpt) =>
-    // Create a new ComponentInstance and assign it to 'instance'
+    // Create a new ComponentInstance or use existing one
     val instance = instanceOpt.getOrElse {
       val newInstance = ComponentInstance(componentFunction, props)
       componentNode.instance = Some(newInstance)
       newInstance
     }
 
-    // Push the instance onto the RenderContext stack
+    // Clear any existing effects before rendering
+    instance.effects.clear()
+
     RenderContext.push(instance)
-
-    // Reset the hook index before rendering
     instance.resetHooks()
-
-    // Render the component to get its virtual DOM
     val childVNode = componentFunction(props)
-
-    // Pop the instance from the RenderContext stack
     RenderContext.pop()
 
-    // Store the rendered VDOM
     instance.renderedVNode = Some(childVNode)
 
-    // Render the child VNode into a DOM node
     val domNode = renderDomNode(childVNode)
-
-    // Store the DOM node reference in both vnode and rendered VDOM
     vnode.domNode = Some(domNode)
     instance.renderedVNode.get.domNode = Some(domNode)
 
-    // Execute the effects
+    // Execute effects and clear them
     instance.effects.foreach(effect => effect())
     instance.effects.clear()
 
-    // Return the DOM node
     domNode
 }
 
@@ -168,7 +162,7 @@ def updateAttributes(domElement: dom.Element, oldAttrs: Map[String, String], new
 
   // Update and add new attributes
   newAttrs.foreach { case (attr, value) =>
-    if (oldAttrs.get(attr) != Some(value)) {
+    if (!oldAttrs.get(attr).contains(value)) {
       domElement.setAttribute(attr, value)
     }
   }
