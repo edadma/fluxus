@@ -212,7 +212,7 @@ def updateEvents(
       ),
     )
 
-    if (!oldHandler.contains(handler)) {
+    if (oldHandler.isEmpty || !(oldHandler.get eq handler)) {
       // Either a new event or changed handler
       newVnode.eventListenerWrappers.get(eventName).foreach { oldWrapper =>
         FluxusLogger.Events.debug(
