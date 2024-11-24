@@ -1,4 +1,4 @@
-/* Hooks.scala
+/* hooks.scala
 
 This file defines the `useState` hook, which allows components to have stateful logic.
 The `useState` function is modeled after React's useState hook, providing a way to manage state within functional components.
@@ -32,4 +32,27 @@ def useState[T](initialValue: T): (T, T => Unit) = {
   }
 
   (state, setState) // Return the current state and the setState function as a tuple
+}
+
+// The `useEffect` hook allows side-effects in functional components.
+def useEffect(effect: () => (() => Unit) | Unit, deps: Seq[Any] = Seq.empty): Unit = {
+  val instance         = RenderContext.currentInstance
+  val currentHookIndex = instance.hookIndex
+  instance.hookIndex += 1
+
+  if (currentHookIndex >= instance.hooks.size) {
+    println(s"Registering effect at index $currentHookIndex with deps: $deps")
+    // First render: store the dependencies and register the effect
+    instance.hooks += deps
+    instance.effects += (((effect, deps), None))
+  } else {
+    val prevDeps = instance.hooks(currentHookIndex).asInstanceOf[Seq[Any]]
+    if (!deps.equals(prevDeps)) {
+      // Dependencies have changed; update the stored deps and the effect
+      instance.hooks(currentHookIndex) = deps
+      val cleanup = instance.effects(currentHookIndex)._2
+      cleanup.foreach(_()) // Run the cleanup for the previous effect
+      instance.effects(currentHookIndex) = (((effect, deps), None))
+    }
+  }
 }

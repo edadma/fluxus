@@ -10,7 +10,7 @@ def element(tag: String)(args: ElementArg*): FluxusNode = {
   var events     = Map.empty[String, () => Unit]
   val children   = List.newBuilder[FluxusNode]
 
-  args.foreach {
+  args foreach {
     case node: FluxusNode                                             => children += node
     case text: String                                                 => children += TextNode(text)
     case (key: String, handler: (() => Unit)) if key.startsWith("on") => events += (key     -> handler)

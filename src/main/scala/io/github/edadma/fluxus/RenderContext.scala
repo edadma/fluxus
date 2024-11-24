@@ -11,7 +11,7 @@ The context includes:
 
 package io.github.edadma.fluxus
 
-object RenderContext {
+object RenderContext:
   /* A stack to keep track of the ComponentInstance objects for components currently being rendered.
      This stack allows nested components to access their own ComponentInstance during the rendering process.
      When rendering a component, its instance is pushed onto the stack.
@@ -33,6 +33,7 @@ object RenderContext {
      - instance: The ComponentInstance of the component that is about to render.
    */
   def push(instance: ComponentInstance): Unit = {
+    println(s"Pushing instance: $instance")
     instanceStack.push(instance)
     /*
       - Adds the component instance to the top of the stack.
@@ -46,7 +47,8 @@ object RenderContext {
      It removes the current component's instance from the stack, allowing the rendering context to return to the parent component.
    */
   def pop(): Unit = {
-    instanceStack.pop()
+    val popped = instanceStack.pop()
+    println(s"Popping instance: $popped")
     /*
       - Removes the top component instance from the stack.
       - Restores the rendering context to the parent component.
@@ -75,4 +77,23 @@ object RenderContext {
       - If not, throws an exception to indicate improper usage.
      */
   }
-}
+
+  // Run effects after all rendering is complete
+  def runEffects(): Unit = {
+    println(s"Running effects for ${instanceStack.size} instances.")
+    instanceStack.foreach { instance =>
+      println(s"Running effects for instance with ${instance.effects.size} effects.")
+      instance.runEffects()
+    }
+  }
+
+  // Clean up effects for all components
+  def cleanupEffects(): Unit = {
+    instanceStack.foreach { instance =>
+      instance.effects.foreach {
+        case (_, Some(cleanup)) => cleanup()
+        case _                  =>
+      }
+      instance.effects.clear()
+    }
+  }

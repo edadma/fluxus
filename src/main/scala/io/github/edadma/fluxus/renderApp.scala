@@ -29,7 +29,7 @@ def renderApp(id: String, component: FluxusComponent): Unit = {
 }
 
 // The internal `renderApp` function performs the actual rendering of the app
-private[fluxus] def renderApp(): Unit = {
+private[fluxus] def renderApp(): Unit =
   val mountPoint = dom.document.getElementById(rootId) // Get the DOM element by ID where the app will be mounted
   mountPoint.innerHTML = "" // Clear the mount point's content before rendering
 
@@ -44,8 +44,15 @@ private[fluxus] def renderApp(): Unit = {
   RenderContext.componentIdCounter = 0 // Ensures consistent IDs across renders
 
   RenderContext.push(rootInstance) // Push the root instance onto the RenderContext stack
+
+  // Run cleanup for the previous effects
+  RenderContext.cleanupEffects()
+
   val appVNode =
     rootInstance.renderFunction(rootInstance.props) // Call the root component's render function to get the virtual DOM
   render(appVNode, mountPoint)                      // Render the virtual DOM into the mount point
   RenderContext.pop()                               // Pop the root instance from the RenderContext stack
-}
+  println("Render complete. Running effects...")
+
+  // Run effects after rendering
+  RenderContext.runEffects()
