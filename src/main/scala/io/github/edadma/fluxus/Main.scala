@@ -66,7 +66,7 @@ val TimerComponent: FluxusComponent = (_: Props) => {
 
       () => timers.clearInterval(intervalId)
     },
-    Seq(seconds),
+    Seq(),
   )
 
   div(

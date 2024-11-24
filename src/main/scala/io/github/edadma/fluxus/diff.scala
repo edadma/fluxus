@@ -37,7 +37,7 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
       }
 
     case (oldComponentNode: ComponentNode, newComponentNode: ComponentNode) =>
-      val shouldReplace = oldComponentNode.componentFunction != newComponentNode.componentFunction ||
+      val shouldReplace = (oldComponentNode.componentFunction ne newComponentNode.componentFunction) ||
         oldComponentNode.props != newComponentNode.props
 
       if (shouldReplace) {

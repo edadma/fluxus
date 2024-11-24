@@ -65,7 +65,10 @@ def useEffect(effect: () => Unit | (() => Unit), deps: Seq[Any] = Seq.empty): Un
     })
   } else {
     val hook = instance.hooks(currentHookIndex).asInstanceOf[EffectHook]
-    if (deps != hook.deps) {
+    val depsChanged = deps.length != hook.deps.length ||
+      deps.zip(hook.deps).exists { case (a, b) => a != b }
+
+    if (depsChanged) {
       // Deps have changed, run cleanup and effect
       hook.cleanup.foreach(c => c()) // Run cleanup
       // Schedule the new effect
