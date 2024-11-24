@@ -181,37 +181,19 @@ def updateEvents(
     oldVnode: ElementNode,
     newVnode: ElementNode,
 ): Unit = {
-  // Remove event listeners that are no longer present or have changed
-  oldEvents.foreach { case (eventName, oldHandler) =>
-    if (!newEvents.contains(eventName) || oldHandler != newEvents(eventName)) {
-      val jsEventName = eventName.stripPrefix("on").toLowerCase
-      oldVnode.eventListenerWrappers.get(eventName) match {
-        case Some(wrapper) =>
-          domElement.removeEventListener(jsEventName, wrapper)
-          newVnode.eventListenerWrappers -= eventName
-        case None =>
-          println(s"Warning: No wrapper found for event '$eventName' to remove.")
-      }
-    }
+  // First, remove ALL old event listeners
+  oldVnode.eventListenerWrappers.foreach { case (eventName, wrapper) =>
+    val jsEventName = eventName.stripPrefix("on").toLowerCase
+    domElement.removeEventListener(jsEventName, wrapper)
   }
+  oldVnode.eventListenerWrappers.clear()
 
-  // Add new event listeners
+  // Then add all new event listeners
   newEvents.foreach { case (eventName, handler) =>
-    if (!oldEvents.contains(eventName) || oldEvents(eventName) != handler) {
-      val jsEventName                = eventName.stripPrefix("on").toLowerCase
-      val wrapper: dom.Event => Unit = (_: dom.Event) => handler()
-      domElement.addEventListener(jsEventName, wrapper)
-      // Update newVnode's eventListenerWrappers
-      newVnode.eventListenerWrappers += (eventName -> wrapper)
-    } else {
-      // If the event listener hasn't changed, carry over the old wrapper
-      oldVnode.eventListenerWrappers.get(eventName) match {
-        case Some(wrapper) =>
-          newVnode.eventListenerWrappers += (eventName -> wrapper)
-        case None =>
-          println(s"Warning: No wrapper found for event '$eventName' to carry over.")
-      }
-    }
+    val jsEventName                = eventName.stripPrefix("on").toLowerCase
+    val wrapper: dom.Event => Unit = (_: dom.Event) => handler()
+    domElement.addEventListener(jsEventName, wrapper)
+    newVnode.eventListenerWrappers += (eventName -> wrapper)
   }
 }
 
