@@ -2,6 +2,8 @@ package io.github.edadma.fluxus
 
 import org.scalajs.dom
 
+import scala.collection.mutable
+
 sealed trait FluxusNode {
   var domNode: Option[dom.Node] = None
 }
@@ -12,7 +14,7 @@ case class ElementNode(
     events: Map[String, () => Unit] = Map.empty,
     children: List[FluxusNode] = List.empty,
 ) extends FluxusNode:
-  var eventListenerWrappers: Map[String, dom.Event => Unit] = Map.empty
+  val eventListenerWrappers: mutable.Map[String, dom.Event => Unit] = mutable.Map.empty
 
 case class TextNode(text: String) extends FluxusNode
 

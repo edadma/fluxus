@@ -104,16 +104,15 @@ def renderDomNode(vnode: FluxusNode): dom.Node = vnode match {
     }
 
     // Initialize eventListenerWrappers
-    val eventListenerWrappers = events.map { case (eventName, handler) =>
+    val elementNode = vnode.asInstanceOf[ElementNode]
+    elementNode.eventListenerWrappers.clear()
+
+    events.foreach { case (eventName, handler) =>
       val jsEventName                = eventName.stripPrefix("on").toLowerCase
       val wrapper: dom.Event => Unit = (_: dom.Event) => handler()
       element.addEventListener(jsEventName, wrapper)
-      (eventName, wrapper)
+      elementNode.eventListenerWrappers += (eventName -> wrapper)
     }
-
-    // Assign the wrappers to the vnode
-    val elementNode = vnode.asInstanceOf[ElementNode]
-    elementNode.eventListenerWrappers = eventListenerWrappers
 
     children.foreach { child =>
       val childDomNode = renderDomNode(child)
@@ -186,8 +185,13 @@ def updateEvents(
   oldEvents.foreach { case (eventName, oldHandler) =>
     if (!newEvents.contains(eventName) || oldHandler != newEvents(eventName)) {
       val jsEventName = eventName.stripPrefix("on").toLowerCase
-      val wrapper     = oldVnode.eventListenerWrappers(eventName)
-      domElement.removeEventListener(jsEventName, wrapper)
+      oldVnode.eventListenerWrappers.get(eventName) match {
+        case Some(wrapper) =>
+          domElement.removeEventListener(jsEventName, wrapper)
+          newVnode.eventListenerWrappers -= eventName
+        case None =>
+          println(s"Warning: No wrapper found for event '$eventName' to remove.")
+      }
     }
   }
 
@@ -201,7 +205,12 @@ def updateEvents(
       newVnode.eventListenerWrappers += (eventName -> wrapper)
     } else {
       // If the event listener hasn't changed, carry over the old wrapper
-      newVnode.eventListenerWrappers += (eventName -> oldVnode.eventListenerWrappers(eventName))
+      oldVnode.eventListenerWrappers.get(eventName) match {
+        case Some(wrapper) =>
+          newVnode.eventListenerWrappers += (eventName -> wrapper)
+        case None =>
+          println(s"Warning: No wrapper found for event '$eventName' to carry over.")
+      }
     }
   }
 }
