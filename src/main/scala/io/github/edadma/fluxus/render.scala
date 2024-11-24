@@ -58,11 +58,10 @@ def render(vnode: FluxusNode, parent: dom.Element): Unit = vnode match {
     // Determine the unique ID for the component instance
     val id = keyOption.getOrElse {
       // Use the component ID counter if no key is provided
-      val id = RenderContext.componentIdCounter.toString // Convert the counter to a string to use as an ID
+      val id = s"auto__${RenderContext.componentIdCounter}__" // Convert the counter to a string to use as an ID
       RenderContext.componentIdCounter += 1 // Increment the counter for the next component
       id // Return the generated ID
     }
-    RenderContext.componentIdCounter += 1 // Increment the counter even if a key is provided
 
     // Retrieve or create the component instance
     val instance = componentInstances.getOrElseUpdate(id, ComponentInstance(componentFunction, props))
