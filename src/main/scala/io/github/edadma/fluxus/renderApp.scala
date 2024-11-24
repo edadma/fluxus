@@ -51,7 +51,7 @@ object PerformanceMonitor {
 
 // The internal `renderApp` function performs the actual rendering of the app
 private[fluxus] def renderApp(): Unit = {
-  PerformanceMonitor.logRender()
+  FluxusLogger.Memory.report()
 
   val mountPoint = dom.document.getElementById(rootId)
 
@@ -68,6 +68,7 @@ private[fluxus] def renderApp(): Unit = {
   rootInstance.renderedVNode = Some(newVNode)
 
   if (oldVNode == null) {
+    FluxusLogger.Render.domUpdate("init", "First render - clearing mount point")
     mountPoint.innerHTML = ""
     val domNode = renderDomNode(newVNode)
     mountPoint.appendChild(domNode)

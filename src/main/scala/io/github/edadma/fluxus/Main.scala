@@ -9,22 +9,6 @@ import scala.scalajs.js.timers
 
 @main def run(): Unit = renderApp("app", App)
 
-object RenderTracker {
-  private var renderCount = 0
-  private var updateCount = 0
-
-  def trackRender(componentName: String): FluxusNode => FluxusNode = { node =>
-    renderCount += 1
-    println(s"[Render #$renderCount] $componentName")
-    node
-  }
-
-  def logStateUpdate(): Unit = {
-    updateCount += 1
-    println(s"[State Update #$updateCount]")
-  }
-}
-
 def App(appProps: Props): FluxusNode =
   RenderTracker.trackRender("App"):
     val (count, setCount) = useState(0)

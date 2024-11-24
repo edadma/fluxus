@@ -18,5 +18,9 @@ Props.scala
 renderApp.scala
 RenderContext.scala
 
+; debugging
+FluxusLogger.scala
+RenderTracker.scala
+
 ; test app
 Main.scala

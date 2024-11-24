@@ -3,8 +3,14 @@ package io.github.edadma.fluxus
 import org.scalajs.dom
 
 def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
+  FluxusLogger.Render.domUpdate(
+    "diff",
+    s"Comparing nodes: ${oldNode.getClass.getSimpleName} -> ${newNode.getClass.getSimpleName}",
+  )
+
   // If the nodes are the same, do nothing
   if (oldNode eq newNode) {
+    FluxusLogger.Render.domUpdate("diff", "Nodes are identical - reusing")
     newNode.domNode = oldNode.domNode
     return
   }
@@ -12,6 +18,7 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
   (oldNode, newNode) match {
     case (oldTextNode: TextNode, newTextNode: TextNode) =>
       if (oldTextNode.text != newTextNode.text) {
+        FluxusLogger.Render.domUpdate("text", s"Updating text: ${oldTextNode.text} -> ${newTextNode.text}")
         val textNode = oldTextNode.domNode.get.asInstanceOf[dom.Text]
         textNode.data = newTextNode.text
         newTextNode.domNode = Some(textNode)
@@ -21,7 +28,7 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
 
     case (oldElemNode: ElementNode, newElemNode: ElementNode) =>
       if (oldElemNode.tag != newElemNode.tag) {
-        // Replace the whole node
+        FluxusLogger.Render.domUpdate("element", s"Replacing element: ${oldElemNode.tag} -> ${newElemNode.tag}")
         val newDomNode = renderDomNode(newElemNode)
         parent.replaceChild(newDomNode, oldElemNode.domNode.get)
         newElemNode.domNode = Some(newDomNode)
@@ -37,6 +44,8 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
       }
 
     case (oldComponentNode: ComponentNode, newComponentNode: ComponentNode) =>
+      FluxusLogger.Render.component(newComponentNode.componentFunction.getClass.getSimpleName)
+
       // First, ensure instance reuse
       newComponentNode.instance = oldComponentNode.instance
 
@@ -49,6 +58,7 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
 
       // Render only if needed (state changed or props changed)
       if (instance.needsRender || oldComponentNode.props != newComponentNode.props) {
+        FluxusLogger.Render.domUpdate("component", "Re-rendering due to props/state change")
         RenderContext.push(instance)
         instance.resetHooks()
         val childVNode = instance.renderFunction(instance.props)
@@ -67,13 +77,15 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
         newComponentNode.domNode = childVNode.domNode
 
         // Execute effects
+        FluxusLogger.State.effect(instance.renderFunction.getClass.getSimpleName, "Executing effects")
         instance.effects.foreach(effect => effect())
         instance.effects.clear()
       } else {
         newComponentNode.domNode = oldComponentNode.domNode
       }
+
     case _ =>
-      // Nodes are of different types, replace old with new
+      FluxusLogger.Render.domUpdate("diff", "Node type mismatch - replacing")
       val oldDomNode = oldNode.domNode.getOrElse {
         throw new IllegalStateException("oldNode.domNode is None in default case")
       }
@@ -83,15 +95,162 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
   }
 }
 
+def diffChildren(oldChildren: List[FluxusNode], newChildren: List[FluxusNode], parent: dom.Element): Unit = {
+  val maxLength = Math.max(oldChildren.length, newChildren.length)
+  for (i <- 0 until maxLength) {
+    (oldChildren.lift(i), newChildren.lift(i)) match {
+      case (Some(oldChild), Some(newChild)) =>
+        if (oldChild eq newChild) {
+          newChild.domNode = oldChild.domNode
+        } else {
+          diff(oldChild, newChild, parent)
+        }
+
+      case (None, Some(newChild)) =>
+        FluxusLogger.Render.domUpdate("children", "Adding new child")
+        val newDomNode = renderDomNode(newChild)
+        parent.appendChild(newDomNode)
+        newChild.domNode = Some(newDomNode)
+
+      case (Some(oldChild), None) =>
+        FluxusLogger.Render.domUpdate("children", "Removing old child")
+        oldChild.domNode match {
+          case Some(domNode) => parent.removeChild(domNode)
+          case None          => FluxusLogger.Render.domUpdate("children", "Warning: oldChild.domNode is None")
+        }
+
+      case (None, None) => // Do nothing
+    }
+  }
+}
+
+def updateAttributes(domElement: dom.Element, oldAttrs: Map[String, String], newAttrs: Map[String, String]): Unit = {
+  // Remove old attributes
+  val removedAttrs = oldAttrs.keys.filterNot(newAttrs.contains)
+  if (removedAttrs.nonEmpty) {
+    FluxusLogger.Render.domUpdate("attributes", s"Removing attributes: ${removedAttrs.mkString(", ")}")
+    removedAttrs.foreach(attr => domElement.removeAttribute(attr))
+  }
+
+  // Update and add new attributes
+  newAttrs.foreach { case (attr, value) =>
+    if (!oldAttrs.get(attr).contains(value)) {
+      FluxusLogger.Render.domUpdate("attributes", s"Setting attribute: $attr = $value")
+      domElement.setAttribute(attr, value)
+    }
+  }
+}
+
+def updateEvents(
+    domElement: dom.Element,
+    oldEvents: Map[String, () => Unit],
+    newEvents: Map[String, () => Unit],
+    oldVnode: ElementNode,
+    newVnode: ElementNode,
+): Unit = {
+  FluxusLogger.Events.debug(
+    s"Starting event update for ${domElement.tagName}",
+    Map(
+      "oldEventsCount"   -> oldEvents.size,
+      "newEventsCount"   -> newEvents.size,
+      "oldWrappersCount" -> oldVnode.eventListenerWrappers.size,
+      "oldEventTypes"    -> oldEvents.keys.mkString(","),
+      "newEventTypes"    -> newEvents.keys.mkString(","),
+    ),
+  )
+
+  // First, find events that need to be removed (in old but not in new)
+  val eventsToRemove = oldEvents.keySet.diff(newEvents.keySet)
+  FluxusLogger.Events.debug(s"Events to fully remove: ${eventsToRemove.mkString(", ")}")
+
+  eventsToRemove.foreach { eventName =>
+    val jsEventName = eventName.stripPrefix("on").toLowerCase
+    oldVnode.eventListenerWrappers.get(eventName) match {
+      case Some(wrapper) =>
+        FluxusLogger.Events.cleanup("element", 1)
+        FluxusLogger.Events.debug(
+          s"Removing deprecated event: $eventName",
+          Map(
+            "jsName"      -> jsEventName,
+            "handlerHash" -> wrapper.hashCode(),
+          ),
+        )
+        domElement.removeEventListener(jsEventName, wrapper)
+        oldVnode.eventListenerWrappers.remove(eventName)
+      case None =>
+        FluxusLogger.Events.warn(s"Missing wrapper for event $eventName that should be removed")
+    }
+  }
+
+  // Then process new/updated events
+  newEvents.foreach { case (eventName, handler) =>
+    val jsEventName = eventName.stripPrefix("on").toLowerCase
+
+    FluxusLogger.Events.debug(
+      s"Processing event: $eventName",
+      Map(
+        "handlerHash"        -> handler.hashCode(),
+        "hasExistingWrapper" -> oldVnode.eventListenerWrappers.contains(eventName),
+      ),
+    )
+
+    // Remove old wrapper if it exists
+    oldVnode.eventListenerWrappers.get(eventName) match {
+      case Some(oldWrapper) =>
+        FluxusLogger.Events.cleanup("element", 1)
+        FluxusLogger.Events.debug(
+          s"Removing existing wrapper for $eventName",
+          Map(
+            "oldWrapperHash" -> oldWrapper.hashCode(),
+          ),
+        )
+        domElement.removeEventListener(jsEventName, oldWrapper)
+      case None =>
+        FluxusLogger.Events.debug(s"No existing wrapper found for $eventName")
+    }
+
+    // Add new wrapper
+    val wrapper: dom.Event => Unit = (_: dom.Event) => handler()
+    FluxusLogger.Events.add("element", jsEventName)
+    FluxusLogger.Events.debug(
+      s"Adding new wrapper for $eventName",
+      Map(
+        "newWrapperHash" -> wrapper.hashCode(),
+        "elementId"      -> Option(domElement.id).getOrElse(""),
+        "elementClasses" -> Option(domElement.getAttribute("class")).getOrElse(""),
+      ),
+    )
+
+    domElement.addEventListener(jsEventName, wrapper)
+    newVnode.eventListenerWrappers(eventName) = wrapper
+  }
+
+  // Final state logging
+  FluxusLogger.Events.debug(
+    "Event update complete",
+    Map(
+      "elementTag"        -> domElement.tagName,
+      "finalWrapperCount" -> newVnode.eventListenerWrappers.size,
+      "remainingEvents"   -> newVnode.eventListenerWrappers.keys.mkString(","),
+    ),
+  )
+  FluxusLogger.Events.add("element", s"Total active: ${newVnode.eventListenerWrappers.size}")
+}
+
 def renderDomNode(vnode: FluxusNode): dom.Node = vnode match {
   case TextNode(text) =>
+    FluxusLogger.Render.domUpdate("create", s"Creating text node: $text")
     val textNode = dom.document.createTextNode(text)
     vnode.domNode = Some(textNode)
     textNode
 
   case ElementNode(tag, attributes, events, children) =>
+    FluxusLogger.Render.domUpdate("create", s"Creating element: $tag")
     val element = dom.document.createElement(tag)
 
+    if (attributes.nonEmpty) {
+      FluxusLogger.Render.domUpdate("attributes", s"Setting initial attributes: ${attributes.keys.mkString(", ")}")
+    }
     attributes.foreach { case (name, value) =>
       element.setAttribute(name, value)
     }
@@ -100,6 +259,9 @@ def renderDomNode(vnode: FluxusNode): dom.Node = vnode match {
     val elementNode = vnode.asInstanceOf[ElementNode]
     elementNode.eventListenerWrappers.clear()
 
+    if (events.nonEmpty) {
+      FluxusLogger.Render.domUpdate("events", s"Adding initial events: ${events.keys.mkString(", ")}")
+    }
     events.foreach { case (eventName, handler) =>
       val jsEventName                = eventName.stripPrefix("on").toLowerCase
       val wrapper: dom.Event => Unit = (_: dom.Event) => handler()
@@ -116,6 +278,8 @@ def renderDomNode(vnode: FluxusNode): dom.Node = vnode match {
     element
 
   case componentNode @ ComponentNode(_, componentFunction, props, instanceOpt) =>
+    FluxusLogger.Render.component(componentFunction.getClass.getSimpleName)
+
     // Create a new ComponentInstance or use existing one
     val instance = instanceOpt.getOrElse {
       val newInstance = ComponentInstance(componentFunction, props)
@@ -137,76 +301,9 @@ def renderDomNode(vnode: FluxusNode): dom.Node = vnode match {
     vnode.domNode = Some(domNode)
     instance.renderedVNode.get.domNode = Some(domNode)
 
-    // Execute effects and clear them
+    FluxusLogger.State.effect(componentFunction.getClass.getSimpleName, "Executing initial effects")
     instance.effects.foreach(effect => effect())
     instance.effects.clear()
 
     domNode
-}
-
-def updateAttributes(domElement: dom.Element, oldAttrs: Map[String, String], newAttrs: Map[String, String]): Unit = {
-  // Remove old attributes
-  oldAttrs.keys.filterNot(newAttrs.contains).foreach { attr =>
-    domElement.removeAttribute(attr)
-  }
-
-  // Update and add new attributes
-  newAttrs.foreach { case (attr, value) =>
-    if (!oldAttrs.get(attr).contains(value)) {
-      domElement.setAttribute(attr, value)
-    }
-  }
-}
-
-def updateEvents(
-    domElement: dom.Element,
-    oldEvents: Map[String, () => Unit],
-    newEvents: Map[String, () => Unit],
-    oldVnode: ElementNode,
-    newVnode: ElementNode,
-): Unit = {
-  println(s"Active event wrappers before cleanup: ${oldVnode.eventListenerWrappers.size}")
-
-  // First, remove ALL old event listeners
-  oldVnode.eventListenerWrappers.foreach { case (eventName, wrapper) =>
-    val jsEventName = eventName.stripPrefix("on").toLowerCase
-    domElement.removeEventListener(jsEventName, wrapper)
-  }
-  oldVnode.eventListenerWrappers.clear()
-
-  // Then add all new event listeners
-  newEvents.foreach { case (eventName, handler) =>
-    val jsEventName                = eventName.stripPrefix("on").toLowerCase
-    val wrapper: dom.Event => Unit = (_: dom.Event) => handler()
-    domElement.addEventListener(jsEventName, wrapper)
-    newVnode.eventListenerWrappers += (eventName -> wrapper)
-  }
-
-  println(s"New event wrappers after update: ${newVnode.eventListenerWrappers.size}")
-}
-def diffChildren(oldChildren: List[FluxusNode], newChildren: List[FluxusNode], parent: dom.Element): Unit = {
-  val maxLength = Math.max(oldChildren.length, newChildren.length)
-  for (i <- 0 until maxLength) {
-    (oldChildren.lift(i), newChildren.lift(i)) match {
-      case (Some(oldChild), Some(newChild)) =>
-        if (oldChild eq newChild) {
-          newChild.domNode = oldChild.domNode
-        } else {
-          diff(oldChild, newChild, parent)
-        }
-
-      case (None, Some(newChild)) =>
-        val newDomNode = renderDomNode(newChild)
-        parent.appendChild(newDomNode)
-        newChild.domNode = Some(newDomNode)
-
-      case (Some(oldChild), None) =>
-        oldChild.domNode match {
-          case Some(domNode) => parent.removeChild(domNode)
-          case None          => println("Warning: oldChild.domNode is None") // Handle the error or log a warning
-        }
-
-      case (None, None) => // Do nothing
-    }
-  }
 }
