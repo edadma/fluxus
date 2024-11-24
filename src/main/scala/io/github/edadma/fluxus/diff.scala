@@ -4,7 +4,9 @@ import org.scalajs.dom
 
 def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
   // If the nodes are the same, do nothing
-  if (oldNode == newNode) return
+  if (oldNode == newNode)
+    newNode.domNode = oldNode.domNode
+    return
 
   (oldNode, newNode) match {
     case (oldTextNode: TextNode, newTextNode: TextNode) =>
@@ -74,12 +76,18 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
 
         // Update the rendered VDOM reference
         instance.renderedVNode = Some(childVNode)
-      }
 
+        // Execute the effects
+        instance.effects.foreach(effect => effect())
+        instance.effects.clear()
+      }
     case _ =>
       // Nodes are of different types, replace old with new
+      val oldDomNode = oldNode.domNode.getOrElse {
+        throw new IllegalStateException("oldNode.domNode is None in default case")
+      }
       val newDomNode = renderDomNode(newNode)
-      parent.replaceChild(newDomNode, oldNode.domNode.get)
+      parent.replaceChild(newDomNode, oldDomNode)
       newNode.domNode = Some(newDomNode)
   }
 }
@@ -139,6 +147,10 @@ def renderDomNode(vnode: FluxusNode): dom.Node = vnode match {
     // Store the DOM node reference in the vnode
     vnode.domNode = Some(domNode)
 
+    // Execute the effects
+    instance.effects.foreach(effect => effect())
+    instance.effects.clear()
+
     // Return the DOM node
     domNode
 }
@@ -179,16 +191,22 @@ def diffChildren(oldChildren: List[FluxusNode], newChildren: List[FluxusNode], p
   for (i <- 0 until maxLength) {
     (oldChildren.lift(i), newChildren.lift(i)) match {
       case (Some(oldChild), Some(newChild)) =>
-        diff(oldChild, newChild, parent)
+        if (oldChild eq newChild) {
+          newChild.domNode = oldChild.domNode
+        } else {
+          diff(oldChild, newChild, parent)
+        }
 
       case (None, Some(newChild)) =>
-        // New child added
         val newDomNode = renderDomNode(newChild)
         parent.appendChild(newDomNode)
+        newChild.domNode = Some(newDomNode)
 
       case (Some(oldChild), None) =>
-        // Old child removed
-        parent.removeChild(oldChild.domNode.get)
+        oldChild.domNode match {
+          case Some(domNode) => parent.removeChild(domNode)
+          case None          => println("Warning: oldChild.domNode is None") // Handle the error or log a warning
+        }
 
       case (None, None) => // Do nothing
     }
