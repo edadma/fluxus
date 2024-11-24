@@ -47,27 +47,31 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
       // Always update props
       instance.props = newComponentNode.props
 
-      // Always re-render since state might have changed
-      RenderContext.push(instance)
-      instance.resetHooks()
-      val childVNode = instance.renderFunction(instance.props)
-      RenderContext.pop()
+      // Render only if needed (state changed or props changed)
+      if (instance.needsRender || oldComponentNode.props != newComponentNode.props) {
+        RenderContext.push(instance)
+        instance.resetHooks()
+        val childVNode = instance.renderFunction(instance.props)
+        RenderContext.pop()
 
-      // Get the old child node for diffing
-      val oldChildVNode = instance.renderedVNode.getOrElse {
-        throw new IllegalStateException("ComponentInstance.renderedVNode is None")
+        // Get the old child node for diffing
+        val oldChildVNode = instance.renderedVNode.getOrElse {
+          throw new IllegalStateException("ComponentInstance.renderedVNode is None")
+        }
+
+        // Diff children to update DOM
+        diff(oldChildVNode, childVNode, parent)
+
+        // Update references
+        instance.renderedVNode = Some(childVNode)
+        newComponentNode.domNode = childVNode.domNode
+
+        // Execute effects
+        instance.effects.foreach(effect => effect())
+        instance.effects.clear()
+      } else {
+        newComponentNode.domNode = oldComponentNode.domNode
       }
-
-      // Diff children to update DOM
-      diff(oldChildVNode, childVNode, parent)
-
-      // Update references
-      instance.renderedVNode = Some(childVNode)
-      newComponentNode.domNode = childVNode.domNode
-
-      // Execute effects
-      instance.effects.foreach(effect => effect())
-      instance.effects.clear()
     case _ =>
       // Nodes are of different types, replace old with new
       val oldDomNode = oldNode.domNode.getOrElse {

@@ -35,6 +35,7 @@ case class ComponentInstance(
     var hooks: ArrayBuffer[Any] =
       ArrayBuffer.empty, // Mutable collection of hooks (state variables) used by the component
     var renderedVNode: Option[FluxusNode] = None,
+    var needsRender: Boolean = false, // Tracks whether the component needs re-rendering
 ):
   var hookIndex: Int                   = 0                 // Index to keep track of the current hook during rendering
   var effects: ArrayBuffer[() => Unit] = ArrayBuffer.empty // Stores effects and dependencies

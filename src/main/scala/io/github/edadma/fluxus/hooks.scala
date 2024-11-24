@@ -32,6 +32,7 @@ def useState[T](initialValue: T): (T, (T | Update[T]) => Unit) = {
       renderApp()
     }
     stateHook = StateHook(initialValue, setState)
+    instance.needsRender = true // Mark the instance as needing a re-render
     instance.hooks += stateHook
   }
 
