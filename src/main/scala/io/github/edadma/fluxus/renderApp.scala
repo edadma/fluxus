@@ -33,7 +33,6 @@ def renderApp(id: String, component: FluxusComponent): Unit = {
 // The internal `renderApp` function performs the actual rendering of the app
 private[fluxus] def renderApp(): Unit =
   val mountPoint = dom.document.getElementById(rootId) // Get the DOM element by ID where the app will be mounted
-  mountPoint.innerHTML = "" // Clear the mount point's content before rendering
 
   if (rootInstance == null) {
     rootInstance =
