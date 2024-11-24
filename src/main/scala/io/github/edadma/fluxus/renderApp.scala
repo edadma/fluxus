@@ -47,11 +47,6 @@ private[fluxus] def renderApp(): Unit =
 
   RenderContext.push(rootInstance) // Push the root instance onto the RenderContext stack
 
-//  val appVNode =
-//    rootInstance.renderFunction(rootInstance.props) // Call the root component's render function to get the virtual DOM
-//  render(appVNode, mountPoint)                      // Render the virtual DOM into the mount point
-//  RenderContext.pop()                               // Pop the root instance from the RenderContext stack
-
   val newVNode = rootInstance.renderFunction(rootInstance.props)
   RenderContext.pop()
 

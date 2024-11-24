@@ -64,8 +64,13 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
           throw new IllegalStateException("ComponentInstance.renderedVNode is None")
         }
 
-        // Diff the child VDOM
-        diff(oldChildVNode, childVNode, parent)
+        // Corrected: Use the component's DOM node as the parent
+        val componentDomNode = newComponentNode.domNode.getOrElse {
+          throw new IllegalStateException("ComponentNode.domNode is None")
+        }
+
+        // Diff the child VDOM with the component's DOM node as parent
+        diff(oldChildVNode, childVNode, componentDomNode)
 
         // Update the rendered VDOM reference
         instance.renderedVNode = Some(childVNode)
