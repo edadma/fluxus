@@ -21,6 +21,8 @@ var rootInstance: ComponentInstance = uninitialized // The root component instan
 var rootId: String                  = uninitialized // The ID of the DOM element where the app will be mounted
 var rootComponent: FluxusComponent  = uninitialized // The root component function of the app
 
+var oldVNode: FluxusNode = null
+
 // The `renderApp` function initializes the app by setting the root ID and component, and then triggers the rendering
 def renderApp(id: String, component: FluxusComponent): Unit = {
   rootId = id               // Store the ID of the mount point
@@ -45,13 +47,27 @@ private[fluxus] def renderApp(): Unit =
 
   RenderContext.push(rootInstance) // Push the root instance onto the RenderContext stack
 
-//  // Run cleanup for the previous effects
-//  RenderContext.cleanupEffects()
+//  val appVNode =
+//    rootInstance.renderFunction(rootInstance.props) // Call the root component's render function to get the virtual DOM
+//  render(appVNode, mountPoint)                      // Render the virtual DOM into the mount point
+//  RenderContext.pop()                               // Pop the root instance from the RenderContext stack
 
-  val appVNode =
-    rootInstance.renderFunction(rootInstance.props) // Call the root component's render function to get the virtual DOM
-  render(appVNode, mountPoint)                      // Render the virtual DOM into the mount point
-  RenderContext.pop()                               // Pop the root instance from the RenderContext stack
+  val newVNode = rootInstance.renderFunction(rootInstance.props)
+  RenderContext.pop()
 
-//  // Run effects after rendering
-//  RenderContext.runEffects()
+  // Store the rendered VDOM in the root instance
+  rootInstance.renderedVNode = Some(newVNode)
+
+  // Perform the diff and update the DOM
+  if (oldVNode == null) {
+    // First render
+    mountPoint.innerHTML = "" // Clear the mount point's content before rendering
+    val domNode = renderDomNode(newVNode)
+    mountPoint.appendChild(domNode)
+  } else {
+    // Diff the old and new VDOM and update the DOM
+    diff(oldVNode, newVNode, mountPoint)
+  }
+
+  // Update the old VDOM reference
+  oldVNode = newVNode

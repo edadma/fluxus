@@ -34,9 +34,10 @@ case class ComponentInstance(
     var props: Props,                // The props passed to the component (mutable to allow updates when props change)
     var hooks: ArrayBuffer[Any] =
       ArrayBuffer.empty, // Mutable collection of hooks (state variables) used by the component
-    var effects: ArrayBuffer[() => Unit] = ArrayBuffer.empty, // Stores effects and dependencies
+    var renderedVNode: Option[FluxusNode] = None,
 ):
-  var hookIndex: Int = 0 // Index to keep track of the current hook during rendering
+  var hookIndex: Int                   = 0                 // Index to keep track of the current hook during rendering
+  var effects: ArrayBuffer[() => Unit] = ArrayBuffer.empty // Stores effects and dependencies
 
   // Resets the hook index before rendering
   def resetHooks(): Unit = hookIndex = 0

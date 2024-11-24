@@ -19,4 +19,5 @@ case class ComponentNode(
     key: Option[String],
     componentFunction: FluxusComponent,
     props: Props,
+    var instance: Option[ComponentInstance] = None,
 ) extends FluxusNode
