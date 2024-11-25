@@ -65,9 +65,7 @@ def TodoApp(appProps: Props): FluxusNode =
                 cls         := "input input-bordered w-full",
                 value       := newTodoText,
                 onInput     := handleInput,
-//                onKeyUp := ((e: KeyboardEvent) =>
-//                  if e.key == "Enter" then addTodo()
-//                ),
+                onKeyUp     := ((e: KeyboardEvent) => if e.key == "Enter" then addTodo()),
               ),
               button(
                 cls     := "btn btn-primary",
