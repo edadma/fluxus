@@ -1,6 +1,7 @@
 package io.github.edadma.fluxus
 
 import org.scalajs.dom
+import org.scalajs.dom.Event
 
 def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
   FluxusLogger.Render.domUpdate(
@@ -143,8 +144,8 @@ def updateAttributes(domElement: dom.Element, oldAttrs: Map[String, String], new
 
 def updateEvents(
     domElement: dom.Element,
-    oldEvents: Map[String, () => Unit],
-    newEvents: Map[String, () => Unit],
+    oldEvents: Map[String, Event => Unit],
+    newEvents: Map[String, Event => Unit],
     oldVnode: ElementNode,
     newVnode: ElementNode,
 ): Unit = {
@@ -202,7 +203,7 @@ def updateEvents(
     if (!newVnode.eventListenerWrappers.contains(eventName)) {
       // Create new handler reference and wrapper
       val handlerRef                 = HandlerRef(handler)
-      val wrapper: dom.Event => Unit = (_: dom.Event) => handlerRef.handler()
+      val wrapper: dom.Event => Unit = (e: dom.Event) => handlerRef.handler(e)
 
       FluxusLogger.Events.debug(
         s"Adding new event listener: $eventName",
@@ -271,7 +272,7 @@ def renderDomNode(vnode: FluxusNode): dom.Node = vnode match {
     events.foreach { case (eventName, handler) =>
       val jsEventName                = eventName.stripPrefix("on").toLowerCase
       val handlerRef                 = HandlerRef(handler)
-      val wrapper: dom.Event => Unit = (_: dom.Event) => handlerRef.handler()
+      val wrapper: dom.Event => Unit = (e: dom.Event) => handlerRef.handler(e)
       element.addEventListener(jsEventName, wrapper)
       elementNode.eventListenerWrappers += (eventName -> (wrapper, handlerRef))
     }

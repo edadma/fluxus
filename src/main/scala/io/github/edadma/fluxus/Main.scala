@@ -7,7 +7,7 @@ import language.deprecated.symbolLiterals
 import scala.scalajs.js
 import scala.scalajs.js.timers
 
-@main def run(): Unit = renderApp("app", App)
+//@main def run(): Unit = renderApp("app", App)
 
 def App(appProps: Props): FluxusNode =
   RenderTracker.trackRender("App"):
