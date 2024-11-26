@@ -4,7 +4,7 @@
 ./public
 index.html
 
-; code files for package io.github.edadma.fluxus
+# code files for package io.github.edadma.fluxus
 ./src/main/scala/io/github/edadma/fluxus
 Component.scala
 diff.scala
@@ -22,5 +22,6 @@ RenderContext.scala
 FluxusLogger.scala
 RenderTracker.scala
 
-; test app
+; test apps
 Main.scala
+TodoApp.scala
