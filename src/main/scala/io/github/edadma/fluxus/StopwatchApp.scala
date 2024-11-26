@@ -6,37 +6,37 @@ import scala.scalajs.js
 import scala.scalajs.js.timers
 import language.deprecated.symbolLiterals
 
-@main def run(): Unit = renderApp("app", StopwatchApp)
+//@main def run(): Unit = renderApp("app", StopwatchApp)
 
 // Main application component
 def StopwatchApp(props: Props): FluxusNode =
   RenderTracker.trackRender("StopwatchApp"):
-    val (time, setTime)         = useState(0.0) // Time in milliseconds
-    val (running, setRunning)   = useState(true)
+    val (time, setTime)         = useState(0.0)   // Time in milliseconds
+    val (running, setRunning)   = useState(false) // Start in stopped state
     val (captures, setCaptures) = useState(List[Double]())
     val (hovering, setHovering) = useState(false)
 
     // High-frequency timer effect
     useEffect(
       () => {
-        val startTime    = js.Date.now()
-        var frameId: Int = 0
+        if running && !hovering then
+          val startTime = js.Date.now() - time // Account for existing time
 
-        def updateFrame(): Unit =
-          if running && !hovering then
+          def updateFrame(): Unit =
             val currentTime = js.Date.now() - startTime
             setTime(currentTime)
-          frameId = js.Dynamic.global.window.requestAnimationFrame((_: Double) => updateFrame()).asInstanceOf[Int]
+            js.Dynamic.global.window.requestAnimationFrame((_: Double) => updateFrame())
 
-        frameId = js.Dynamic.global.window.requestAnimationFrame((_: Double) => updateFrame()).asInstanceOf[Int]
+          val frameId = js.Dynamic.global.window.requestAnimationFrame((_: Double) => updateFrame())
 
-        // Cleanup function
-        () => js.Dynamic.global.window.cancelAnimationFrame(frameId)
+          // Return cleanup function
+          () => js.Dynamic.global.window.cancelAnimationFrame(frameId)
+        else
+          () => () // No cleanup needed if not running
       },
-      Seq(running, hovering), // Dependencies array
+      Seq(running, hovering), // Remove startTime from deps
     )
 
-    // Format time to show milliseconds
     def formatTime(ms: Double): String =
       val totalSeconds = ms / 1000
       val minutes      = (totalSeconds / 60).toInt
@@ -50,11 +50,7 @@ def StopwatchApp(props: Props): FluxusNode =
         cls := "card w-96 bg-base-100 shadow-xl",
         div(
           cls := "card-body",
-
-          // Title
           h2(cls := "card-title text-center mb-4", "Memory Test Stopwatch"),
-
-          // Main stopwatch display
           div(
             cls := "stats shadow mb-4",
             div(
@@ -77,8 +73,6 @@ def StopwatchApp(props: Props): FluxusNode =
               ),
             ),
           ),
-
-          // Controls
           div(
             cls := "flex justify-center gap-2 mb-4",
             button(
@@ -91,18 +85,15 @@ def StopwatchApp(props: Props): FluxusNode =
               onClick := (() => {
                 setTime(0.0)
                 setCaptures(List())
+                setRunning(false)
               }),
               "Reset",
             ),
           ),
-
-          // Memory stats from the framework
           MemoryStats(),
-
-          // Captured times list
           div(
-            cls       := "collapse collapse-arrow bg-base-200",
-            'tabindex := "0", // Add this to make it interactive
+            cls      := "collapse collapse-arrow bg-base-200",
+            tabindex := "0",
             div(
               cls := "collapse-title font-medium",
               s"Captured Times (${captures.length})",
