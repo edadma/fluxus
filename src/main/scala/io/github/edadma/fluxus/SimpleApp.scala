@@ -3,7 +3,7 @@ package io.github.edadma.fluxus
 import scala.language.postfixOps
 import Implicits.*
 
-@main def run(): Unit = renderApp("app", SimpleApp)
+//@main def run(): Unit = renderApp("app", SimpleApp)
 
 def SimpleApp(props: Props): FluxusNode =
   div(

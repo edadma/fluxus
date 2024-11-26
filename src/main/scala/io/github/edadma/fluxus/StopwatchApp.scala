@@ -6,7 +6,7 @@ import scala.scalajs.js
 import scala.scalajs.js.timers
 import language.deprecated.symbolLiterals
 
-//@main def run(): Unit = renderApp("app", StopwatchApp)
+@main def run(): Unit = renderApp("app", StopwatchApp)
 
 // Main application component
 def StopwatchApp(props: Props): FluxusNode =
@@ -101,7 +101,8 @@ def StopwatchApp(props: Props): FluxusNode =
 
           // Captured times list
           div(
-            cls := "collapse collapse-arrow bg-base-200",
+            cls       := "collapse collapse-arrow bg-base-200",
+            'tabindex := "0", // Add this to make it interactive
             div(
               cls := "collapse-title font-medium",
               s"Captured Times (${captures.length})",
@@ -110,16 +111,19 @@ def StopwatchApp(props: Props): FluxusNode =
               cls := "collapse-content",
               div(
                 cls := "max-h-48 overflow-y-auto",
-                ul(
-                  cls := "space-y-1",
-                  captures.zipWithIndex.map { case (capturedTime, idx) =>
-                    li(
-                      cls  := "text-sm bg-base-100 p-2 rounded",
-                      'key := idx.toString,
-                      s"#${idx + 1}: ${formatTime(capturedTime)}",
-                    )
-                  },
-                ),
+                if captures.isEmpty then
+                  p(cls := "text-sm text-base-content/60", "No captured times yet")
+                else
+                  ul(
+                    cls := "space-y-1",
+                    captures.zipWithIndex.map { case (capturedTime, idx) =>
+                      li(
+                        cls  := "text-sm bg-base-100 p-2 rounded",
+                        'key := idx.toString,
+                        s"#${idx + 1}: ${formatTime(capturedTime)}",
+                      )
+                    },
+                  ),
               ),
             ),
           ),
