@@ -2,12 +2,18 @@ package io.github.edadma.fluxus
 
 import org.scalajs.dom
 
+import scala.scalajs.js
+import scala.scalajs.js.{Date, timers}
+
 @main def run(): Unit = renderApp("app", TimerApp)
+
+def now: Double = Date.now() / 1000
 
 def TimerApp(props: Props): FluxusNode =
   RenderTracker.trackRender("TimerApp") {
     val (running, setRunning) = useState(false)
     val (time, setTime)       = useState(0.0) // Time in seconds
+    val (start, setStart)     = useState(now)
 
     // Effect to update time every 10ms (hundredths of a second) when running
     useEffect(
@@ -15,37 +21,41 @@ def TimerApp(props: Props): FluxusNode =
         if running then
           val interval = dom.window.setInterval(
             () => {
-              setTime(time + 0.01)
+              setTime(now - start)
             },
             10,
-          ) // 10ms interval
+          )
+
           () => dom.window.clearInterval(interval)
         else
           () => () // No cleanup needed if not running
       },
-      Seq(running, time),
-    ) // Dependencies: running state, time
+      Seq(running),
+    )
 
-    def toggleRunning(): Unit = setRunning(!running)
-    def resetTimer(): Unit = {
+    def toggleRunning(): Unit =
+      if !running then setStart(now)
+      setRunning(!running)
+
+    def resetTimer(): Unit =
       setRunning(false)
       setTime(0.0)
-    }
+      setStart(now)
 
     // Helper to format time
-    def formatTime(totalSeconds: Double): String = {
-      val hours      = (totalSeconds / 3600).toInt
-      val minutes    = ((totalSeconds % 3600) / 60).toInt
-      val seconds    = (totalSeconds  % 60).toInt
-      val hundredths = ((totalSeconds % 1) * 100).toInt
+    def formatTime(totalSeconds: Double): String =
+      val hours      = (totalSeconds / 3600).toInt % 24
+      val minutes    = ((totalSeconds              % 3600) / 60).toInt
+      val seconds    = (totalSeconds               % 60).toInt
+      val hundredths = ((totalSeconds              % 1) * 100).toInt
+
       f"$hours%02d:$minutes%02d:$seconds%02d.$hundredths%02d"
-    }
 
     // DaisyUI styled components
     div(
       cls := "flex flex-col items-center gap-4 p-4",
       div(
-        cls := "text-4xl font-mono",
+        cls := "stat-value font-mono",
         formatTime(time), // Display formatted time
       ),
       div(
@@ -56,10 +66,48 @@ def TimerApp(props: Props): FluxusNode =
           onClick := (() => toggleRunning()),
         ),
         button(
-          cls := "btn btn-secondary",
+          cls := "btn btn-secondary w-20",
           "Reset",
           onClick := (() => resetTimer()),
         ),
       ),
+      MemoryStats(Map()),
     )
   }
+
+private val MemoryStats: FC = (props: Props) =>
+  RenderTracker.trackRender("MemoryStats"):
+    val (stats, setStats) = useState(Map[String, Double]())
+
+    useEffect(
+      () => {
+        val intervalId = timers.setInterval(1000) {
+          val mem = js.Dynamic.global.performance.memory.asInstanceOf[js.Dynamic]
+          setStats(Map(
+            "used"  -> (mem.usedJSHeapSize.asInstanceOf[Double] / (1024 * 1024)),
+            "total" -> (mem.totalJSHeapSize.asInstanceOf[Double] / (1024 * 1024)),
+            "limit" -> (mem.jsHeapSizeLimit.asInstanceOf[Double] / (1024 * 1024)),
+          ))
+        }
+
+        () => timers.clearInterval(intervalId)
+      },
+      Seq(),
+    )
+
+    div(
+      cls := "stats shadow mb-4",
+      div(
+        cls := "stat",
+        div(cls := "stat-title", "Memory Usage"),
+        div(
+          cls := "stat-value text-accent text-2xl",
+          f"${stats.getOrElse("used", 0.0)}%.1f MB",
+        ),
+        div(
+          cls := "stat-desc",
+          f"Total: ${stats.getOrElse("total", 0.0)}%.1f MB / " +
+            f"Limit: ${stats.getOrElse("limit", 0.0)}%.1f MB",
+        ),
+      ),
+    )

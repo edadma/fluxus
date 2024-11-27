@@ -139,7 +139,7 @@ def StopwatchApp(props: Props): FluxusNode =
     )
 
 // Separate component for memory statistics
-val MemoryStats: FC = (props: Props) =>
+private val MemoryStats: FC = (props: Props) =>
   RenderTracker.trackRender("MemoryStats"):
     val (stats, setStats) = useState(Map[String, Double]())
 
