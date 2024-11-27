@@ -21,7 +21,7 @@ def element(tag: String)(args: ElementArg*): FluxusNode = {
         events += (key -> ((_: Event) => handler()))
       case (key: String, handler: (Event => Unit) @unchecked) if key.startsWith("on") => events += (key     -> handler)
       case (key: String, value: String)                                               => attributes += (key -> value)
-      case (key: String, value: Boolean) => attributes += (key -> value.toString)
+      case (key: String, value: Boolean) => if value then attributes += (key -> "")
       case null                          =>
       case (k, v)                        => sys.error(s"unknown element arg: '$k', '$v'")
     }
