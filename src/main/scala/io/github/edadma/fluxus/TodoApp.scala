@@ -7,7 +7,7 @@ import org.scalajs.dom.{Event, HTMLInputElement, KeyboardEvent}
 
 case class Todo(id: Int, text: String, completed: Boolean)
 
-@main def run(): Unit = renderApp("app", TodoApp)
+//@main def run(): Unit = renderApp("app", TodoApp)
 
 def TodoApp(appProps: Props): FluxusNode =
   RenderTracker.trackRender("TodoApp"):
