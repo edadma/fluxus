@@ -8,7 +8,7 @@ import scala.scalajs.js
 import scala.scalajs.js.timers
 import language.deprecated.symbolLiterals
 
-@main def run(): Unit = renderApp("app", StopwatchApp)
+//@main def run(): Unit = renderApp("app", StopwatchApp)
 
 // Main application component
 def StopwatchApp(props: Props): FluxusNode =
