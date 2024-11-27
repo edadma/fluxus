@@ -45,46 +45,56 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
       }
 
     case (oldComponentNode: ComponentNode, newComponentNode: ComponentNode) =>
-      FluxusLogger.Render.component(newComponentNode.componentFunction.getClass.getSimpleName)
+      FluxusLogger.State.effect(
+        "diff",
+        s"Component match: ${newComponentNode.componentFunction.getClass.getSimpleName}",
+      )
 
-      // First, ensure instance reuse
       newComponentNode.instance = oldComponentNode.instance
-
       val instance = newComponentNode.instance.getOrElse {
         throw new IllegalStateException("Component instance is None")
       }
 
-      // Always update props
+      FluxusLogger.State.effect(
+        "diff",
+        s"Component state: needsRender=${instance.needsRender}, effectsCount=${instance.effects.size}",
+      )
+
       instance.props = newComponentNode.props
 
-      // Render only if needed (state changed or props changed)
       if (instance.needsRender || oldComponentNode.props != newComponentNode.props) {
-        FluxusLogger.Render.domUpdate("component", "Re-rendering due to props/state change")
+        FluxusLogger.State.effect("diff", "Component needs update")
+
         RenderContext.push(instance)
         instance.resetHooks()
         val childVNode = instance.renderFunction(instance.props)
         RenderContext.pop()
 
-        // Get the old child node for diffing
         val oldChildVNode = instance.renderedVNode.getOrElse {
           throw new IllegalStateException("ComponentInstance.renderedVNode is None")
         }
 
-        // Diff children to update DOM
+        FluxusLogger.State.effect("diff", s"Pre-child diff, effects: ${instance.effects.size}")
         diff(oldChildVNode, childVNode, parent)
 
-        // Update references
         instance.renderedVNode = Some(childVNode)
         newComponentNode.domNode = childVNode.domNode
 
-        // Execute effects
-        FluxusLogger.State.effect(instance.renderFunction.getClass.getSimpleName, "Executing effects")
-        instance.effects.foreach(effect => effect())
-        instance.effects.clear()
+        // Execute effects if there are any
+        if (instance.effects.nonEmpty) {
+          FluxusLogger.State.effect("diff", s"Executing ${instance.effects.size} effects")
+          RenderContext.push(instance)
+          instance.effects.foreach { effect =>
+            FluxusLogger.State.effect("diff", "Running effect")
+            effect()
+          }
+          RenderContext.pop()
+          instance.effects.clear()
+        }
       } else {
+        FluxusLogger.State.effect("diff", "Component unchanged")
         newComponentNode.domNode = oldComponentNode.domNode
       }
-
     case _ =>
       FluxusLogger.Render.domUpdate("diff", "Node type mismatch - replacing")
       val oldDomNode = oldNode.domNode.getOrElse {

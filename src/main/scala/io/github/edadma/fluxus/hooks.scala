@@ -45,23 +45,44 @@ def useState[T](initialValue: T): (T, (T | Update[T]) => Unit) = {
 // The `useEffect` hook allows side-effects in functional components.
 case class EffectHook(
     deps: Seq[Any],
-    cleanup: Option[() => Unit],
+    var cleanup: Option[() => Unit] = None,
+    var isActive: Boolean = false, // New field to track if effect is currently running
 )
 
 def useEffect(effect: () => Unit | (() => Unit), deps: Seq[Any] = Seq.empty): Unit = {
   val instance         = RenderContext.currentInstance
   val currentHookIndex = instance.hookIndex
 
+  FluxusLogger.State.effect(
+    instance.renderFunction.getClass.getSimpleName,
+    s"useEffect called: hookIndex=$currentHookIndex, hooksSize=${instance.hooks.size}, depsHash=${deps.hashCode()}",
+  )
+
   if (instance.hooks.size <= currentHookIndex) {
-    // First time, no cleanup
+    FluxusLogger.State.effect(
+      instance.renderFunction.getClass.getSimpleName,
+      "Creating new effect hook and scheduling effect",
+    )
     instance.hooks += EffectHook(deps, None)
-    // Schedule the effect to be run after rendering
     instance.effects += (() => {
+      FluxusLogger.State.effect(
+        instance.renderFunction.getClass.getSimpleName,
+        "Running initial effect",
+      )
       val cleanup = effect() match {
-        case c: (() => Unit) => Some(c)
-        case _               => None
+        case c: (() => Unit) =>
+          FluxusLogger.State.effect(
+            instance.renderFunction.getClass.getSimpleName,
+            "Cleanup function returned",
+          )
+          Some(c)
+        case _ =>
+          FluxusLogger.State.effect(
+            instance.renderFunction.getClass.getSimpleName,
+            "No cleanup needed",
+          )
+          None
       }
-      // Update the hook with the cleanup function
       instance.hooks(currentHookIndex) = EffectHook(deps, cleanup)
     })
   } else {
@@ -69,20 +90,34 @@ def useEffect(effect: () => Unit | (() => Unit), deps: Seq[Any] = Seq.empty): Un
     val depsChanged = deps.length != hook.deps.length ||
       deps.zip(hook.deps).exists { case (a, b) => a != b }
 
+    FluxusLogger.State.effect(
+      instance.renderFunction.getClass.getSimpleName,
+      s"Checking existing hook: depsChanged=$depsChanged, oldDeps=${hook.deps.hashCode()}, newDeps=${deps.hashCode()}",
+    )
+
     if (depsChanged) {
-      // Deps have changed, run cleanup and effect
-      hook.cleanup.foreach(c => c()) // Run cleanup
-      // Schedule the new effect
+      FluxusLogger.State.effect(
+        instance.renderFunction.getClass.getSimpleName,
+        "Dependencies changed - scheduling cleanup and rerun",
+      )
       instance.effects += (() => {
+        hook.cleanup.foreach(c => {
+          FluxusLogger.State.effect(
+            instance.renderFunction.getClass.getSimpleName,
+            "Running cleanup from previous effect",
+          )
+          c()
+        })
+        FluxusLogger.State.effect(
+          instance.renderFunction.getClass.getSimpleName,
+          "Running new effect after cleanup",
+        )
         val cleanup = effect() match {
           case c: (() => Unit) => Some(c)
           case _               => None
         }
-        // Update the hook with new deps and cleanup
         instance.hooks(currentHookIndex) = EffectHook(deps, cleanup)
       })
-    } else {
-      // Deps haven't changed; do nothing
     }
   }
 

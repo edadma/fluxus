@@ -8,43 +8,47 @@ import org.scalajs.dom
 @main def run(): Unit = renderApp("app", SimpleTimer)
 
 def SimpleTimer(props: Props): FluxusNode =
+  println("SimpleTimer component rendering")
+
   val (time, setTime)       = useState(0.0)
   val (running, setRunning) = useState(false)
 
+  println(s"SimpleTimer state: time=$time, running=$running")
+
   useEffect(
     () => {
-      println(s"Effect running - running state: $running") // Debug log
+      println(s"Effect function created with running=$running")
 
       if running then
+        println(s"Starting timer with running=$running")
         val startTime = js.Date.now()
-        var lastTime  = startTime
+        var frameId   = 0
 
-        def updateFrame(now: Double): Unit =
-          println(s"Frame update - time: ${now - startTime}") // Debug log
-          setTime(now - startTime)
-          lastTime = now
-          dom.window.requestAnimationFrame(updateFrame)
+        // Break recursion by creating update function first
+        def doUpdate(now: Double): Unit = {
+          val elapsed = now - startTime
+          println(s"Frame update: elapsed=$elapsed ms")
+          setTime(elapsed)
+          frameId = dom.window.requestAnimationFrame(doUpdate).toInt
+        }
 
-        println("Starting animation frame") // Debug log
-        val frameId = dom.window.requestAnimationFrame(updateFrame)
+        // Convert to js.Function1 for requestAnimationFrame
+        val jsUpdate: js.Function1[Double, Unit] = (now: Double) => doUpdate(now)
+
+        println("Requesting first animation frame")
+        frameId = dom.window.requestAnimationFrame(jsUpdate).toInt
 
         // Return cleanup
         () => {
-          println(s"Cleaning up effect - frameId: $frameId") // Debug log
+          println(s"Cleanup called with frameId=$frameId")
           dom.window.cancelAnimationFrame(frameId)
         }
       else
-        () => println("No cleanup needed") // Debug log
+        println(s"Effect running with running=${running} - not starting timer")
+        () => println("No cleanup needed for non-running state")
     },
-    Seq(running),
+    Seq(running), // Make sure running is listed as a dependency
   )
-
-  def formatTime(ms: Double): String =
-    val totalSeconds = ms / 1000
-    val minutes      = (totalSeconds / 60).toInt
-    val seconds      = (totalSeconds % 60).toInt
-    val milliseconds = (ms           % 1000).toInt
-    f"$minutes%02d:$seconds%02d.${milliseconds}%03d"
 
   div(
     cls := "min-h-screen bg-base-200 flex items-center justify-center p-4",
@@ -62,7 +66,7 @@ def SimpleTimer(props: Props): FluxusNode =
           button(
             cls := s"btn ${if running then "btn-error" else "btn-success"}",
             onClick := (() => {
-              println(s"Button clicked - setting running to ${!running}") // Debug log
+              println(s"Button clicked - current running=$running, setting to ${!running}")
               setRunning(!running)
             }),
             if running then "Stop" else "Start",
@@ -71,3 +75,10 @@ def SimpleTimer(props: Props): FluxusNode =
       ),
     ),
   )
+
+def formatTime(ms: Double): String =
+  val totalSeconds = (ms / 1000).floor
+  val minutes      = (totalSeconds / 60).toInt
+  val seconds      = (totalSeconds % 60).toInt
+  val milliseconds = (ms           % 1000).toInt
+  f"$minutes%02d:$seconds%02d.$milliseconds%03d"

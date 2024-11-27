@@ -52,29 +52,31 @@ object PerformanceMonitor {
 // The internal `renderApp` function performs the actual rendering of the app
 private[fluxus] def renderApp(): Unit = {
   FluxusLogger.Memory.report()
-
   val mountPoint = dom.document.getElementById(rootId)
 
   if (rootInstance == null) {
     rootInstance = ComponentInstance(rootComponent, makeProps())
-  } else {
-    rootInstance.resetHooks()
   }
 
-  RenderContext.push(rootInstance)
-  val newVNode = rootInstance.renderFunction(rootInstance.props)
-  RenderContext.pop()
+  // Create a ComponentNode for the root
+  val oldComponentNode = oldVNode match {
+    case node: ComponentNode => node
+    case _                   => ComponentNode(None, rootComponent, makeProps(), Some(rootInstance))
+  }
 
-  rootInstance.renderedVNode = Some(newVNode)
+  // Create new ComponentNode with same structure
+  val newComponentNode = ComponentNode(None, rootComponent, makeProps(), Some(rootInstance))
+
+  FluxusLogger.State.effect("renderApp", "Starting root component diff")
 
   if (oldVNode == null) {
     FluxusLogger.Render.domUpdate("init", "First render - clearing mount point")
     mountPoint.innerHTML = ""
-    val domNode = renderDomNode(newVNode)
+    val domNode = renderDomNode(newComponentNode)
     mountPoint.appendChild(domNode)
   } else {
-    diff(oldVNode, newVNode, mountPoint)
+    diff(oldComponentNode, newComponentNode, mountPoint)
   }
 
-  oldVNode = newVNode
+  oldVNode = newComponentNode
 }
