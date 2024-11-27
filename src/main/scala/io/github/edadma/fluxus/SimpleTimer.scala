@@ -5,7 +5,7 @@ import Implicits.*
 import scala.scalajs.js
 import org.scalajs.dom
 
-@main def run(): Unit = renderApp("app", SimpleTimer)
+//@main def run(): Unit = renderApp("app", SimpleTimer)
 
 def SimpleTimer(props: Props): FluxusNode =
   println("SimpleTimer component rendering")
@@ -21,22 +21,22 @@ def SimpleTimer(props: Props): FluxusNode =
 
       if running then
         println(s"Starting timer with running=$running")
-        val startTime = js.Date.now()
-        var frameId   = 0
+        var startTimestamp: Double = 0 // Will be set in first frame
 
-        // Break recursion by creating update function first
+        var frameId = 0
         def doUpdate(now: Double): Unit = {
-          val elapsed = now - startTime
+          if startTimestamp == 0 then
+            startTimestamp = now // Capture first frame timestamp
+            println(s"Setting initial timestamp: $startTimestamp")
+
+          val elapsed = now - startTimestamp
           println(s"Frame update: elapsed=$elapsed ms")
           setTime(elapsed)
-          frameId = dom.window.requestAnimationFrame(doUpdate).toInt
+          frameId = dom.window.requestAnimationFrame((t: Double) => doUpdate(t)).toInt
         }
 
-        // Convert to js.Function1 for requestAnimationFrame
-        val jsUpdate: js.Function1[Double, Unit] = (now: Double) => doUpdate(now)
-
         println("Requesting first animation frame")
-        frameId = dom.window.requestAnimationFrame(jsUpdate).toInt
+        frameId = dom.window.requestAnimationFrame((t: Double) => doUpdate(t)).toInt
 
         // Return cleanup
         () => {

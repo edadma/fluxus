@@ -25,4 +25,5 @@ RenderTracker.scala
 ; test apps
 Main.scala
 TodoApp.scala
+StopwatchApp.scala
 SimpleTimer.scala

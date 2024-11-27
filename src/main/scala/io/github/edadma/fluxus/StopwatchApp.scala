@@ -2,47 +2,63 @@ package io.github.edadma.fluxus
 
 import scala.language.postfixOps
 import Implicits.*
+import org.scalajs.dom
+
 import scala.scalajs.js
 import scala.scalajs.js.timers
 import language.deprecated.symbolLiterals
 
-//@main def run(): Unit = renderApp("app", StopwatchApp)
+@main def run(): Unit = renderApp("app", StopwatchApp)
 
 // Main application component
 def StopwatchApp(props: Props): FluxusNode =
   RenderTracker.trackRender("StopwatchApp"):
-    val (time, setTime)         = useState(0.0)   // Time in milliseconds
-    val (running, setRunning)   = useState(false) // Start in stopped state
+    val (time, setTime)         = useState(0.0) // Time in milliseconds
+    val (running, setRunning)   = useState(false)
     val (captures, setCaptures) = useState(List[Double]())
     val (hovering, setHovering) = useState(false)
 
-    // High-frequency timer effect
+    // Effect with fixed timestamp handling
     useEffect(
       () => {
         if running && !hovering then
-          val startTime = js.Date.now() - time // Account for existing time
+          println(s"Starting stopwatch with running=$running")
+          var startTimestamp: Double = 0 // Will be set in first frame
 
-          def updateFrame(): Unit =
-            val currentTime = js.Date.now() - startTime
-            setTime(currentTime)
-            js.Dynamic.global.window.requestAnimationFrame((_: Double) => updateFrame())
+          var frameId = 0
 
-          val frameId = js.Dynamic.global.window.requestAnimationFrame((_: Double) => updateFrame())
+          def doUpdate(now: Double): Unit = {
+            if startTimestamp == 0 then
+              startTimestamp = now // Capture first frame timestamp
+              println(s"Setting initial timestamp: $startTimestamp")
 
-          // Return cleanup function
-          () => js.Dynamic.global.window.cancelAnimationFrame(frameId)
+            val elapsed = now - startTimestamp
+            println(s"Frame update: elapsed=$elapsed ms")
+            setTime(elapsed)
+            frameId = dom.window.requestAnimationFrame((t: Double) => doUpdate(t)).toInt
+          }
+
+          println("Requesting first animation frame")
+          frameId = dom.window.requestAnimationFrame((t: Double) => doUpdate(t)).toInt
+
+          // Return cleanup
+          () => {
+            println(s"Cleanup called with frameId=$frameId")
+            dom.window.cancelAnimationFrame(frameId)
+          }
         else
-          () => () // No cleanup needed if not running
+          println(s"Effect not starting timer: running=$running, hovering=$hovering")
+          () => println("No cleanup needed for non-running state")
       },
-      Seq(running, hovering), // Remove startTime from deps
+      Seq(running, hovering), // Dependencies
     )
 
     def formatTime(ms: Double): String =
-      val totalSeconds = ms / 1000
+      val totalSeconds = (ms / 1000).floor
       val minutes      = (totalSeconds / 60).toInt
       val seconds      = (totalSeconds % 60).toInt
       val milliseconds = (ms           % 1000).toInt
-      f"$minutes%02d:$seconds%02d.${milliseconds}%03d"
+      f"$minutes%02d:$seconds%02d.$milliseconds%03d"
 
     div(
       cls := "min-h-screen bg-base-200 flex items-center justify-center p-4",
