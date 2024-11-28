@@ -1,5 +1,5 @@
 Fluxus
 ======
 
-(Not) The Ultimate App Framework
---------------------------------
+(So Not) The Ultimate App Framework
+-----------------------------------
