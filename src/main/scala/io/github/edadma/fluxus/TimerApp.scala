@@ -2,7 +2,7 @@ package io.github.edadma.fluxus
 
 import org.scalajs.dom
 
-@main def run(): Unit = renderApp("app", TimerApp)
+//@main def run(): Unit = renderApp("app", TimerApp)
 
 def TimerApp(props: Props): FluxusNode =
   RenderTracker.trackRender("TimerApp") {

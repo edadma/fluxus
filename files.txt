@@ -27,3 +27,4 @@ Main.scala
 TodoApp.scala
 StopwatchApp.scala
 SimpleTimer.scala
+TimerApp.scala
