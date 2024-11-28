@@ -11,7 +11,11 @@ module.exports = {
   },
   // Extend the default Tailwind CSS configuration
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'custom': ['seven-segment', 'sans-serif'],
+      }
+    },
   },
   // Add DaisyUI as a plugin
   plugins: [require("@tailwindcss/typography"), require('daisyui')],

@@ -60,7 +60,7 @@ def TimerApp(props: Props): FluxusNode =
           cls := "card-body items-center text-center",
           h2(cls := "card-title", "Stopwatch"),
           div(
-            cls := "stat-value font-mono text-4xl my-4",
+            cls := "stat-value seven-segment text-4xl my-4",
             formatTime(time),
           ),
           div(

@@ -9,4 +9,13 @@
 /* Tailwind utilities */
 @tailwind utilities;
 
+@layer base {
+  @font-face {
+    font-family: 'seven-segment';
+    src: url('/fonts/SevenSegment.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+}
+
 /* DaisyUI components (optional, as DaisyUI registers components automatically) */
