@@ -53,25 +53,32 @@ def TimerApp(props: Props): FluxusNode =
       f"$hours%02d:$minutes%02d:$seconds%02d.$hundredths%02d"
 
     div(
-      cls := "flex flex-col items-center gap-4 p-4",
+      cls := "min-h-screen bg-base-200 flex items-center justify-center p-4",
       div(
-        cls := "stat-value font-mono",
-        formatTime(time),
-      ),
-      div(
-        cls := "flex gap-2",
-        button(
-          cls := "btn btn-primary w-20",
-          if running then "Stop" else "Start",
-          onClick := (() => toggleRunning()),
+        cls := "card w-96 bg-base-100 shadow-xl",
+        div(
+          cls := "card-body items-center text-center",
+          h2(cls := "card-title", "Stopwatch"),
+          div(
+            cls := "stat-value font-mono text-4xl my-4",
+            formatTime(time),
+          ),
+          div(
+            cls := "flex gap-2",
+            button(
+              cls := "btn btn-primary w-20",
+              if running then "Stop" else "Start",
+              onClick := (() => toggleRunning()),
+            ),
+            button(
+              cls := "btn btn-secondary w-20",
+              "Reset",
+              onClick := (() => resetTimer()),
+            ),
+          ),
+          MemoryStats(Map()),
         ),
-        button(
-          cls := "btn btn-secondary w-20",
-          "Reset",
-          onClick := (() => resetTimer()),
-        ),
       ),
-      MemoryStats(Map()),
     )
   }
 
@@ -96,7 +103,7 @@ private val MemoryStats: FC = (props: Props) =>
     )
 
     div(
-      cls := "stats shadow mb-4",
+      cls := "stats shadow w-full mt-4",
       div(
         cls := "stat",
         div(cls := "stat-title", "Memory Usage"),
