@@ -15,7 +15,6 @@ def TimerApp(props: Props): FluxusNode =
     val (time, setTime)       = useState(0.0) // Time in seconds
     val (start, setStart)     = useState(now)
 
-    // Effect to update time every 10ms (hundredths of a second) when running
     useEffect(
       () => {
         if running then
@@ -34,7 +33,9 @@ def TimerApp(props: Props): FluxusNode =
     )
 
     def toggleRunning(): Unit =
-      if !running then setStart(now)
+      if !running then
+        setStart(now - time)
+
       setRunning(!running)
 
     def resetTimer(): Unit =
@@ -51,12 +52,11 @@ def TimerApp(props: Props): FluxusNode =
 
       f"$hours%02d:$minutes%02d:$seconds%02d.$hundredths%02d"
 
-    // DaisyUI styled components
     div(
       cls := "flex flex-col items-center gap-4 p-4",
       div(
         cls := "stat-value font-mono",
-        formatTime(time), // Display formatted time
+        formatTime(time),
       ),
       div(
         cls := "flex gap-2",
