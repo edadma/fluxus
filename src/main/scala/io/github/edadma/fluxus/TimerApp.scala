@@ -5,7 +5,7 @@ import org.scalajs.dom
 import scala.scalajs.js
 import scala.scalajs.js.{Date, timers}
 
-@main def run(): Unit = renderApp("app", TimerApp)
+//@main def run(): Unit = renderApp("app", TimerApp)
 
 def now: Double = Date.now() / 1000
 
@@ -76,13 +76,13 @@ def TimerApp(props: Props): FluxusNode =
               onClick := (() => resetTimer()),
             ),
           ),
-          MemoryStats(Map()),
+          MemoryStats(),
         ),
       ),
     )
   }
 
-private val MemoryStats: FC = (props: Props) =>
+private val MemoryStats = () =>
   RenderTracker.trackRender("MemoryStats"):
     val (stats, setStats) = useState(Map[String, Double]())
 

@@ -16,6 +16,14 @@ object Implicits:
       )
     }
 
+  implicit class NoPropsComponentOps(val componentFunction: () => FluxusNode) extends AnyVal:
+    def apply(): FluxusNode =
+      ComponentNode(
+        key = None,
+        componentFunction = (_ => componentFunction()),
+        props = Map.empty,
+      )
+
   private def productToProps(p: Product): Map[String, Any] =
     p.productElementNames.zip(p.productIterator).toMap
 

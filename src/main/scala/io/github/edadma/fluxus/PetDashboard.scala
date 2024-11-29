@@ -10,7 +10,8 @@ case class PetCardProps(
     onFeed: () => Unit,
 )
 
-val PetCard: PartialFunction[PetCardProps, FluxusNode] = {
+// Fixed: Declare as a function first, then use pattern matching
+val PetCard: FC[PetCardProps] = {
   case PetCardProps(name, species, mood, onFeed) =>
     div(
       cls := "card bg-base-100 shadow-xl",
@@ -37,22 +38,19 @@ val PetCard: PartialFunction[PetCardProps, FluxusNode] = {
     )
 }
 
-case class HeaderProps(title: String)
-
-val DashboardHeader: PartialFunction[HeaderProps, FluxusNode] = {
-  case HeaderProps(title) =>
-    div(
-      cls := "text-center",
-      h1(
-        cls := "text-4xl font-bold text-primary",
-        title,
-      ),
-      p(
-        cls := "mt-2 text-base-content/70",
-        "Keep track of your pets' moods and feeding schedule",
-      ),
-    )
-}
+// Component without props
+val DashboardHeader = () =>
+  div(
+    cls := "text-center",
+    h1(
+      cls := "text-4xl font-bold text-primary",
+      "Pet Status Dashboard",
+    ),
+    p(
+      cls := "mt-2 text-base-content/70",
+      "Keep track of your pets' moods and feeding schedule",
+    ),
+  )
 
 def PetDashboard(props: Props): FluxusNode =
   val (lastFed, setLastFed) = useState("Never")
@@ -61,9 +59,7 @@ def PetDashboard(props: Props): FluxusNode =
     cls := "min-h-screen bg-base-200 p-8",
     div(
       cls := "max-w-2xl mx-auto",
-      DashboardHeader(
-        HeaderProps(title = "Pet Status Dashboard"),
-      ),
+      DashboardHeader(),
       div(
         cls := "grid grid-cols-1 md:grid-cols-2 gap-4 mt-6",
         PetCard(
@@ -90,4 +86,4 @@ def PetDashboard(props: Props): FluxusNode =
     ),
   )
 
-//@main def run(): Unit = renderApp("app", PetDashboard)
+@main def run(): Unit = renderApp("app", PetDashboard)
