@@ -49,44 +49,28 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
         "diff",
         s"Component match: ${newComponentNode.componentFunction.getClass.getSimpleName}",
       )
-      FluxusLogger.Props.debug(
-        "Diffing component nodes",
-        Map(
-          "oldProps"     -> oldComponentNode.props,
-          "newProps"     -> newComponentNode.props,
-          "propsEqual"   -> (oldComponentNode.props == newComponentNode.props),
-          "oldPropsType" -> oldComponentNode.props.getClass.getName,
-          "newPropsType" -> newComponentNode.props.getClass.getName,
-        ),
-      )
 
+      // Connect instance from old node to new node
       newComponentNode.instance = oldComponentNode.instance
       val instance = newComponentNode.instance.getOrElse {
         throw new IllegalStateException("Component instance is None")
       }
 
-      FluxusLogger.State.effect(
-        "diff",
-        s"Component state: needsRender=${instance.needsRender}, effectsCount=${instance.effects.size}",
-      )
-
-      instance.props = newComponentNode.props
       FluxusLogger.Props.debug(
-        "Updated instance props",
+        "Component diff",
         Map(
-          "instancePropsType" -> instance.props.getClass.getName,
-          "props"             -> instance.props,
+          "oldProps"       -> oldComponentNode.props,
+          "newProps"       -> newComponentNode.props,
+          "needsRender"    -> instance.needsRender,
+          "renderFunction" -> instance.renderFunction.getClass.getSimpleName,
         ),
       )
 
+      instance.props = newComponentNode.props
+
+      // Always render the component if needsRender is true or props changed
       if (instance.needsRender || oldComponentNode.props != newComponentNode.props) {
-        FluxusLogger.Props.debug(
-          "Component needs update",
-          Map(
-            "needsRender"  -> instance.needsRender,
-            "propsChanged" -> (oldComponentNode.props != newComponentNode.props),
-          ),
-        )
+        FluxusLogger.State.effect("diff", "Component needs update")
 
         RenderContext.push(instance)
         instance.resetHooks()
@@ -97,26 +81,26 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
           throw new IllegalStateException("ComponentInstance.renderedVNode is None")
         }
 
-        FluxusLogger.State.effect("diff", s"Pre-child diff, effects: ${instance.effects.size}")
         diff(oldChildVNode, childVNode, parent)
 
         instance.renderedVNode = Some(childVNode)
         newComponentNode.domNode = childVNode.domNode
-
-        // Execute effects if there are any
-        if (instance.effects.nonEmpty) {
-          FluxusLogger.State.effect("diff", s"Executing ${instance.effects.size} effects")
-          RenderContext.push(instance)
-          instance.effects.foreach { effect =>
-            FluxusLogger.State.effect("diff", "Running effect")
-            effect()
-          }
-          RenderContext.pop()
-          instance.effects.clear()
-        }
+        instance.needsRender = false // Reset after render completed
       } else {
         FluxusLogger.State.effect("diff", "Component unchanged")
-        newComponentNode.domNode = oldComponentNode.domNode
+
+        // Even if this component doesn't need update, we need to diff its children
+        // Get the current rendered node and diff it
+        instance.renderedVNode.foreach { renderedVNode =>
+          val renderFunction = instance.renderFunction
+          RenderContext.push(instance)
+          val newChildVNode = renderFunction(instance.props)
+          RenderContext.pop()
+
+          diff(renderedVNode, newChildVNode, parent)
+          instance.renderedVNode = Some(newChildVNode)
+          newComponentNode.domNode = newChildVNode.domNode
+        }
       }
     case _ =>
       FluxusLogger.Render.domUpdate("diff", "Node type mismatch - replacing")

@@ -36,6 +36,7 @@ case class ComponentInstance(
       ArrayBuffer.empty, // Mutable collection of hooks (state variables) used by the component
     var renderedVNode: Option[FluxusNode] = None,
     var needsRender: Boolean = false, // Tracks whether the component needs re-rendering
+    var children: Set[ComponentInstance] = Set.empty  // Add this
 ):
   FluxusLogger.Props.debug(
     "Creating ComponentInstance",

@@ -17,7 +17,15 @@ case class Update[T](func: T => T)
 case class StateHook[T](var state: T, setState: (T | Update[T]) => Unit)
 
 def useState[T](initialValue: T): (T, (T | Update[T]) => Unit) = {
-  val instance         = RenderContext.currentInstance
+  val instance = RenderContext.currentInstance
+  FluxusLogger.State.update(
+    "useState",
+    Map(
+      "hookIndex"     -> instance.hookIndex,
+      "hooksSize"     -> instance.hooks.size,
+      "componentType" -> instance.renderFunction.getClass.getSimpleName,
+    ),
+  )
   val currentHookIndex = instance.hookIndex
 
   if (instance.hooks.size <= currentHookIndex) {
@@ -30,6 +38,9 @@ def useState[T](initialValue: T): (T, (T | Update[T]) => Unit) = {
       }
       stateHook.state = newValue
       instance.needsRender = true
+      FluxusLogger.State.update("setState", Map("needsRender" -> instance.needsRender)) // Add this log
+      // Mark all child components for re-render too
+      instance.children.foreach(_.needsRender = true)
       renderApp()
     }
     stateHook = StateHook(initialValue, setState)
