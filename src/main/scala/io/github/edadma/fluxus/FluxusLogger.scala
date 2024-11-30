@@ -59,6 +59,13 @@ object FluxusLogger:
     def effect(component: String, description: String): Unit =
       log(Level.Debug, "Effect", s"Run in $component: $description")
 
+  object Props:
+    def debug(message: String, data: Map[String, Any] = Map()): Unit =
+      log(Level.Debug, "Props", message, data)
+
+    def trace(message: String, data: Map[String, Any] = Map()): Unit =
+      log(Level.Debug, "Props-Trace", message, data)
+
   object Memory:
     def report(): Unit =
       val mem = js.Dynamic.global.performance.memory.asInstanceOf[js.Dynamic]

@@ -3,11 +3,28 @@ package io.github.edadma.fluxus
 import scala.language.implicitConversions
 
 object Implicits:
-  implicit class CaseClassComponentOps[P](val componentFunction: P => FluxusNode) extends AnyVal:
-    def apply(props: P): FluxusNode = {
+  implicit class CaseClassComponentOps(val componentFunction: Product => FluxusNode) extends AnyVal:
+    def apply(props: Product): FluxusNode = {
+      println("CaseClassComponentOps.apply called") // Direct println to make sure
+      FluxusLogger.Props.trace(
+        "Converting case class props",
+        Map(
+          "originalType" -> props.getClass.getName,
+          "isProduct"    -> props.isInstanceOf[Product],
+        ),
+      )
+
       val propsMap = props match {
-        case p: Product => productToProps(p)
-        case _          => Map.empty[String, Any]
+        case p: Product =>
+          val converted = productToProps(p)
+          FluxusLogger.Props.trace(
+            "Converted case class to map",
+            Map(
+              "result"     -> converted,
+              "resultType" -> converted.getClass.getName,
+            ),
+          )
+          converted
       }
       ComponentNode(
         key = propsMap.get("key").map(_.toString),

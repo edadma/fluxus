@@ -86,4 +86,4 @@ def PetDashboard(props: Props): FluxusNode =
     ),
   )
 
-@main def run(): Unit = renderApp("app", PetDashboard)
+//@main def run(): Unit = renderApp("app", PetDashboard)

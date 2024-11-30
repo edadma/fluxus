@@ -49,6 +49,16 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
         "diff",
         s"Component match: ${newComponentNode.componentFunction.getClass.getSimpleName}",
       )
+      FluxusLogger.Props.debug(
+        "Diffing component nodes",
+        Map(
+          "oldProps"     -> oldComponentNode.props,
+          "newProps"     -> newComponentNode.props,
+          "propsEqual"   -> (oldComponentNode.props == newComponentNode.props),
+          "oldPropsType" -> oldComponentNode.props.getClass.getName,
+          "newPropsType" -> newComponentNode.props.getClass.getName,
+        ),
+      )
 
       newComponentNode.instance = oldComponentNode.instance
       val instance = newComponentNode.instance.getOrElse {
@@ -61,9 +71,22 @@ def diff(oldNode: FluxusNode, newNode: FluxusNode, parent: dom.Node): Unit = {
       )
 
       instance.props = newComponentNode.props
+      FluxusLogger.Props.debug(
+        "Updated instance props",
+        Map(
+          "instancePropsType" -> instance.props.getClass.getName,
+          "props"             -> instance.props,
+        ),
+      )
 
       if (instance.needsRender || oldComponentNode.props != newComponentNode.props) {
-        FluxusLogger.State.effect("diff", "Component needs update")
+        FluxusLogger.Props.debug(
+          "Component needs update",
+          Map(
+            "needsRender"  -> instance.needsRender,
+            "propsChanged" -> (oldComponentNode.props != newComponentNode.props),
+          ),
+        )
 
         RenderContext.push(instance)
         instance.resetHooks()

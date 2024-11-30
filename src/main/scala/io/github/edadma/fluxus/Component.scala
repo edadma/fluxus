@@ -37,6 +37,14 @@ case class ComponentInstance(
     var renderedVNode: Option[FluxusNode] = None,
     var needsRender: Boolean = false, // Tracks whether the component needs re-rendering
 ):
+  FluxusLogger.Props.debug(
+    "Creating ComponentInstance",
+    Map(
+      "propsType" -> props.getClass.getName,
+      "props"     -> props,
+    ),
+  )
+
   var hookIndex: Int                   = 0                 // Index to keep track of the current hook during rendering
   var effects: ArrayBuffer[() => Unit] = ArrayBuffer.empty // Stores effects and dependencies
 

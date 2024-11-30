@@ -28,3 +28,4 @@ TodoApp.scala
 StopwatchApp.scala
 SimpleTimer.scala
 TimerApp.scala
+PetDashboard.scala
