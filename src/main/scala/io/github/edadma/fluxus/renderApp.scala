@@ -55,17 +55,17 @@ private[fluxus] def renderApp(): Unit = {
   val mountPoint = dom.document.getElementById(rootId)
 
   if (rootInstance == null) {
-    rootInstance = ComponentInstance(rootComponent, makeProps())
+    rootInstance = ComponentInstance(rootComponent, emptyProps)
   }
 
   // Create a ComponentNode for the root
   val oldComponentNode = oldVNode match {
     case node: ComponentNode => node
-    case _                   => ComponentNode(None, rootComponent, makeProps(), Some(rootInstance))
+    case _                   => ComponentNode(None, rootComponent, emptyProps, Some(rootInstance))
   }
 
   // Create new ComponentNode with same structure
-  val newComponentNode = ComponentNode(None, rootComponent, makeProps(), Some(rootInstance))
+  val newComponentNode = ComponentNode(None, rootComponent, emptyProps, Some(rootInstance))
 
   FluxusLogger.State.effect("renderApp", "Starting root component diff")
 

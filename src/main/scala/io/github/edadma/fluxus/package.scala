@@ -4,8 +4,6 @@ type FluxusComponent = Product => (FluxusNode | Null)
 
 type FC[Props <: Product] = Props => (FluxusNode | Null)
 
-trait HasClassName:
-  val className: String
+case class EmptyProps()
 
-trait HasKey:
-  val key: String
+val emptyProps = EmptyProps()
