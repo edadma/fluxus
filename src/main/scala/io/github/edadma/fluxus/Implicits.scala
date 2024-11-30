@@ -2,35 +2,30 @@ package io.github.edadma.fluxus
 
 import scala.language.implicitConversions
 
+trait Component[P <: Product]:
+  def apply(props: P): FluxusNode
+
 object Implicits:
-  implicit class CaseClassComponentOps(val componentFunction: FluxusComponent) extends AnyVal:
-    def apply(props: Product): FluxusNode = {
-      println("CaseClassComponentOps.apply called") // Direct println to make sure
-      FluxusLogger.Props.trace(
-        "Converting case class props",
+  implicit class CaseClassComponentOps[P <: Product](val comp: Component[P]) extends AnyVal:
+    def apply(props: P): FluxusNode = {
+      FluxusLogger.Props.debug(
+        "Implicit CaseClassComponentOps.apply called",
         Map(
-          "originalType" -> props.getClass.getName,
-          "isProduct"    -> props.isInstanceOf[Product],
+          "componentType" -> comp.getClass.getSimpleName,
+          "propsType"     -> props.getClass.getName,
         ),
       )
-
-      val key = props.productElementNames.zip(props.productIterator)
-        .find(_._1 == "key")
-        .map(_._2.toString)
-
-      ComponentNode(
-        key = key,
-        componentFunction = componentFunction,
-        props = props,
-      )
+      component(comp)(props)
     }
 
   implicit class NoPropsComponentOps(val componentFunction: () => FluxusNode) extends AnyVal:
-    def apply(): FluxusNode =
+    def apply(): FluxusNode = {
+      FluxusLogger.Props.debug("Implicit NoPropsComponentOps.apply called")
       ComponentNode(
         key = None,
-        componentFunction = _ => componentFunction(),
-        props = emptyProps,
+        componentFunction = (_ => componentFunction()),
+        props = EmptyProps(),
       )
+    }
 
   implicit def funcToUpdate[T](func: T => T): Update[T] = Update(func)

@@ -9,16 +9,17 @@ import scala.scalajs.js.timers
 case class TimeProps(time: Long)
 
 // Child that just displays time, no state
-val TimeDisplay: FC[TimeProps] = {
-  case TimeProps(time) =>
+object TimeDisplay extends Component[TimeProps] {
+  def apply(props: TimeProps): FluxusNode = {
     FluxusLogger.Props.debug(
       "TimeDisplay rendered",
       Map(
-        "time"      -> time,
+        "time"      -> props.time,
         "propsType" -> "TimeProps",
       ),
     )
-    div(s"Time elapsed: $time seconds")
+    div(s"Time elapsed: ${props.time} seconds")
+  }
 }
 
 // Parent that uses setInterval to update child props
@@ -48,5 +49,5 @@ val Timer: FC[TimeProps] = {
 }
 
 def App(props: Product): FluxusNode =
-  component(Timer)(TimeProps(0))
+  Timer(TimeProps(0))
 @main def run(): Unit = renderApp("app", App)
