@@ -44,7 +44,7 @@ val Timer: FC[TimeProps] = {
 
     div(
       h1("Timer Test"),
-      component(TimeDisplay)(TimeProps(time)),
+      TimeDisplay(TimeProps(time)),
     )
 }
 
