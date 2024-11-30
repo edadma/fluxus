@@ -42,7 +42,7 @@ val Timer: FC[TimeProps] = {
     )
 }
 
-def App(props: Props): FluxusNode =
+def App(props: Product): FluxusNode =
   Timer(TimeProps(0))
 
 @main def run(): Unit = renderApp("app", App)

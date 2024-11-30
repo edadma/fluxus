@@ -1,8 +1,8 @@
 package io.github.edadma.fluxus
 
-type FluxusComponent = Props => (FluxusNode | Null)
+type FluxusComponent = Product => (FluxusNode | Null)
 
-type FC[Props] = Props => (FluxusNode | Null)
+type FC[Props <: Product] = Props => (FluxusNode | Null)
 
 trait HasClassName:
   val className: String

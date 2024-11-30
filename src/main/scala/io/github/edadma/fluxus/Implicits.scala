@@ -3,7 +3,7 @@ package io.github.edadma.fluxus
 import scala.language.implicitConversions
 
 object Implicits:
-  implicit class CaseClassComponentOps(val componentFunction: Product => FluxusNode) extends AnyVal:
+  implicit class CaseClassComponentOps(val componentFunction: FluxusComponent) extends AnyVal:
     def apply(props: Product): FluxusNode = {
       println("CaseClassComponentOps.apply called") // Direct println to make sure
       FluxusLogger.Props.trace(
@@ -28,8 +28,8 @@ object Implicits:
       }
       ComponentNode(
         key = propsMap.get("key").map(_.toString),
-        componentFunction = componentFunction.asInstanceOf[Props => FluxusNode],
-        props = propsMap,
+        componentFunction = componentFunction,
+        props = props,
       )
     }
 

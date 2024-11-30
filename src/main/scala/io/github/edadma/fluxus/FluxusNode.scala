@@ -23,6 +23,6 @@ case class TextNode(text: String) extends FluxusNode
 case class ComponentNode(
     key: Option[String],
     componentFunction: FluxusComponent,
-    props: Props,
+    props: Product,
     var instance: Option[ComponentInstance] = None,
 ) extends FluxusNode
