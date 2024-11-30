@@ -29,7 +29,7 @@ object Implicits:
     def apply(): FluxusNode =
       ComponentNode(
         key = None,
-        componentFunction = (_ => componentFunction()),
+        componentFunction = _ => componentFunction(),
         props = emptyProps,
       )
 
