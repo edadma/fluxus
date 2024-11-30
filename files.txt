@@ -6,7 +6,7 @@ index.html
 
 # code files for package io.github.edadma.fluxus
 ./src/main/scala/io/github/edadma/fluxus
-Component.scala
+component.scala
 diff.scala
 element.scala
 FluxusNode.scala

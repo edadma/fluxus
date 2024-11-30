@@ -25,10 +25,10 @@ var rootComponent: FluxusComponent  = uninitialized // The root component functi
 var oldVNode: FluxusNode = null
 
 // The `renderApp` function initializes the app by setting the root ID and component, and then triggers the rendering
-def renderApp(id: String, component: FluxusComponent): Unit = {
-  rootId = id               // Store the ID of the mount point
-  rootComponent = component // Store the root component function
-  renderApp()               // Call the internal renderApp to perform the rendering
+def renderApp(id: String, component: () => FluxusNode): Unit = {
+  rootId = id                      // Store the ID of the mount point
+  rootComponent = _ => component() // Store the root component function
+  renderApp()                      // Call the internal renderApp to perform the rendering
 }
 
 object PerformanceMonitor {

@@ -2,12 +2,9 @@ package io.github.edadma.fluxus
 
 import scala.language.implicitConversions
 
-trait Component[P <: Product]:
-  def apply(props: P): FluxusNode
-
 object Implicits:
-  implicit class CaseClassComponentOps[P <: Product](val comp: Component[P]) extends AnyVal:
-    def apply(props: P): FluxusNode = {
+  implicit class CaseClassComponentOps[P <: Product](val comp: FC[P]) extends AnyVal:
+    def <>(props: P): FluxusNode = {
       FluxusLogger.Props.debug(
         "Implicit CaseClassComponentOps.apply called",
         Map(
@@ -19,13 +16,11 @@ object Implicits:
     }
 
   implicit class NoPropsComponentOps(val componentFunction: () => FluxusNode) extends AnyVal:
-    def apply(): FluxusNode = {
+    def <>(u: Unit): FluxusNode = {
       FluxusLogger.Props.debug("Implicit NoPropsComponentOps.apply called")
       ComponentNode(
         key = None,
-        componentFunction = (_ => componentFunction()),
+        componentFunction = _ => componentFunction(),
         props = EmptyProps(),
       )
     }
-
-  implicit def funcToUpdate[T](func: T => T): Update[T] = Update(func)
