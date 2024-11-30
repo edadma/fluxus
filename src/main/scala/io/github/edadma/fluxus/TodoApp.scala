@@ -82,10 +82,10 @@ val TodoList: FC[TodoListProps] = {
 val TodoApp: () => FluxusNode = () => {
   val (todos, setTodos) = useState(Seq[Todo]())
 
-  def addTodo(text: String) =
+  def addTodo(text: String): Unit =
     setTodos(todos :+ Todo(js.Date.now().toString, text, false))
 
-  def toggleTodo(id: String) =
+  def toggleTodo(id: String): Unit =
     setTodos(todos.map(todo =>
       if (todo.id == id) todo.copy(completed = !todo.completed)
       else todo,
