@@ -63,8 +63,22 @@ object FluxusLogger:
     def debug(message: String, data: Map[String, Any] = Map()): Unit =
       log(Level.Debug, "Props", message, data)
 
-    def trace(message: String, data: Map[String, Any] = Map()): Unit =
-      log(Level.Debug, "Props-Trace", message, data)
+    def formatProps(props: Product): String =
+      props.productElementNames
+        .zip(props.productIterator)
+        .map { case (name, value) => s"$name=$value" }
+        .mkString(", ")
+
+    def trace(message: String, props: Product): Unit =
+      log(
+        Level.Debug,
+        "Props-Trace",
+        message,
+        Map(
+          "type"   -> props.getClass.getName,
+          "values" -> formatProps(props),
+        ),
+      )
 
   object Memory:
     def report(): Unit =

@@ -14,20 +14,12 @@ object Implicits:
         ),
       )
 
-      val propsMap = props match {
-        case p: Product =>
-          val converted = productToProps(p)
-          FluxusLogger.Props.trace(
-            "Converted case class to map",
-            Map(
-              "result"     -> converted,
-              "resultType" -> converted.getClass.getName,
-            ),
-          )
-          converted
-      }
+      val key = props.productElementNames.zip(props.productIterator)
+        .find(_._1 == "key")
+        .map(_._2.toString)
+
       ComponentNode(
-        key = propsMap.get("key").map(_.toString),
+        key = key,
         componentFunction = componentFunction,
         props = props,
       )
@@ -38,10 +30,7 @@ object Implicits:
       ComponentNode(
         key = None,
         componentFunction = (_ => componentFunction()),
-        props = Map.empty,
+        props = emptyProps,
       )
-
-  private def productToProps(p: Product): Map[String, Any] =
-    p.productElementNames.zip(p.productIterator).toMap
 
   implicit def funcToUpdate[T](func: T => T): Update[T] = Update(func)
