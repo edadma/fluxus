@@ -2,6 +2,10 @@
 
 # framework code files
 
+; api
+./src/main/scala/io/github/edadma/fluxus/api
+Element.scala
+
 ; core
 ./src/main/scala/io/github/edadma/fluxus/core/context
 FrameworkConfig.scala
