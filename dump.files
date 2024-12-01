@@ -7,6 +7,9 @@
 FrameworkConfig.scala
 ./src/main/scala/io/github/edadma/fluxus/core/types
 FluxusNode.scala
+ComponentInstance.scala
+./src/main/scala/io/github/edadma/fluxus/core/util
+IdGenerator.scala
 
 ; error
 ./src/main/scala/io/github/edadma/fluxus/error
