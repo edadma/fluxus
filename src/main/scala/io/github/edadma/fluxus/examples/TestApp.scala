@@ -2,6 +2,8 @@ package io.github.edadma.fluxus.examples
 
 import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.{Category, LogLevel}
+import io.github.edadma.fluxus.api.Element._
+import io.github.edadma.fluxus.core.dom.DOMOperations
 
 @main def run(): Unit = {
   Logger.setLevel(LogLevel.DEBUG)
@@ -9,20 +11,22 @@ import io.github.edadma.fluxus.logging.Logger.{Category, LogLevel}
 
   Logger.info(Category.Component, "Starting test app", opId)
 
+  // Create a simple UI using our Element DSL
   val content =
-    """
-        |<div class="hero min-h-screen bg-base-200">
-        |  <div class="hero-content text-center">
-        |    <div class="max-w-md">
-        |      <h1 class="text-5xl font-bold">Hello World</h1>
-        |      <p class="py-6">This is a simple test app using DaisyUI styling.</p>
-        |      <button class="btn btn-primary">Get Started</button>
-        |    </div>
-        |  </div>
-        |</div>
-      """.stripMargin
+    div(
+      cls := "hero min-h-screen bg-base-200",
+      div(
+        cls := "hero-content text-center",
+        div(
+          cls := "max-w-md",
+          h1(cls     := "text-5xl font-bold", "Hello World"),
+          p(cls      := "py-6", "This is a simple test app using Fluxus and DaisyUI styling."),
+          button(cls := "btn btn-primary", "Get Started"),
+        ),
+      ),
+    )
 
-  // When the framework is ready, this will be replaced with proper component rendering
+  // Get container and mount
   val container = org.scalajs.dom.document.getElementById("app")
-  container.innerHTML = content
+  DOMOperations.mount(content, container)
 }

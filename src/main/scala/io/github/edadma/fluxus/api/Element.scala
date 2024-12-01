@@ -48,4 +48,11 @@ object Element {
   def div(contents: Any*): ElementNode    = createElement("div", contents*)
   def button(contents: Any*): ElementNode = createElement("button", contents*)
   def span(contents: Any*): ElementNode   = createElement("span", contents*)
+  def p(contents: Any*): ElementNode      = createElement("p", contents*)
+  def h1(contents: Any*): ElementNode     = createElement("h1", contents*)
+  def h2(contents: Any*): ElementNode     = createElement("h2", contents*)
+  def h3(contents: Any*): ElementNode     = createElement("h3", contents*)
+  def h4(contents: Any*): ElementNode     = createElement("h4", contents*)
+  def h5(contents: Any*): ElementNode     = createElement("h5", contents*)
+  def h6(contents: Any*): ElementNode     = createElement("h6", contents*)
 }
