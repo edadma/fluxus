@@ -23,7 +23,7 @@ case class ElementNode(
 case class ComponentNode(
     component: Any => FluxusNode,
     props: Map[String, Any],
-    instance: Option[Any],
+    instance: Option[ComponentInstance],
     key: Option[String],
 ) extends FluxusNode {
   val parent: Option[FluxusNode] = None
