@@ -1,0 +1,31 @@
+; Fluxus project code
+
+# framework code files
+
+; core
+./src/main/scala/io/github/edadma/fluxus/core/context
+FrameworkConfig.scala
+./src/main/scala/io/github/edadma/fluxus/core/types
+FluxusNode.scala
+
+; error
+./src/main/scala/io/github/edadma/fluxus/error
+ValidationError.scala
+
+; logging
+./src/main/scala/io/github/edadma/fluxus/logging
+Logger.scala
+
+# example apps
+./src/main/scala/io/github/edadma/fluxus/examples
+TestApp.scala
+
+; index.html for the test apps
+./public
+index.html
+
+# build files
+./
+build.sbt
+package.json
+tailwind.config.js
