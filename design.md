@@ -1251,3 +1251,102 @@ cleanupTree(root):
   log(DEBUG, "Tree cleanup complete")
 ```
 
+# 7. LOGGING SYSTEM
+
+### Log Levels
+```
+enum LogLevel:
+  - OFF     // No logging
+  - ERROR   // Only errors
+  - WARN    // Errors + warnings
+  - INFO    // High-level operations
+  - DEBUG   // Detailed debugging
+  - TRACE   // Most verbose
+```
+
+### Logging Categories
+1. Component Operations
+2. Virtual DOM
+3. State & Effects
+4. Memory Management
+5. Render Cycle
+
+### Logger API
+```
+Logger:
+  // Logging
+  log(level, category, message, data?)
+  error(category, message, error?)
+  warn(category, message, data?)
+  info(category, message, data?)
+  debug(category, message, data?)
+  trace(category, message, data?)
+  
+  // Resource tracking
+  countLiveObjects(): LiveObjectCounts
+  reportResourceMetrics()
+  checkResourceWarnings()
+  inspectComponent(instance): ComponentMemoryInfo
+  
+  // Configuration
+  setLevel(level)
+  setCategoryLevel(category, level)
+  enable()
+  disable()
+```
+
+### Log Events
+```
+LogEvents: {
+  COMPONENT: {
+    CREATED: "component_created",
+    UPDATED: "component_updated",
+    DISPOSED: "component_disposed",
+    ERROR: "component_error",
+    EFFECT_ERROR: "effect_error"
+  },
+  STATE: {
+    UPDATED: "state_updated",
+    UPDATE_DEFERRED: "state_update_deferred",
+    BATCH_PROCESSED: "batch_processed"
+  },
+  RESOURCE: {
+    TIMER_REGISTERED: "timer_registered",
+    TIMER_CLEARED: "timer_cleared",
+    MEMORY_WARNING: "memory_warning"
+  }
+}
+```
+
+### Memory Warning Thresholds
+```
+MemoryThresholds: {
+  componentCount: 1000,
+  domNodeCount: 5000,
+  eventListenerCount: 1000,
+  effectCount: 2000,
+  hookCount: 5000,
+  treeDepth: 32,
+  activeTimers: 100
+}
+```
+
+### Component Memory Info
+```
+ComponentMemoryInfo: {
+  hookCount: number,
+  effectCount: number,
+  childCount: number,
+  listenerCount: number,
+  timerCount: number,
+  treeDepth: number,
+  lastRenderTime: number,
+  updateCount: number,
+  errorHistory: Array<{
+    time: number,
+    error: Error,
+    phase: "render" | "effect" | "cleanup"
+  }>
+}
+```
+
