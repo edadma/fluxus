@@ -77,7 +77,7 @@ object DOMOperations {
         )
         dom.document.createTextNode(text)
 
-      case ComponentNode(component, props, instance: Option[ComponentInstance] @unchecked, _) =>
+      case ComponentNode(component, props, instance: Option[ComponentInstance], _) =>
         Logger.debug(
           Category.VirtualDOM,
           s"Processing component node",
