@@ -9,6 +9,8 @@ Element.scala
 ; core
 ./src/main/scala/io/github/edadma/fluxus/core/context
 FrameworkConfig.scala
+./src/main/scala/io/github/edadma/fluxus/core/dom
+DOMOperations.scala
 ./src/main/scala/io/github/edadma/fluxus/core/types
 FluxusNode.scala
 ComponentInstance.scala
