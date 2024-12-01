@@ -1,4 +1,4 @@
-package io.edadma.fluxus.logging
+package io.github.edadma.fluxus.logging
 
 import org.scalajs.dom.console
 
