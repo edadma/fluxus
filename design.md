@@ -1100,3 +1100,154 @@ runEffect(effect, instance):
     instance.hasEffectError = true
 ```
 
+# 6. REFERENCE & CLEANUP MANAGEMENT
+
+### Resource Tracking
+```
+LiveObjectCounts:
+  - componentCount: number
+  - domNodeCount: number
+  - eventListenerCount: number
+  - effectCount: number
+  - hookCount: number
+  - treeDepth: number
+  - activeTimers: number
+  - componentBreakdown: Map[ComponentType, number]
+  - listenerBreakdown: Map[EventType, number]
+```
+
+### Timer Tracking
+```
+TimerRegistry:
+  activeTimers: Map[ComponentInstance, Set<TimerId>]
+  
+  registerTimer(instance, timerId):
+    if !activeTimers.has(instance):
+      activeTimers.set(instance, new Set())
+    activeTimers.get(instance).add(timerId)
+    log(DEBUG, "Registered timer", {instance, timerId})
+  
+  clearTimer(instance, timerId):
+    if activeTimers.has(instance):
+      timerSet = activeTimers.get(instance)
+      timerSet.delete(timerId)
+      if timerSet.size === 0:
+        activeTimers.delete(instance)
+    log(DEBUG, "Cleared timer", {instance, timerId})
+  
+  clearAllTimers(instance):
+    if activeTimers.has(instance):
+      timers = activeTimers.get(instance)
+      for timerId in timers:
+        clearTimeout(timerId)  // or clearInterval
+      activeTimers.delete(instance)
+    log(DEBUG, "Cleared all timers", {instance})
+```
+
+### Parent/Child Reference Management
+```
+class ComponentInstance:
+  // Existing fields...
+  parent: ComponentInstance | null
+  children: Set<ComponentInstance>
+  
+  addChild(child):
+    children.add(child)
+    child.parent = this
+    log(DEBUG, "Added child to component", {parent: this, child})
+  
+  removeChild(child):
+    children.delete(child)
+    child.parent = null
+    log(DEBUG, "Removed child from component", {parent: this, child})
+  
+  // Called during component initialization
+  establishParentChild(parent, child):
+    if child.parent:
+      child.parent.removeChild(child)
+    parent.addChild(child)
+```
+
+### Cleanup Processes
+```
+cleanupDOMNode(node):
+  log(DEBUG, "DOM node cleanup")
+  
+  // Follow standard cleanup order for DOM nodes
+  // 1. Children already handled by component cleanup
+  // 2. No effects for DOM nodes
+  // 3. Remove event listeners
+  removeAllEventListeners(node)
+  log(DEBUG, "Removed event listeners")
+  
+  // 4-5. Clear virtual DOM references
+  clearVirtualDOMReferences(node)
+  log(DEBUG, "Cleared virtual DOM mappings")
+  
+  // 6. Clear parent/child refs
+  node.parent = null
+  node.children = []
+  log(DEBUG, "Cleared parent/child references")
+  
+  // 7. Update counts
+  decrementResourceCounts(node)
+  
+  // 8. Clear any remaining references
+  log(DEBUG, "DOM node cleanup complete")
+
+cleanupComponent(instance):
+  log(DEBUG, "Component cleanup starting")
+  instance.isInCleanup = true  // Added in 8th draft
+  
+  // Following standard cleanup order:
+  
+  // 1. Recursively cleanup children first
+  for each child in instance.children:
+    cleanupComponent(child)
+  log(DEBUG, "Child components cleaned up")
+  
+  // Clear all timers before effect cleanup
+  TimerRegistry.clearAllTimers(instance)
+  
+  // 2. Run effect cleanups in reverse order
+  for each effect in reverse(instance.effects):
+    if effect.cleanup exists:
+      runEffectCleanup(effect)  // Modified in 8th draft
+  log(DEBUG, "Effect cleanups complete")
+  
+  // 3. Remove event listeners
+  if instance.domNode:
+    removeAllEventListeners(instance.domNode)
+  
+  // 4. Clear hook data
+  instance.hooks = []
+  instance.hookIndex = 0
+  log(DEBUG, "Hook data cleared")
+  
+  // 5. Clear DOM references
+  instance.domNode = null
+  
+  // 6. Remove from parent
+  if instance.parent:
+    instance.parent.removeChild(instance)
+  
+  // 7. Update resource tracking
+  decrementResourceCounts(instance)
+  
+  // 8. Clear remaining references
+  instance.parent = null
+  instance.rendered = null
+  instance.isInCleanup = false
+  
+  log(DEBUG, "Component cleanup complete")
+
+cleanupTree(root):
+  log(DEBUG, "Tree cleanup starting")
+  // Uses post-order traversal to ensure children are cleaned up before parents
+  // This naturally follows our cleanup order standard
+  for each child in root.children:
+    cleanupTree(child)
+  cleanupComponent(root)  // Uses standard cleanup order
+  log(DEBUG, "Tree cleanup complete")
+```
+
