@@ -523,3 +523,237 @@ This architecture ensures:
 - Maintainable component trees
 - Efficient update processing
 
+# 3. VIRTUAL DOM & DIFFING
+
+## Node Types
+
+### ElementNode
+```
+ElementNode represents DOM elements:
+nodeType: "element"
+tag: HTML/SVG tag name
+props: Map of properties
+events: Map of event handlers
+children: Array of FluxusNodes
+parent: Reference to parent node
+domNode: Reference to actual DOM element
+key: Optional identifier
+namespace: SVG/other namespace support
+ref: Reference callback
+
+elementNode.validate():
+  verify tag is valid HTML/SVG tag
+  check parent is ElementNode or ComponentNode
+  ensure no child reference cycles exist
+  validate all props are serializable
+  confirm event handlers are functions
+  verify namespace matches tag type
+```
+
+### ComponentNode
+```
+ComponentNode represents user components:
+nodeType: "component"
+component: Reference to component function
+props: Read-only property map
+instance: ComponentInstance reference
+key: Optional identifier 
+lazy: Flag for lazy loading
+suspense: Flag for suspense boundary
+errorBoundary: Flag for error handling
+
+componentNode.validate():
+  verify component is valid function/class
+  ensure props are immutable
+  check instance state validity
+  verify only one boundary flag is set
+  validate children references
+```
+
+### TextNode
+```
+TextNode represents text content:
+nodeType: "text"
+text: String content
+parent: Reference to parent ElementNode
+domNode: Reference to DOM text node
+key: Optional identifier
+
+textNode.validate():
+  verify text is valid string
+  ensure parent is ElementNode
+  check no children are present
+```
+
+## DOM Operations
+
+### Node Creation
+```
+createDOMNode(vnode):
+  match vnode.nodeType:
+    case "element":
+      element = createElementWithNamespace(vnode.tag, vnode.namespace)
+      
+      for each prop in vnode.props:
+        if isEventHandler(prop):
+          registerEventListener(element, prop, handler)
+        else:
+          setAttribute(element, prop, value)
+      
+      for each child in vnode.children:
+        childNode = createDOMNode(child)
+        append childNode to element
+      
+      trackResourceCreation("domNode")
+      return element
+      
+    case "text":
+      node = createTextNode(vnode.text)
+      trackResourceCreation("textNode")
+      return node
+      
+    case "component":
+      return createDOMNode(vnode.instance.rendered)
+
+registerEventListener(element, eventName, handler):
+  create entry in listenerMap for element if not exists
+  add handler to element's listener map
+  attach actual DOM listener
+  increment listener count
+  log listener registration
+```
+
+### Node Updates
+```
+updateDOMNode(oldNode, newNode):
+  if nodes have different types:
+    replace old node with new
+    return
+    
+  if both are text nodes:
+    if text content different:
+      update DOM text content
+    return
+    
+  if both are element nodes:
+    if tags different:
+      replace entire node
+      return
+      
+    updateAttributes(oldNode, newNode)
+    updateEventListeners(oldNode, newNode)
+    updateChildren(oldNode, newNode)
+
+updateAttributes(oldNode, newNode):
+  get old and new attribute sets
+  remove attributes not in new set
+  update changed attributes
+  add new attributes
+
+updateEventListeners(oldNode, newNode):
+  get old and new listener maps
+  remove listeners not in new map
+  update changed listeners
+  add new listeners
+```
+
+## Diffing Algorithm
+
+### Core Diffing
+```
+diff(oldNode, newNode):
+  if oldNode === newNode:
+    reuse node entirely
+    return
+    
+  if oldNode.type !== newNode.type:
+    replace entire node
+    return
+    
+  match node types:
+    case TextNode:
+      handleTextDiff(oldNode, newNode)
+    case ElementNode:
+      handleElementDiff(oldNode, newNode)
+    case ComponentNode:
+      handleComponentDiff(oldNode, newNode)
+
+handleTextDiff(oldNode, newNode):
+  if texts different:
+    update DOM text
+  preserve DOM node reference
+
+handleElementDiff(oldNode, newNode):
+  if tags different:
+    replace element entirely
+  else:
+    updateAttributes(oldNode, newNode)
+    updateEventListeners(oldNode, newNode)
+    diffChildren(oldNode, newNode)
+
+handleComponentDiff(oldNode, newNode):
+  if component types different:
+    handleComponentTypeChange(oldNode, newNode)
+  else if needsUpdate(oldNode, newNode):
+    updateComponent(oldNode, newNode)
+  else:
+    diffChildren(oldNode.rendered, newNode.rendered)
+```
+
+### Child List Diffing
+```
+diffChildren(oldParent, newParent):
+  create maps of keyed children
+  
+  // Handle keyed children first
+  for each child in newParent.children:
+    if child has key:
+      if matching old child exists:
+        diff those nodes
+      else:
+        create new node
+        
+  // Handle non-keyed children
+  for each remaining child:
+    find matching old child by index
+    diff if found, create if not
+    
+  // Remove unmatched old children
+  for each old child not matched:
+    remove from DOM
+    clean up resources
+```
+
+### Component Type Changes
+```
+handleComponentTypeChange(oldNode, newNode):
+  // Find preservable children
+  preservableChildren = new Map()
+  for each child in oldNode with key:
+    add to preservableChildren map
+    
+  // Create new instance
+  newInstance = createInstance(newNode.component)
+  initialize with props
+  
+  // Initial render
+  rendered = renderComponent(newInstance)
+  
+  // Preserve matching children
+  for each child in rendered:
+    if matching old child exists:
+      transfer child to new parent
+      remove from preservable map
+      
+  // Cleanup remaining old nodes
+  cleanupFollowingStandard(oldNode)
+```
+
+This architecture provides:
+- Efficient incremental updates
+- Stable component handling
+- Resource cleanup
+- Error resilience
+- Key-based child reconciliation
+- Performance monitoring
+
