@@ -757,3 +757,130 @@ This architecture provides:
 - Key-based child reconciliation
 - Performance monitoring
 
+# 4. KEY MANAGEMENT
+
+### Rules
+- Optional for static elements
+- Required for list items
+- Must be unique among siblings
+- Must be stable across renders
+- Log duplicate keys as ERROR
+
+### Child List Diffing
+1. Build maps of keyed nodes
+2. For each new child:
+    - With key: find & update/create
+    - No key: position-based diff
+3. Remove unmatched old nodes
+4. Log key-based operations (DEBUG)
+
+### Key Change Handling
+When a node's key changes, it's treated as a completely different node. The cleanup and initialization process follows the framework's standard cleanup order defined below. This same order is used consistently throughout the framework for all cleanup operations.
+
+1. Cleanup Order Standard:
+   ```
+   // Standard cleanup sequence for all cleanup operations:
+   Cleanup Standard:
+     1. Recursively cleanup children (depth-first, post-order traversal)
+     2. Run component's effect cleanups (in reverse creation order)
+     3. Remove event listeners
+     4. Clear hook data
+     5. Clear DOM references
+     6. Remove from parent
+     7. Update resource counts
+     8. Clear remaining references
+     
+   Note: This standard order is followed by:
+   - Key change cleanup (this section)
+   - Component disposal (Section 2)
+   - General cleanup processes (Section 6)
+   - Tree cleanup operations
+   - Node replacement in diffing
+   ```
+
+2. Old Component Cleanup Implementation:
+   ```
+   cleanupKeyedComponent(oldInstance):
+     log(DEBUG, "Key change: starting cleanup")
+     
+     // 1. First recursively cleanup all children
+     for each child in oldInstance.children:
+       cleanupKeyedComponent(child)
+     log(DEBUG, "Key change: child cleanup complete")
+     
+     // 2. Run effect cleanups in reverse order
+     for each effect in reverse(oldInstance.effects):
+       if effect.cleanup exists:
+         effect.cleanup()
+         log(DEBUG, "Key change: cleaned up effect")
+     
+     // 3. Remove DOM event listeners
+     removeAllEventListeners(oldInstance.domNode)
+     
+     // 4. Clear hook data
+     oldInstance.hooks = []
+     oldInstance.hookIndex = 0
+     log(DEBUG, "Key change: cleared hooks")
+     
+     // 5. Clear DOM references
+     oldInstance.domNode = null
+     
+     // 6. Remove from parent
+     if oldInstance.parent:
+       oldInstance.parent.removeChild(oldInstance)
+     
+     // 7. Update resource tracking
+     decrementResourceCounts(oldInstance)
+     
+     // 8. Clear remaining references
+     oldInstance.parent = null
+     oldInstance.rendered = null
+     
+     log(DEBUG, "Key change: cleanup complete")
+   ```
+
+3. New Component Initialization:
+   ```
+   createComponentInstance(component, props):
+     instance = new ComponentInstance()
+     instance.component = component
+     instance.props = props
+     instance.hooks = []
+     instance.effects = []
+     instance.hookIndex = 0
+     instance.isRendering = false
+     instance.needsRender = true
+     instance.children = new Set()  // Added in 8th draft
+     
+     incrementResourceCounts(instance)
+     log(DEBUG, "Created component instance")
+     
+     return instance
+   
+   initializeKeyedComponent(newInstance):
+     log(DEBUG, "Key change: initializing new component")
+     
+     // First render will handle hook initialization
+     renderComponent(newInstance)
+   ```
+
+4. Key Change Detection:
+   ```
+   handleKeyChange(oldNode, newNode, parent):
+     if (oldNode.key !== newNode.key):
+       log(DEBUG, "Key change detected", {
+         old: oldNode.key, 
+         new: newNode.key
+       })
+       
+       // Clean up old component
+       cleanupKeyedComponent(oldNode.instance)
+       
+       // Initialize new component
+       newNode.instance = createComponentInstance(newNode.component, newNode.props)
+       initializeKeyedComponent(newNode.instance)
+       
+       // Update parent references
+       newNode.instance.parent = parent
+   ```
+   
