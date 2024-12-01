@@ -883,4 +883,112 @@ When a node's key changes, it's treated as a completely different node. The clea
        // Update parent references
        newNode.instance.parent = parent
    ```
-   
+
+# 5. HOOKS SYSTEM
+
+### Hook Types
+1. State Hook:
+    - Stores value
+    - Updates trigger re-render
+    - Validates render safety
+
+2. Effect Hook:
+    - Manages side effects
+    - Handles cleanup
+    - Tracks dependencies
+
+### useState Implementation
+```
+useState(initialValue):
+  instance = RenderContext.currentInstance
+  
+  if (instance.isRendering):
+    log(ERROR, "State update during render")
+    throw Error("Cannot update state during render")
+  
+  currentHook = instance.hooks[instance.hookIndex]
+  
+  if first render:
+    log(DEBUG, "Hook initialization")
+    stateHook = {
+      state: initialValue,
+      setState: (newValue) => {
+        if instance.isInCleanup:  // Added in 8th draft
+          log(WARN, "State update during cleanup - deferring to next render")
+          BatchUpdateManager.queueUpdate(instance.parent, newValue)
+          return
+        
+        log(DEBUG, "State update", {old: stateHook.state, new: newValue})
+        BatchUpdateManager.queueUpdate(instance, newValue)  // Modified in 8th draft
+      }
+    }
+    instance.hooks[instance.hookIndex] = stateHook
+  
+  instance.hookIndex++
+  return [currentHook.state, currentHook.setState]
+```
+
+### useEffect Implementation
+```
+useEffect(effectFn, deps):
+  instance = RenderContext.currentInstance
+  currentHook = instance.hooks[instance.hookIndex]
+  
+  if first render:
+    log(DEBUG, "Effect initialization")
+    effectHook = {
+      deps: deps,
+      cleanup: null
+    }
+    instance.hooks[instance.hookIndex] = effectHook
+    instance.effects.push(() => {
+      log(TRACE, "Effect execution")
+      try {  // Added in 8th draft
+        if (effectHook.cleanup) {
+          log(TRACE, "Effect cleanup")
+          runEffectCleanup(effectHook)  // Modified in 8th draft
+        }
+        effectHook.cleanup = effectFn()
+      } catch (error) {
+        log(ERROR, "Effect error", {error})
+        instance.hasEffectError = true
+      }
+    })
+  else:
+    if depsChanged(oldDeps, deps):
+      log(DEBUG, "Effect deps changed")
+      instance.effects.push(() => {
+        try {  // Added in 8th draft
+          if (effectHook.cleanup) runEffectCleanup(effectHook)
+          effectHook.cleanup = effectFn()
+        } catch (error) {
+          log(ERROR, "Effect error", {error})
+          instance.hasEffectError = true
+        }
+      })
+    currentHook.deps = deps
+  
+  instance.hookIndex++
+```
+
+### Effect Error Handling
+```
+runEffectCleanup(effect):
+  if effect.cleanup:
+    try:
+      effect.cleanup()
+    catch (error):
+      log(ERROR, "Effect cleanup error", {error})
+      // Continue with other cleanups despite error
+
+runEffect(effect, instance):
+  try:
+    cleanup = effect.effectFn()
+    if cleanup:
+      effect.cleanup = cleanup
+  catch (error):
+    log(ERROR, "Effect execution error", {error})
+    // Mark component as errored but don't block other effects
+    instance.hasEffectError = true
+```
+
