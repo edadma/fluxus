@@ -1321,3 +1321,175 @@ setState(newValue):
 5. Timer updates queue normally
 6. Effect updates run after render complete
 
+# 9. DEVELOPER INTERFACE & DSL
+
+## Overview
+The framework must provide an ergonomic, type-safe interface for developers to create and manipulate components. This interface layer provides natural syntax for writing Fluxus applications while maintaining compile-time safety guarantees.
+
+## Element Creation Interface
+
+### Core Requirements
+1. Simple creation syntax for HTML/SVG elements
+2. Type-safe attribute assignment
+3. Flexible child content handling
+4. Automatic type conversion for content
+5. Clear error messages for invalid usage
+
+### Attribute System
+The attribute system must:
+1. Support typed attribute values
+2. Prevent duplicate attribute assignment
+3. Validate attribute names
+4. Handle special attributes (class, style) elegantly
+5. Support event handlers as attributes
+6. Maintain type information through assignment
+
+### Event Handling Requirements
+1. Type-safe event handler registration
+2. Proper event type inference
+3. Access to event details
+4. Prevention of memory leaks
+5. Support for event delegation
+6. Handler cleanup on component disposal
+
+## Component Definition
+
+### Function Components
+Components must support:
+1. Props as type-safe parameters
+2. Optional props with defaults
+3. Child content handling
+4. Internal state management
+5. Effect registration
+6. Resource cleanup
+7. Error boundaries
+8. Performance optimization hints
+9. Debug information in development
+
+### Props System
+Props requirements:
+1. Type-safe prop definitions
+2. Required vs optional props
+3. Prop validation rules
+4. Default value handling
+5. Props update detection
+6. Debug validation in development
+7. Clear error messages for misuse
+
+### Composition Patterns
+The system must support:
+1. Child component composition
+2. Component wrapping/HOCs
+3. Render props pattern
+4. Component references
+5. Context provision/consumption
+6. Slot-based composition
+7. Dynamic children
+8. Conditional rendering
+
+## Type Safety Requirements
+
+### Compile-time Guarantees
+1. Attribute type correctness
+2. Required props presence
+3. Event handler signatures
+4. Child content types
+5. Resource cleanup registration
+6. Effect dependency tracking
+7. Key uniqueness where required
+
+### Runtime Validation
+1. Dynamic prop values
+2. Child structure validity
+3. Resource limit compliance
+4. Performance thresholds
+5. Memory usage patterns
+6. Circular references
+7. Invalid state transitions
+
+## Resource Management
+
+### Reference System
+Requirements for refs:
+1. Type-safe reference creation
+2. Automatic cleanup
+3. Lifecycle awareness
+4. Circular reference prevention
+5. Debug tracking
+6. Invalid access detection
+7. Performance impact monitoring
+
+### Cleanup System
+Must handle:
+1. Effect cleanup
+2. Event handler removal
+3. Timer cancellation
+4. Resource release
+5. Child cleanup ordering
+6. Partial cleanup on errors
+7. Cleanup verification
+
+## Development Support
+
+### Debug Capabilities
+Development mode must provide:
+1. Component tree visualization
+2. Props/state inspection
+3. Update tracking
+4. Performance monitoring
+5. Memory usage analysis
+6. Error boundary inspection
+7. Resource leak detection
+
+### Error Handling
+The system must support:
+1. Declarative error boundaries
+2. Detailed error information
+3. Recovery mechanisms
+4. Error isolation
+5. Debug information capture
+6. Error reporting
+7. Development mode warnings
+
+## Interface Design Principles
+
+### Consistency
+1. Similar patterns for similar operations
+2. Predictable behavior
+3. Clear failure modes
+4. Consistent naming
+5. Pattern repetition
+6. Intuitive shortcuts
+7. Standard lifecycle hooks
+
+### Safety
+1. Prevent common mistakes
+2. Early error detection
+3. Clear error messages
+4. Type system utilization
+5. Resource safety
+6. Memory safety
+7. Update safety
+
+### Performance
+1. Minimal overhead
+2. Efficient updates
+3. Resource sharing
+4. Memory optimization
+5. Update batching
+6. Code splitting support
+7. Development vs production modes
+
+This interface design ensures:
+1. Developer productivity through intuitive patterns
+2. System safety through type system utilization
+3. Performance through careful abstraction design
+4. Maintainability through consistent patterns
+5. Debuggability through comprehensive tooling
+
+All features must maintain the framework's core focus on:
+- Type safety
+- Performance
+- Developer experience
+- Clear patterns
+- Resource management
