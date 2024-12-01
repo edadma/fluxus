@@ -82,7 +82,7 @@ EffectHook.scala
 - Effect error handling
 ```
 
-### core/vdom/
+### core/dom/
 ```
 DOMOperations.scala
 - Node creation with namespace support
