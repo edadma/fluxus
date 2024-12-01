@@ -212,8 +212,8 @@ Component.scala
 - Suspense boundaries
 - Component validation
 
-Render.scala
-- Render helpers
+Element.scala
+- Element helpers
 - Node creation
 - Event handling
 - Prop management
