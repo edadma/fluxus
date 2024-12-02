@@ -9,7 +9,10 @@ Element.scala
 ; core
 ./src/main/scala/io/github/edadma/fluxus/core/context
 FrameworkConfig.scala
+./src/main/scala/io/github/edadma/fluxus/core/debug
+DebugTools.scala
 ./src/main/scala/io/github/edadma/fluxus/core/dom
+Diffing.scala
 DOMOperations.scala
 ./src/main/scala/io/github/edadma/fluxus/core/hooks
 Hooks.scala
@@ -38,6 +41,8 @@ index.html
 # unit testing
 ./src/test/scala/io/github/edadma/fluxus/core/hooks
 HooksTest.scala
+./src/test/scala/io/github/edadma/fluxus/core/types
+ComponentTest.scala
 
 # build files
 ./

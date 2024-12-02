@@ -215,17 +215,17 @@ object Component {
       props: P,
       key: Option[String] = None,
       opId: Int,
+      name: Option[String] = None,
   ): ComponentNode = {
     Logger.debug(Category.Component, "Creating component", opId)
 
-    // Validate props
     validateProps(props, opId)
 
     val instance = ComponentInstance(
       component = render.asInstanceOf[Any => FluxusNode],
-      componentType = render.getClass.getSimpleName,
+      componentType = name.getOrElse(render.getClass.getSimpleName),
       props = toMap(props),
-      debugName = Some(render.getClass.getSimpleName), // Add debug name based on render function
+      debugName = name,
     )
 
     instance.initialize(opId)
