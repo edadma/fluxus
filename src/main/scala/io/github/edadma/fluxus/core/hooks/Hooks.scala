@@ -143,8 +143,8 @@ object Hooks {
               "stackTrace"     -> Thread.currentThread().getStackTrace.mkString("\n"),
             ),
           )
-          // Just return without doing anything instead of using 'return'
         } else {
+          // Only proceed with update if NOT in cleanup
           Logger.debug(
             Category.StateEffect,
             "State update",
@@ -155,7 +155,6 @@ object Hooks {
               "oldValue"     -> currentValue,
               "newValue"     -> newValue,
               "stateVersion" -> instance.stateVersion,
-              "needsRender"  -> instance.needsRender,
             ),
           )
 
