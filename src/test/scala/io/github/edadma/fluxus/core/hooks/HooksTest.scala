@@ -99,10 +99,18 @@ class HooksTest extends AnyFlatSpec with Matchers {
       setCount = Some(setter)
     }
 
+    // The hook should be in the first position
+    val hook = instance.hooks(0).asInstanceOf[StateHook[Int]]
+
+    // Verify initial state
+    hook.value shouldBe 0
+
     // Try to update during cleanup
     instance.isInCleanup = true
     setCount.foreach(_(5))
-    instance.needsRender shouldBe false // State update should be skipped
+
+    // Verify state wasn't updated
+    hook.value shouldBe 0
   }
 
   "useEffect" should "run effects after render" in {

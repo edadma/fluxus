@@ -27,10 +27,31 @@ object Logger {
     currentLevel = level
   }
 
+  private def formatData(data: Any): String = data match {
+    case m: Map[_, _] =>
+      m.iterator
+        .map { case (k, v) => s"$k: ${formatData(v)}" }
+        .mkString("{ ", ", ", " }")
+
+    case s: Seq[_] =>
+      s.map(formatData).mkString("[", ", ", "]")
+
+    case p: Product if p.productPrefix.startsWith("sci_") =>
+      if (p.productPrefix.contains("Map")) {
+        p.asInstanceOf[Map[?, ?]]
+          .iterator
+          .map { case (k, v) => s"$k: ${formatData(v)}" }
+          .mkString("{ ", ", ", " }")
+      } else p.toString
+
+    case x => x.toString
+  }
+
   def log(level: LogLevel, category: Category, message: String, opId: Int, data: Any*): Unit = {
     if (shouldLog(level)) {
-      val ctx  = s"[$level][${category}][op-$opId]"
-      val args = Array[Any](ctx, message) ++ data
+      val ctx           = s"[$level][${category}][op-$opId]"
+      val formattedData = data.map(formatData)
+      val args          = Array[Any](ctx, message) ++ formattedData
 
       level match {
         case LogLevel.ERROR => console.error.apply(console, args*)

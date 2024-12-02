@@ -11,6 +11,8 @@ Element.scala
 FrameworkConfig.scala
 ./src/main/scala/io/github/edadma/fluxus/core/dom
 DOMOperations.scala
+./src/main/scala/io/github/edadma/fluxus/core/hooks
+Hooks.scala
 ./src/main/scala/io/github/edadma/fluxus/core/types
 FluxusNode.scala
 ComponentInstance.scala
@@ -32,6 +34,10 @@ TestApp.scala
 ; index.html for the test apps
 ./public
 index.html
+
+# unit testing
+./src/test/scala/io/github/edadma/fluxus/core/hooks
+HooksTest.scala
 
 # build files
 ./
