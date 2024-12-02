@@ -9,7 +9,7 @@ import io.github.edadma.fluxus.logging.Logger.Category
 import org.scalajs.dom
 import org.scalajs.dom.{Element => DOMElement, Text => DOMText, Node => DOMNode}
 
-object Diffing {
+object Reconciler {
   def diff(oldNode: Option[FluxusNode], newNode: Option[FluxusNode], container: DOMElement): Unit = {
     val opId      = Logger.nextOperationId
     val startTime = System.currentTimeMillis()

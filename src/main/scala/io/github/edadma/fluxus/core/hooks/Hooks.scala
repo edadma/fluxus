@@ -1,9 +1,11 @@
 package io.github.edadma.fluxus.core.hooks
 
-import io.github.edadma.fluxus.core.types._
+import io.github.edadma.fluxus.core.dom.Reconciler
+import io.github.edadma.fluxus.core.types.*
 import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.Category
 import io.github.edadma.fluxus.error.HookValidationError
+import org.scalajs.dom
 
 sealed trait Hook[T] {
   def value: T
@@ -169,6 +171,14 @@ object Hooks {
           instance.hooks = instance.hooks.updated(hookIndex, StateHook(currentValue, setter))
           instance.needsRender = true
 
+          // Get new rendered output
+          val newRendered = instance.render(updateOpId)
+
+          // Run diff with old and new rendered outputs
+          newRendered.zip(instance.domNode).foreach { case (newNode, container) =>
+            Reconciler.diff(instance.rendered, Some(newNode), container.asInstanceOf[dom.Element])
+          }
+
           Logger.debug(
             Category.StateEffect,
             "State updated",
@@ -222,7 +232,6 @@ object Hooks {
 
     (hook.value, hook.setState)
   }
-
   def useEffect(effectFn: () => (() => Unit), deps: Option[Seq[Any]] = None): Unit = {
     val opId = Logger.nextOperationId
 
