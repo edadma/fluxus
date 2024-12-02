@@ -21,8 +21,8 @@ case class ElementNode(
 ) extends FluxusNode
 
 case class ComponentNode(
-    component: Any => FluxusNode,
-    props: Map[String, Any],
+    component: ? => FluxusNode,
+    props: Any,
     instance: Option[ComponentInstance],
     key: Option[String],
 ) extends FluxusNode {

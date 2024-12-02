@@ -1,12 +1,11 @@
 package io.github.edadma.fluxus.core.debug
 
-import io.github.edadma.fluxus.core.types.ComponentInstance
 import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.Category
 
 case class RenderInfo(
     componentType: String,
-    props: Map[String, Any],
+    props: Any,
     state: Vector[Any],
     duration: Long,
     depth: Int,

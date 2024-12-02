@@ -10,9 +10,9 @@ import org.scalajs.dom.{Element, Node}
 case class ComponentInstance(
     // Core Identity
     id: String = IdGenerator.nextComponentId(),
-    component: Any => FluxusNode,
+    component: ? => FluxusNode,
     componentType: String,
-    props: Map[String, Any],
+    props: Any,
     var stateVersion: Int = 0,
 
     // Timing and Metrics
@@ -210,9 +210,9 @@ case class ComponentInstance(
 
 // Factory methods for creating components
 object Component {
-  def create[P](
-      render: P => FluxusNode,
-      props: P,
+  def create(
+      render: ? => FluxusNode,
+      props: Any,
       key: Option[String] = None,
       opId: Int,
       name: Option[String] = None,
@@ -222,37 +222,30 @@ object Component {
     validateProps(props, opId)
 
     val instance = ComponentInstance(
-      component = render.asInstanceOf[Any => FluxusNode],
+      component = render,
       componentType = name.getOrElse(render.getClass.getSimpleName),
-      props = toMap(props),
+      props = props, // No more conversion to Map needed
       debugName = name,
     )
 
     instance.initialize(opId)
 
     ComponentNode(
-      component = render.asInstanceOf[Any => FluxusNode],
-      props = toMap(props),
+      component = render,
+      props = props, // Store the case class directly
       instance = Some(instance),
       key = key,
     )
   }
 
   private def validateProps(props: Any, opId: Int): Unit = {
-    // Ensure props is a case class or Map
-    if (!props.isInstanceOf[Product] && !props.isInstanceOf[Map[?, ?]]) {
+    // Only need to verify it's a case class
+    if (!props.isInstanceOf[Product]) {
       throw PropValidationError(
-        "Props must be a case class or Map",
+        "Props must be a case class",
         Map("propsType" -> props.getClass.getName),
         opId,
       )
     }
-  }
-
-  private def toMap(props: Any): Map[String, Any] = props match {
-    case m: Map[_, _] => m.asInstanceOf[Map[String, Any]]
-    case p: Product =>
-      p.productElementNames.zip(p.productIterator).toMap
-    case _ => Map.empty[String, Any]
   }
 }

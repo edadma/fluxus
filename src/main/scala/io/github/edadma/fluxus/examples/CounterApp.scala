@@ -59,6 +59,6 @@ object CounterApp {
     )
 
     // Mount the app
-    DOMOperations.mount(counter, container)
+    DOMOperations.mount(counter, container.asInstanceOf[dom.Element])
   }
 }

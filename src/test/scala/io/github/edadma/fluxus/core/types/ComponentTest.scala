@@ -8,14 +8,15 @@ import testing.BaseTest
 class ComponentTest extends AnyFlatSpec with Matchers with BaseTest {
   case class TestProps(value: String)
 
-  def TestComponent(props: TestProps): FluxusNode = TextNode(props.value, None, None, None)
+  def TestComponent(props: TestProps): FluxusNode =
+    TextNode(props.value, None, None, None)
 
   "Component.create" should "create a valid component node" in {
     val props = TestProps("test")
     val node  = Component.create(TestComponent, props, None, 1, Some("TestComponent"))
 
     node shouldBe a[ComponentNode]
-    node.props should contain("value" -> "test")
+    node.props shouldBe props // Compare directly to case class
     node.instance.isDefined shouldBe true
     node.instance.get.componentType shouldBe "TestComponent"
   }
@@ -42,20 +43,5 @@ class ComponentTest extends AnyFlatSpec with Matchers with BaseTest {
     assertThrows[PropValidationError] {
       Component.create(invalidComponent, "test", None, 1)
     }
-  }
-
-  it should "convert case class props to map" in {
-    val props = TestProps("test")
-    val node  = Component.create(TestComponent, props, None, 1)
-
-    node.props shouldBe Map("value" -> "test")
-  }
-
-  it should "handle map props" in {
-    val props = Map("value" -> "test")
-    val node =
-      Component.create((p: Map[String, Any]) => TextNode(p("value").toString, None, None, None), props, None, 1)
-
-    node.props shouldBe props
   }
 }
