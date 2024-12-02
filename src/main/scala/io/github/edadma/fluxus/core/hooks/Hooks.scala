@@ -93,43 +93,10 @@ object Hooks {
       throw HookValidationError(error, Map.empty, opId)
     }
 
-    Logger.trace(
-      Category.StateEffect,
-      "Component state for useState",
-      opId,
-      Map(
-        "componentId"   -> instance.id,
-        "componentType" -> instance.componentType,
-        "isRendering"   -> instance.isRendering,
-        "isInCleanup"   -> instance.isInCleanup,
-        "hookIndex"     -> instance.hookIndex,
-        "totalHooks"    -> instance.hooks.length,
-        "stateVersion"  -> instance.stateVersion,
-        "needsRender"   -> instance.needsRender,
-      ),
-    )
-
-    if (instance.isRendering) {
-      val error = "Cannot update state during render"
-      Logger.error(
-        Category.StateEffect,
-        error,
-        opId,
-        Map(
-          "componentId"   -> instance.id,
-          "componentType" -> instance.componentType,
-          "hookIndex"     -> instance.hookIndex,
-          "stackTrace"    -> Thread.currentThread().getStackTrace.mkString("\n"),
-        ),
-      )
-      throw HookValidationError(error, Map("componentId" -> instance.id), opId)
-    }
-
     val hookIndex = instance.hookIndex
 
     // Get or create the hook
     val hook = if (hookIndex >= instance.hooks.length) {
-      // First render - create new hook
       // First render - create new hook
       Logger.debug(
         Category.StateEffect,
@@ -146,20 +113,22 @@ object Hooks {
       var currentValue = initialValue
       lazy val setter: T => Unit = (newValue: T) => {
         val updateOpId = Logger.nextOperationId
-        Logger.debug(
-          Category.StateEffect,
-          "State setter called",
-          updateOpId,
-          Map(
-            "componentId"  -> instance.id,
-            "hookIndex"    -> hookIndex,
-            "currentValue" -> currentValue,
-            "newValue"     -> newValue,
-            "isInCleanup"  -> instance.isInCleanup,
-            "isRendering"  -> instance.isRendering,
-            "stateVersion" -> instance.stateVersion,
-          ),
-        )
+
+        if (instance.isRendering) {
+          val error = "Cannot update state during render"
+          Logger.error(
+            Category.StateEffect,
+            error,
+            updateOpId,
+            Map(
+              "componentId"   -> instance.id,
+              "componentType" -> instance.componentType,
+              "hookIndex"     -> hookIndex,
+              "stackTrace"    -> Thread.currentThread().getStackTrace.mkString("\n"),
+            ),
+          )
+          throw HookValidationError(error, Map("componentId" -> instance.id), updateOpId)
+        }
 
         if (instance.isInCleanup) {
           Logger.warn(
@@ -174,7 +143,22 @@ object Hooks {
               "stackTrace"     -> Thread.currentThread().getStackTrace.mkString("\n"),
             ),
           )
+          // Just return without doing anything instead of using 'return'
         } else {
+          Logger.debug(
+            Category.StateEffect,
+            "State update",
+            updateOpId,
+            Map(
+              "componentId"  -> instance.id,
+              "hookIndex"    -> hookIndex,
+              "oldValue"     -> currentValue,
+              "newValue"     -> newValue,
+              "stateVersion" -> instance.stateVersion,
+              "needsRender"  -> instance.needsRender,
+            ),
+          )
+
           val oldValue = currentValue
           currentValue = newValue
           instance.hooks = instance.hooks.updated(hookIndex, StateHook(currentValue, setter))

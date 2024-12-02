@@ -902,10 +902,6 @@ When a node's key changes, it's treated as a completely different node. The clea
 useState(initialValue):
   instance = RenderContext.currentInstance
   
-  if (instance.isRendering):
-    log(ERROR, "State update during render")
-    throw Error("Cannot update state during render")
-  
   currentHook = instance.hooks[instance.hookIndex]
   
   if first render:
@@ -913,13 +909,17 @@ useState(initialValue):
     stateHook = {
       state: initialValue,
       setState: (newValue) => {
-        if instance.isInCleanup:
+         if instance.isRendering:
+          log(ERROR, "Cannot update state during render")
+          throw Error("Cannot update state during render")
+              
+         if instance.isInCleanup:
           log(WARN, "State update during cleanup - skipped")
           return
               
-        log(DEBUG, "State update", {old: stateHook.state, new: newValue})
-        stateHook.state = newValue
-        instance.needsRender = true
+         log(DEBUG, "State update", {old: stateHook.state, new: newValue})
+         stateHook.state = newValue
+         instance.needsRender = true
       }
     }
     instance.hooks[instance.hookIndex] = stateHook
