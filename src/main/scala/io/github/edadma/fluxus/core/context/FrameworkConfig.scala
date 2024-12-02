@@ -3,6 +3,27 @@ package io.github.edadma.fluxus.core.context
 import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.Category
 
+object FrameworkConfig {
+  private var currentConfig = FrameworkConfig()
+
+  def current: FrameworkConfig = currentConfig
+
+  def update(config: FrameworkConfig): Unit = {
+    val opId = Logger.nextOperationId
+    Logger.debug(
+      Category.Component,
+      "Updating framework configuration",
+      opId,
+      Map(
+        "debugMode"     -> config.debugMode,
+        "maxTreeDepth"  -> config.maxTreeDepth,
+        "renderTimeout" -> config.renderTimeout,
+      ),
+    )
+    currentConfig = config
+  }
+}
+
 case class FrameworkConfig(
     // Debug options
     debugMode: Boolean = false,
