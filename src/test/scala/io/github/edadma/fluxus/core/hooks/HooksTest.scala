@@ -68,6 +68,39 @@ class HooksTest extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
     }
   }
 
+  "useState" should "handle both direct and function updates" in {
+    var count                                          = 0
+    var setCount: Option[(Int | (Int => Int)) => Unit] = None
+
+    val instance = simulateRender { () =>
+      val (value, setter) = Hooks.useState(0)
+      count = value
+      setCount = Some(setter)
+    }
+
+    // Test direct value update
+    setCount.foreach(_(5))
+    simulateRender(
+      () => {
+        val (value, _) = Hooks.useState(0)
+        count = value
+      },
+      Some(instance),
+    )
+    count shouldBe 5
+
+    // Test function update
+    setCount.foreach(_(prev => prev + 3))
+    simulateRender(
+      () => {
+        val (value, _) = Hooks.useState(0)
+        count = value
+      },
+      Some(instance),
+    )
+    count shouldBe 8 // 5 + 3
+  }
+
   "useState" should "maintain state between renders" in {
     var count                         = 0
     var setCount: Option[Int => Unit] = None

@@ -11,7 +11,7 @@ sealed trait Hook[T] {
 
 case class StateHook[T](
     private var currentValue: T,
-    setState: T => Unit,
+    setState: (T | (T => T)) => Unit,
 ) extends Hook[T] {
   def value: T = currentValue
 }
@@ -67,7 +67,7 @@ object Hooks {
     currentInstance = None
   }
 
-  def useState[T](initialValue: T): (T, T => Unit) = {
+  def useState[T](initialValue: T): (T, (T | (T => T)) => Unit) = {
     val opId = Logger.nextOperationId
 
     Logger.debug(
@@ -111,7 +111,7 @@ object Hooks {
       )
 
       var currentValue = initialValue
-      lazy val setter: T => Unit = (newValue: T) => {
+      lazy val setter: (T | (T => T)) => Unit = (update: T | (T => T)) => {
         val updateOpId = Logger.nextOperationId
 
         if (instance.isRendering) {
@@ -136,15 +136,20 @@ object Hooks {
             "State update during cleanup - skipped",
             updateOpId,
             Map(
-              "componentId"    -> instance.id,
-              "componentType"  -> instance.componentType,
-              "hookIndex"      -> hookIndex,
-              "attemptedValue" -> newValue,
-              "stackTrace"     -> Thread.currentThread().getStackTrace.mkString("\n"),
+              "componentId"   -> instance.id,
+              "componentType" -> instance.componentType,
+              "hookIndex"     -> hookIndex,
+              "updateValue"   -> update,
+              "stackTrace"    -> Thread.currentThread().getStackTrace.mkString("\n"),
             ),
           )
         } else {
-          // Only proceed with update if NOT in cleanup
+          // Handle both direct value and function updates
+          val newValue = update match {
+            case f: Function1[T @unchecked, T @unchecked] => f(currentValue)
+            case v: T                                     => v
+          }
+
           Logger.debug(
             Category.StateEffect,
             "State update",
@@ -154,6 +159,7 @@ object Hooks {
               "hookIndex"    -> hookIndex,
               "oldValue"     -> currentValue,
               "newValue"     -> newValue,
+              "updateType"   -> (if (update.isInstanceOf[(?) => ?]) "function" else "direct"),
               "stateVersion" -> instance.stateVersion,
             ),
           )
