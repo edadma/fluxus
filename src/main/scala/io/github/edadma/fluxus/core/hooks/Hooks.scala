@@ -147,7 +147,7 @@ object Hooks {
           // Handle both direct value and function updates
           val newValue = update match {
             case f: Function1[T @unchecked, T @unchecked] => f(currentValue)
-            case v: T                                     => v
+            case v: T @unchecked                          => v
           }
 
           Logger.debug(
