@@ -1,5 +1,6 @@
 package io.github.edadma.fluxus.core.types
 
+import io.github.edadma.fluxus.core.hooks.Hooks
 import io.github.edadma.fluxus.core.util.IdGenerator
 import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.Category
@@ -10,7 +11,7 @@ import org.scalajs.dom.{Element, Node}
 case class ComponentInstance(
     // Core Identity
     id: String = IdGenerator.nextComponentId(),
-    component: ? => FluxusNode,
+    component: Any => FluxusNode,
     componentType: String,
     props: Any,
     var stateVersion: Int = 0,
@@ -53,6 +54,29 @@ case class ComponentInstance(
     var domNode: Option[Node] = None,
     var debugName: Option[String] = None,
 ) {
+  def render(opId: Int): Option[FluxusNode] = {
+    Logger.debug(Category.Component, "Starting component render", opId)
+    isRendering = true
+    hookIndex = 0 // Reset hook index for new render
+
+    try {
+      // Set up hooks context
+      Hooks.setCurrentInstance(this)
+
+      // Run the component function
+      val output = component(props)
+
+      // Store the rendered output
+      rendered = Some(output)
+
+      Logger.debug(Category.Component, "Render complete", opId)
+      rendered
+    } finally {
+      isRendering = false
+      Hooks.clearCurrentInstance()
+    }
+  }
+
   def validate(opId: Int): Unit = {
     // Core Identity validation
     if (id.isEmpty) {
@@ -210,9 +234,9 @@ case class ComponentInstance(
 
 // Factory methods for creating components
 object Component {
-  def create(
-      render: ? => FluxusNode,
-      props: Any,
+  def create[P <: Product](
+      render: P => FluxusNode,
+      props: P,
       key: Option[String] = None,
       opId: Int,
       name: Option[String] = None,
@@ -222,13 +246,14 @@ object Component {
     validateProps(props, opId)
 
     val instance = ComponentInstance(
-      component = render,
+      component = render.asInstanceOf[Any => FluxusNode],
       componentType = name.getOrElse(render.getClass.getSimpleName),
       props = props, // No more conversion to Map needed
       debugName = name,
     )
 
     instance.initialize(opId)
+    instance.render(opId) // Do initial render
 
     ComponentNode(
       component = render,

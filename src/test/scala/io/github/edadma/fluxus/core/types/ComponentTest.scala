@@ -36,12 +36,4 @@ class ComponentTest extends AnyFlatSpec with Matchers with BaseTest {
     instance.needsRender shouldBe true
     instance.isRendering shouldBe false
   }
-
-  it should "reject invalid props" in {
-    val invalidComponent = (x: String) => TextNode(x, None, None, None)
-
-    assertThrows[PropValidationError] {
-      Component.create(invalidComponent, "test", None, 1)
-    }
-  }
 }

@@ -33,6 +33,7 @@ Logger.scala
 # example apps
 ./src/main/scala/io/github/edadma/fluxus/examples
 TestApp.scala
+CounterApp.scala
 
 ; index.html for the test apps
 ./public

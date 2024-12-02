@@ -12,9 +12,11 @@ case class CounterProps()
 
 object CounterApp {
   def Counter(props: CounterProps): FluxusNode = {
+    // Set up current instance for hooks
     val (count, setCount) = useState(0)
 
-    div(
+    // Create the rendered output
+    val rendered = div(
       cls := "flex flex-col items-center gap-4 p-8",
       h1(
         cls := "text-2xl font-bold",
@@ -38,10 +40,12 @@ object CounterApp {
         ),
       ),
     )
+
+    // Make sure we return the rendered output
+    rendered
   }
 
   @main def run(): Unit = {
-    // Set up logging
     Logger.setLevel(LogLevel.DEBUG)
     val opId = Logger.nextOperationId
 
@@ -52,10 +56,21 @@ object CounterApp {
 
     // Create counter component
     val counter = Component.create(
-      Counter,
-      CounterProps(),
-      None,
+      render = Counter.asInstanceOf[Any => FluxusNode],
+      props = CounterProps(),
+      key = None,
+      opId = opId,
+      name = Some("Counter"), // Explicitly name it Counter
+    )
+
+    Logger.debug(
+      Category.Component,
+      "Created counter component",
       opId,
+      Map(
+        "hasInstance" -> counter.instance.isDefined,
+        "hasRendered" -> counter.instance.flatMap(_.rendered).isDefined,
+      ),
     )
 
     // Mount the app
