@@ -516,8 +516,9 @@ object Hooks {
     )
 
     val changed = (oldDeps, newDeps) match {
-      case (None, None)                      => false
-      case (Some(_), None) | (None, Some(_)) => true
+      case (None, None)      => true // No deps array provided - run every time
+      case (Some(old), None) => true // Changed from deps to no deps - run
+      case (None, Some(_))   => true // Changed from no deps to deps - run
       case (Some(old), Some(current)) =>
         if (old.length != current.length) {
           Logger.debug(
