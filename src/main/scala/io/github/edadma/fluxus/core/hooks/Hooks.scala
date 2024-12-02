@@ -171,12 +171,24 @@ object Hooks {
           instance.hooks = instance.hooks.updated(hookIndex, StateHook(currentValue, setter))
           instance.needsRender = true
 
+          // Store old rendered output
+          val oldRendered = instance.rendered
+
           // Get new rendered output
           val newRendered = instance.render(updateOpId)
 
-          // Run diff with old and new rendered outputs
-          newRendered.zip(instance.domNode).foreach { case (newNode, container) =>
-            Reconciler.diff(instance.rendered, Some(newNode), container.asInstanceOf[dom.Element])
+          // Diff and update DOM
+          instance.domNode.foreach { container =>
+            Logger.debug(
+              Category.StateEffect,
+              "Updating DOM after state change",
+              updateOpId,
+              Map(
+                "componentId"   -> instance.id,
+                "componentType" -> instance.componentType,
+              ),
+            )
+            Reconciler.diff(oldRendered, newRendered, container.asInstanceOf[dom.Element])
           }
 
           Logger.debug(
@@ -185,7 +197,6 @@ object Hooks {
             updateOpId,
             Map(
               "componentId"   -> instance.id,
-              "hookIndex"     -> hookIndex,
               "componentType" -> instance.componentType,
               "oldValue"      -> oldValue,
               "newValue"      -> newValue,
