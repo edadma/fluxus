@@ -45,12 +45,6 @@ ComponentStack.scala
 - Depth tracking
 - Tree structure maintenance
 
-BatchUpdateManager.scala
-- Update queue management
-- Batch processing logic
-- State update coordination
-- Update scheduling
-
 FrameworkConfig.scala
 - Configuration definitions
 - Validation rules

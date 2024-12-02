@@ -35,7 +35,6 @@ case class FrameworkConfig(
     trackRenderTiming: Boolean = true,
 
     // Performance settings
-    batchUpdates: Boolean = true,
     asyncRendering: Boolean = false,
     maxUpdateDepth: Int = 64,
     renderChunkSize: Int = 1000,
