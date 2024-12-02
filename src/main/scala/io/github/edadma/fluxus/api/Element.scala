@@ -43,6 +43,8 @@ object Element {
   }
 
   private def processMixedContent(items: Seq[Any]): (Map[String, Any], Map[String, Any], Vector[FluxusNode]) = {
+    val opId = Logger.nextOperationId
+
     val props = items.collect {
       case p: Prop if !p.name.startsWith("on") => p.name -> p.value
     }.toMap
@@ -50,6 +52,17 @@ object Element {
     val events = items.collect {
       case p: Prop if p.name.startsWith("on") => p.name -> p.value
     }.toMap
+
+    Logger.debug(
+      Category.VirtualDOM,
+      "Processing mixed content",
+      opId,
+      Map(
+        "propCount"  -> props.size,
+        "eventCount" -> events.size,
+        "eventNames" -> events.keys.mkString(", "),
+      ),
+    )
 
     val children = items.filterNot(_.isInstanceOf[Prop]).flatMap(processContent).toVector
 

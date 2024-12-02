@@ -12,11 +12,34 @@ case class CounterProps()
 
 object CounterApp {
   def Counter(props: CounterProps): FluxusNode = {
-    // Set up current instance for hooks
+    val opId = Logger.nextOperationId
+    Logger.debug(Category.Component, "Rendering Counter component", opId)
+
     val (count, setCount) = useState(0)
 
-    // Create the rendered output
-    val rendered = div(
+    def handleIncrement(e: dom.Event): Unit = {
+      val clickOpId = Logger.nextOperationId
+      Logger.debug(
+        Category.Component,
+        "Increment button clicked",
+        clickOpId,
+        Map("currentCount" -> count),
+      )
+      setCount(count + 1)
+    }
+
+    def handleDecrement(e: dom.Event): Unit = {
+      val clickOpId = Logger.nextOperationId
+      Logger.debug(
+        Category.Component,
+        "Decrement button clicked",
+        clickOpId,
+        Map("currentCount" -> count),
+      )
+      setCount(count - 1)
+    }
+
+    div(
       cls := "flex flex-col items-center gap-4 p-8",
       h1(
         cls := "text-2xl font-bold",
@@ -30,19 +53,16 @@ object CounterApp {
         cls := "flex gap-4",
         button(
           cls     := "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600",
-          onClick := ((e: dom.Event) => setCount(count + 1)),
+          onClick := handleIncrement,
           "+",
         ),
         button(
           cls     := "px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600",
-          onClick := ((e: dom.Event) => setCount(count - 1)),
+          onClick := handleDecrement,
           "-",
         ),
       ),
     )
-
-    // Make sure we return the rendered output
-    rendered
   }
 
   @main def run(): Unit = {

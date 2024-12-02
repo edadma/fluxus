@@ -35,6 +35,20 @@ object DOMOperations {
 
         val element = dom.document.createElement(tag)
 
+        // Log events being processed
+        if (events.nonEmpty) {
+          Logger.debug(
+            Category.VirtualDOM,
+            "Processing events for element",
+            opId,
+            Map(
+              "tag"        -> tag,
+              "eventCount" -> events.size,
+              "events"     -> events.keys.mkString(", "),
+            ),
+          )
+        }
+
         for ((name, value) <- props) {
           Logger.trace(
             Category.VirtualDOM,
@@ -47,6 +61,50 @@ object DOMOperations {
             ),
           )
           element.setAttribute(name, value.toString)
+        }
+
+        // Handle events
+        for ((eventName, handler) <- events) {
+          val domEventName = eventName.substring(2).toLowerCase
+          val listener     = handler.asInstanceOf[dom.Event => Unit]
+
+          Logger.debug(
+            Category.VirtualDOM,
+            "Adding event listener",
+            opId,
+            Map(
+              "tag"          -> tag,
+              "eventName"    -> eventName,
+              "domEventName" -> domEventName,
+              "handlerType"  -> handler.getClass.getName,
+            ),
+          )
+
+          try {
+            element.addEventListener(domEventName, listener)
+            Logger.debug(
+              Category.VirtualDOM,
+              "Event listener added successfully",
+              opId,
+              Map(
+                "tag"       -> tag,
+                "eventName" -> domEventName,
+              ),
+            )
+          } catch {
+            case e: Throwable =>
+              Logger.error(
+                Category.VirtualDOM,
+                "Failed to add event listener",
+                opId,
+                Map(
+                  "tag"       -> tag,
+                  "eventName" -> domEventName,
+                  "error"     -> e.getMessage,
+                  "stack"     -> e.getStackTrace.mkString("\n"),
+                ),
+              )
+          }
         }
 
         children.zipWithIndex.foreach { case (child, index) =>
