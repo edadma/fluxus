@@ -929,6 +929,25 @@ useState(initialValue):
 ```
 
 ### useEffect Implementation
+
+The effect hook manages side effects and follows React's execution model with three distinct use cases:
+
+1. Effect with no dependencies (runs every render):
+```
+useEffect(effectFn)  // No deps parameter
+```
+
+2. Effect with empty dependency array (runs once on mount):
+```
+useEffect(effectFn, [])  // Empty array
+```
+
+3. Effect with dependencies (runs when deps change):
+```
+useEffect(effectFn, [dep1, dep2, ...])  // Array of dependencies
+```
+
+Internal Implementation:
 ```
 useEffect(effectFn, deps):
   instance = RenderContext.currentInstance
@@ -942,34 +961,66 @@ useEffect(effectFn, deps):
     }
     instance.hooks[instance.hookIndex] = effectHook
     instance.effects.push(() => {
-      log(TRACE, "Effect execution")
-      try {  // Added in 8th draft
-        if (effectHook.cleanup) {
-          log(TRACE, "Effect cleanup")
-          runEffectCleanup(effectHook)  // Modified in 8th draft
-        }
+      if (effectHook.cleanup):
+        try:
+          log(TRACE, "Running effect cleanup")
+          effectHook.cleanup()
+        catch error:
+          log(ERROR, "Effect cleanup error", error)
+          // Continue despite cleanup error
+      
+      try:
+        log(TRACE, "Running effect")
         effectHook.cleanup = effectFn()
-      } catch (error) {
-        log(ERROR, "Effect error", {error})
+        log(DEBUG, "Effect completed")
+      catch error:
+        log(ERROR, "Effect error", error)
         instance.hasEffectError = true
-      }
     })
   else:
-    if depsChanged(oldDeps, deps):
-      log(DEBUG, "Effect deps changed")
+    if shouldRunEffect(currentHook.deps, deps):
+      log(DEBUG, "Effect deps changed or no deps provided")
       instance.effects.push(() => {
-        try {  // Added in 8th draft
-          if (effectHook.cleanup) runEffectCleanup(effectHook)
-          effectHook.cleanup = effectFn()
-        } catch (error) {
-          log(ERROR, "Effect error", {error})
-          instance.hasEffectError = true
-        }
+        // Same cleanup and effect logic as above
       })
+    
     currentHook.deps = deps
   
   instance.hookIndex++
+
+shouldRunEffect(oldDeps, newDeps):
+  // No deps provided - run every render
+  if oldDeps is None or newDeps is None:
+    return true
+    
+  // Compare deps arrays
+  if lengths differ:
+    return true
+  
+  return any value in zip(old, new) differs
+
+Cleanup Process:
+1. Run cleanup functions in reverse order
+2. Handle errors in each cleanup separately
+3. Continue with remaining cleanups despite errors
+4. Clear cleanup references after execution
+5. Track error state but don't block rendering
+
+Effect Execution:
+1. Queue effects during render
+2. Execute after DOM updates
+3. Store cleanup functions
+4. Handle errors gracefully
+5. Allow subsequent effects despite errors
 ```
+
+This design ensures:
+- Matches React's execution model
+- Graceful error handling
+- Proper cleanup sequencing
+- Independent effect execution
+- Clear dependency tracking
+- Comprehensive logging
 
 ### Effect Error Handling
 ```
