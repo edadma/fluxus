@@ -3,7 +3,7 @@ package io.github.edadma.fluxus.core.types
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import io.github.edadma.fluxus.error.PropValidationError
-import testing.BaseTest
+import io.github.edadma.fluxus.testing.BaseTest
 
 class ComponentTest extends AnyFlatSpec with Matchers with BaseTest {
   case class TestProps(value: String)
