@@ -36,6 +36,6 @@ trait DOMSpec extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
 
   // Helper to get text content and compare as string
   implicit class ElementOps(element: dom.Element) {
-    def textContentString: String = element.textContent.toString
+    def textContentString: String = element.textContent
   }
 }
