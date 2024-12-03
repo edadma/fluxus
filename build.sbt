@@ -7,6 +7,7 @@ publish / skip := true
 lazy val fluxus = project
   .in(file("."))
   .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(ScalaJSBundlerPlugin)
 //  .enablePlugins(ScalablyTypedConverterPlugin)
   .settings(
     name             := "fluxus",
@@ -16,14 +17,13 @@ lazy val fluxus = project
     githubOwner      := "edadma",
     githubRepository := name.value,
     libraryDependencies ++= Seq(
-      "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
-      "org.scalatest"     %%% "scalatest"       % "3.2.19" % "test",
-      "com.lihaoyi"       %%% "pprint"          % "0.9.0"  % "test",
-      "org.scala-js"      %%% "scalajs-dom"     % "2.4.0",
+      "org.scalatest" %%% "scalatest"   % "3.2.19" % "test",
+      "com.lihaoyi"   %%% "pprint"      % "0.9.0"  % "test",
+      "org.scala-js"  %%% "scalajs-dom" % "2.4.0",
     ),
-    //    Compile / npmDependencies ++= Seq(
-//      "socket.io" -> "4.7.3",
-//    ),
+    Test / npmDependencies ++= Seq(
+      "jsdom" -> "25.0.1",
+    ),
     jsEnv := new org.scalajs.jsenv.nodejs.NodeJSEnv(),
 //    Test / scalaJSUseMainModuleInitializer := true,
 //    Test / scalaJSUseTestModuleInitializer := false,
