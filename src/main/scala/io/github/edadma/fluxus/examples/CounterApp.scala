@@ -8,9 +8,9 @@ import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.{Category, LogLevel}
 import org.scalajs.dom
 
-case class CounterProps()
-
 object CounterApp {
+  case class CounterProps()
+
   def Counter(props: CounterProps): FluxusNode = {
     val opId = Logger.nextOperationId
     Logger.debug(Category.Component, "Rendering Counter component", opId)
