@@ -23,14 +23,23 @@ lazy val fluxus = project
     ),
     Test / npmDependencies ++= Seq(
       "jsdom" -> "25.0.1",
+//      "jsdom-global" -> "3.0.2",
     ),
     jsEnv := new org.scalajs.jsenv.nodejs.NodeJSEnv(),
 //    Test / scalaJSUseMainModuleInitializer := true,
 //    Test / scalaJSUseTestModuleInitializer := false,
     Test / scalaJSUseMainModuleInitializer := false,
     Test / scalaJSUseTestModuleInitializer := true,
-    scalaJSUseMainModuleInitializer        := true,
-//    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+//    Test / jsEnv                           := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
+//      org.scalajs.jsenv.nodejs.NodeJSEnv.Config()
+//        .withEnv(Map(
+//          "NODE_PATH" -> "node_modules",
+//        ))
+//        .withArgs(List("--require", "jsdom-global/register")),
+//    ),
+    scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+    //    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     publishMavenStyle      := true,
     Test / publishArtifact := false,
   )
