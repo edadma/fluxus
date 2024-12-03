@@ -18,7 +18,7 @@ class JSDOM(html: String) extends js.Object {
 trait DOMSpec extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
   // Set up JSDOM
   val DOM                    = new JSDOM("""<!DOCTYPE html><div id="app"></div>""")
-  val window: Window         = dom.window
+  val window: Window         = DOM.window
   val document: HTMLDocument = window.document
 
   def getContainer: dom.Element = {
