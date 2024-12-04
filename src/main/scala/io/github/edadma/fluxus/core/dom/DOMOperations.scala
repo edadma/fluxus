@@ -123,7 +123,7 @@ object DOMOperations {
 
         element
 
-      case node @ TextNode(text, _, _) =>
+      case node @ TextNode(text, _, _, _) =>
         Logger.debug(
           Category.VirtualDOM,
           s"Creating text node",

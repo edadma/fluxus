@@ -33,7 +33,6 @@ case class ComponentNode(
 case class TextNode(
     text: String,
     parent: Option[FluxusNode],
+    var domNode: Option[Node],
     key: Option[String],
-) extends FluxusNode {
-  var domNode: Option[Node] = domNode
-}
+) extends FluxusNode

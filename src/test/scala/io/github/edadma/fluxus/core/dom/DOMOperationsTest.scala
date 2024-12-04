@@ -1,8 +1,11 @@
 package io.github.edadma.fluxus.core.dom
 
-import io.github.edadma.fluxus.core.types._
+import io.github.edadma.fluxus.core.types.*
 import io.github.edadma.fluxus.testing.DOMSpec
+import org.scalajs.dom
 import org.scalajs.dom.html
+
+import scala.scalajs.js
 
 class DOMOperationsTest extends DOMSpec {
 
@@ -34,7 +37,7 @@ class DOMOperationsTest extends DOMSpec {
           tag = "span",
           props = Map("class" -> "child"),
           events = Map.empty,
-          children = Vector(TextNode("test content", None, None)),
+          children = Vector(TextNode("test content", None, None, None)),
           parent = None,
           domNode = None,
           key = None,
@@ -54,9 +57,9 @@ class DOMOperationsTest extends DOMSpec {
     span.textContent shouldBe "test content"
   }
 
-  it should "handle text node updates via diffing" in withDebugLogging {
-    val oldNode = TextNode("old text", None, None)
-    val newNode = TextNode("new text", None, None)
+  it should "handle text node updates via diffing" in {
+    val oldNode = TextNode("old text", None, None, None)
+    val newNode = TextNode("new text", None, None, None)
 
     DOMOperations.mount(oldNode, getContainer)
     getContainer.textContent shouldBe "old text"
@@ -65,32 +68,110 @@ class DOMOperationsTest extends DOMSpec {
     getContainer.textContent shouldBe "new text"
   }
 
-//  it should "handle click events" in {
-//    var clicked = false
-//    val handler = (_: org.scalajs.dom.Event) => clicked = true
-//
-//    val node = ElementNode(
-//      tag = "button",
-//      props = Map.empty,
-//      events = Map("onClick" -> handler),
-//      children = Vector.empty,
-//      parent = None,
-//      domNode = None,
-//      key = None,
-//    )
-//
-//    DOMOperations.mount(node, getContainer)
-//
-//    val button = getContainer.querySelector("button")
-//    button should not be null
-//
-//    // Simulate click
-//    val clickEvent = new org.scalajs.dom.Event("click")
-//    button.dispatchEvent(clickEvent)
-//
-//    clicked shouldBe true
-//  }
-//
+  it should "handle click events" in {
+    var clicked = false
+    val handler = (_: dom.Event) => clicked = true
+
+    val node = ElementNode(
+      tag = "button",
+      props = Map.empty,
+      events = Map("onClick" -> handler),
+      children = Vector(TextNode("Click me", None, None, None)),
+      parent = None,
+      domNode = None,
+      key = None,
+    )
+
+    DOMOperations.mount(node, getContainer)
+
+    val button = getContainer.querySelector("button")
+    button should not be null
+
+    // Simulate click
+    val clickEvent = dom.document.createEvent("Event")
+    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+    button.dispatchEvent(clickEvent)
+    clicked shouldBe true
+  }
+
+  it should "pass event object to handlers" in {
+    var receivedEvent: dom.Event = null
+    val handler                  = (e: dom.Event) => receivedEvent = e
+
+    val node = ElementNode(
+      tag = "button",
+      props = Map.empty,
+      events = Map("onClick" -> handler),
+      children = Vector.empty,
+      parent = None,
+      domNode = None,
+      key = None,
+    )
+
+    DOMOperations.mount(node, getContainer)
+
+    val button = getContainer.querySelector("button")
+    button should not be null
+
+    val clickEvent = dom.document.createEvent("Event")
+    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+    button.dispatchEvent(clickEvent)
+
+    receivedEvent should not be null
+    receivedEvent.`type` shouldBe "click"
+  }
+
+  it should "update DOM after state changes from event" in withDebugLogging {
+    val node = ElementNode(
+      tag = "div",
+      props = Map.empty,
+      events = Map.empty,
+      children = Vector(
+        ElementNode(
+          tag = "button",
+          props = Map.empty,
+          events = Map("onClick" -> ((_: dom.Event) => {
+            // Simulate state update by diffing in new content
+            val newContent = TextNode("Updated", None, None, None)
+            val container  = dom.document.querySelector("span")
+            Reconciler.diff(None, Some(newContent), container.asInstanceOf[dom.Element])
+          })),
+          children = Vector.empty,
+          parent = None,
+          domNode = None,
+          key = None,
+        ),
+        ElementNode(
+          tag = "span",
+          props = Map.empty,
+          events = Map.empty,
+          children = Vector(TextNode("Initial", None, None, None)),
+          parent = None,
+          domNode = None,
+          key = None,
+        ),
+      ),
+      parent = None,
+      domNode = None,
+      key = None,
+    )
+
+    DOMOperations.mount(node, getContainer)
+
+    // Verify initial state
+    val span = getContainer.querySelector("span")
+    span.textContent shouldBe "Initial"
+
+    // Simulate click
+    val button     = getContainer.querySelector("button")
+    val clickEvent = dom.document.createEvent("Event")
+    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+    button.dispatchEvent(clickEvent)
+
+    // Verify update
+    span.textContent shouldBe "Updated"
+  }
+
 //  it should "update element attributes" in {
 //    val oldNode = ElementNode(
 //      tag = "div",
