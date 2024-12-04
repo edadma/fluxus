@@ -43,6 +43,8 @@ index.html
 ./src/test/scala/io/github/edadma/fluxus/testing
 BaseTest.scala
 DOMSpec.scala
+./src/test/scala/io/github/edadma/fluxus/core/dom
+DOMOperationsTest.scala
 ./src/test/scala/io/github/edadma/fluxus/core/hooks
 HooksTest.scala
 ./src/test/scala/io/github/edadma/fluxus/core/types

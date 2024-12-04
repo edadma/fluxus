@@ -1,6 +1,7 @@
 package io.github.edadma.fluxus.core.dom
 
 import io.github.edadma.fluxus.core.types.*
+import io.github.edadma.fluxus.core.hooks.Hooks.useState
 import io.github.edadma.fluxus.testing.DOMSpec
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -121,7 +122,9 @@ class DOMOperationsTest extends DOMSpec {
     receivedEvent.`type` shouldBe "click"
   }
 
-  it should "update DOM after state changes from event" in withDebugLogging {
+  it should "update DOM after state changes from event" in {
+    val initialText = TextNode("Initial", None, None, None)
+
     val node = ElementNode(
       tag = "div",
       props = Map.empty,
@@ -134,7 +137,7 @@ class DOMOperationsTest extends DOMSpec {
             // Simulate state update by diffing in new content
             val newContent = TextNode("Updated", None, None, None)
             val container  = dom.document.querySelector("span")
-            Reconciler.diff(None, Some(newContent), container.asInstanceOf[dom.Element])
+            Reconciler.diff(Some(initialText), Some(newContent), container.asInstanceOf[dom.Element])
           })),
           children = Vector.empty,
           parent = None,
@@ -145,7 +148,7 @@ class DOMOperationsTest extends DOMSpec {
           tag = "span",
           props = Map.empty,
           events = Map.empty,
-          children = Vector(TextNode("Initial", None, None, None)),
+          children = Vector(initialText),
           parent = None,
           domNode = None,
           key = None,
@@ -172,7 +175,63 @@ class DOMOperationsTest extends DOMSpec {
     span.textContent shouldBe "Updated"
   }
 
-//  it should "update element attributes" in {
+  it should "handle state updates in components" in withDebugLogging {
+    case class TestProps()
+
+    def TestComponent(props: TestProps): FluxusNode = {
+      val (count, setCount) = useState(0)
+
+      ElementNode(
+        tag = "div",
+        props = Map.empty,
+        events = Map.empty,
+        children = Vector(
+          ElementNode(
+            tag = "button",
+            props = Map.empty,
+            events = Map("onClick" -> ((_: dom.Event) => setCount(count + 1))),
+            children = Vector.empty,
+            parent = None,
+            domNode = None,
+            key = None,
+          ),
+          ElementNode(
+            tag = "span",
+            props = Map.empty,
+            events = Map.empty,
+            children = Vector(TextNode(count.toString, None, None, None)),
+            parent = None,
+            domNode = None,
+            key = None,
+          ),
+        ),
+        parent = None,
+        domNode = None,
+        key = None,
+      )
+    }
+
+    val component = Component.create(
+      render = TestComponent(_),
+      props = TestProps(),
+      opId = 1,
+      name = Some("TestComponent"),
+    )
+
+    DOMOperations.mount(component, getContainer)
+
+    val span = getContainer.querySelector("span")
+    span.textContent shouldBe "0"
+
+    val button     = getContainer.querySelector("button")
+    val clickEvent = dom.document.createEvent("Event")
+    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+    button.dispatchEvent(clickEvent)
+
+    span.textContent shouldBe "1"
+  }
+
+  //  it should "update element attributes" in {
 //    val oldNode = ElementNode(
 //      tag = "div",
 //      props = Map("class" -> "old"),
