@@ -19,7 +19,7 @@ lazy val fluxus = project
     libraryDependencies ++= Seq(
       "org.scalatest" %%% "scalatest"   % "3.2.19" % "test",
       "com.lihaoyi"   %%% "pprint"      % "0.9.0"  % "test",
-      "org.scala-js"  %%% "scalajs-dom" % "2.4.0",
+      "org.scala-js"  %%% "scalajs-dom" % "2.8.0",
     ),
     Test / npmDependencies ++= Seq(
       "jsdom" -> "25.0.1",
