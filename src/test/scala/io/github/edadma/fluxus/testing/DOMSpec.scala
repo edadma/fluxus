@@ -13,12 +13,13 @@ class JSDOM(html: String) extends js.Object {
   val window: dom.Window = js.native
 }
 
-trait DOMSpec extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
-  val DOM = new JSDOM("""<!doctype html><html><body><div id="app"></div></body></html>""")
+trait DOMSpec extends BaseTest {
+  val jsdom = new JSDOM("""<!doctype html><html><body><div id="app"></div></body></html>""")
 
-  def getContainer: dom.Element = {
-    DOM.window.document.getElementById("app")
-  }
+  js.Dynamic.global.global.window = jsdom.window
+  js.Dynamic.global.global.document = jsdom.window.document
+
+  def getContainer: dom.Element = dom.document.getElementById("app")
 
   override def beforeEach(): Unit = {
     super.beforeEach()
