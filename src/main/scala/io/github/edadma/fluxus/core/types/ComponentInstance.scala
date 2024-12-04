@@ -253,7 +253,6 @@ object Component {
     )
 
     instance.initialize(opId)
-    instance.render(opId) // Do initial render
 
     ComponentNode(
       component = render,
