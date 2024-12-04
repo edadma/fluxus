@@ -9,7 +9,7 @@ class ComponentTest extends AnyFlatSpec with Matchers with BaseTest {
   case class TestProps(value: String)
 
   def TestComponent(props: TestProps): FluxusNode =
-    TextNode(props.value, None, None, None)
+    TextNode(props.value, None, None)
 
   "Component.create" should "create a valid component node" in {
     val props = TestProps("test")

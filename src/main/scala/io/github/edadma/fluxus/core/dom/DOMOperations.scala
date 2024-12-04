@@ -123,7 +123,7 @@ object DOMOperations {
 
         element
 
-      case TextNode(text, _, _, _) =>
+      case node @ TextNode(text, _, _) =>
         Logger.debug(
           Category.VirtualDOM,
           s"Creating text node",
@@ -133,7 +133,10 @@ object DOMOperations {
             "textPreview" -> text.take(20),
           ),
         )
-        dom.document.createTextNode(text)
+        val domNode = dom.document.createTextNode(text)
+        // Store DOM node reference in the TextNode instance
+        node.domNode = Some(domNode)
+        domNode
 
       case ComponentNode(component, props, instance: Option[ComponentInstance], _) =>
         Logger.debug(

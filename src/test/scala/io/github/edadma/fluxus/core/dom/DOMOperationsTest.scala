@@ -34,7 +34,7 @@ class DOMOperationsTest extends DOMSpec {
           tag = "span",
           props = Map("class" -> "child"),
           events = Map.empty,
-          children = Vector(TextNode("test content", None, None, None)),
+          children = Vector(TextNode("test content", None, None)),
           parent = None,
           domNode = None,
           key = None,
@@ -54,9 +54,9 @@ class DOMOperationsTest extends DOMSpec {
     span.textContent shouldBe "test content"
   }
 
-  it should "handle text node updates via diffing" in {
-    val oldNode = TextNode("old text", None, None, None)
-    val newNode = TextNode("new text", None, None, None)
+  it should "handle text node updates via diffing" in withDebugLogging {
+    val oldNode = TextNode("old text", None, None)
+    val newNode = TextNode("new text", None, None)
 
     DOMOperations.mount(oldNode, getContainer)
     getContainer.textContent shouldBe "old text"

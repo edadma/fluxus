@@ -39,7 +39,17 @@ object Reconciler {
           replaceNode(old, new_, container, opId)
         case (Some(old), Some(new_)) => (old, new_) match {
             case (oldText: TextNode, newText: TextNode) =>
-              Logger.debug(Category.VirtualDOM, "Comparing text nodes", opId)
+              Logger.debug(
+                Category.VirtualDOM,
+                "Comparing text nodes",
+                opId,
+                Map(
+                  "oldText"     -> oldText.text,
+                  "newText"     -> newText.text,
+                  "isDifferent" -> (oldText.text != newText.text),
+                  "hasDomNode"  -> oldText.domNode.isDefined,
+                ),
+              )
               if (oldText.text != newText.text) {
                 oldText.domNode.foreach(_.textContent = newText.text)
               }

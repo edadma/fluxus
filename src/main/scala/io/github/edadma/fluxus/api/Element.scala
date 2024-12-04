@@ -37,9 +37,9 @@ object Element {
 
   private def processContent(content: Any): Vector[FluxusNode] = content match {
     case node: FluxusNode => Vector(node)
-    case s: String        => Vector(TextNode(s, None, None, None))
+    case s: String        => Vector(TextNode(s, None, None))
     case s: Seq[_]        => s.flatMap(processContent).toVector
-    case other            => Vector(TextNode(other.toString, None, None, None))
+    case other            => Vector(TextNode(other.toString, None, None))
   }
 
   private def processMixedContent(items: Seq[Any]): (Map[String, Any], Map[String, Any], Vector[FluxusNode]) = {

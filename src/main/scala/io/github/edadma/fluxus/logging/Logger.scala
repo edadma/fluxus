@@ -51,12 +51,12 @@ object Logger {
     if (shouldLog(level)) {
       val ctx           = s"[$level][${category}][op-$opId]"
       val formattedData = data.map(formatData)
-      val args          = Array[Any](ctx, message) ++ formattedData
+      val logMessage    = (ctx +: message +: formattedData).mkString(" ")
 
       level match {
-        case LogLevel.ERROR => console.error.apply(console, args*)
-        case LogLevel.WARN  => console.warn.apply(console, args*)
-        case _              => console.log.apply(console, args*)
+        case LogLevel.ERROR => console.error(logMessage)
+        case LogLevel.WARN  => console.warn(logMessage)
+        case _              => console.log(logMessage)
       }
     }
   }
