@@ -14,7 +14,7 @@ import scala.scalajs.js
 class DOMOperationsTest extends DOMSpec {
   case class TestProps()
 
-  it should "update DOM when state changes in a nested component" in withDebugLogging {
+  it should "update DOM when state changes in a nested component" in {
     var renders = 0
 
     def TestComponent(props: TestProps): FluxusNode = {
@@ -158,32 +158,32 @@ class DOMOperationsTest extends DOMSpec {
     renders shouldBe 2
   }
 
-//  "Component with state" should "render initial state correctly" in withDebugLogging {
-//    // Test just initial render
-//    def RenderTest(props: TestProps): FluxusNode = {
-//      val (count, _) = useState(0)
-//      ElementNode(
-//        tag = "div",
-//        props = Map.empty,
-//        events = Map.empty,
-//        children = Vector(TextNode(count.toString, None, None, None)),
-//        parent = None,
-//        domNode = None,
-//        key = None,
-//      )
-//    }
-//
-//    val component = Component.create(
-//      render = RenderTest,
-//      props = TestProps(),
-//      opId = 1,
-//      name = Some("RenderTest"),
-//    )
-//
-//    DOMOperations.mount(component, getContainer)
-//    getContainer.textContent shouldBe "0"
-//  }
-//
+  "Component with state" should "render initial state correctly" in {
+    // Test just initial render
+    def RenderTest(props: TestProps): FluxusNode = {
+      val (count, _) = useState(0)
+      ElementNode(
+        tag = "div",
+        props = Map.empty,
+        events = Map.empty,
+        children = Vector(TextNode(count.toString, None, None, None)),
+        parent = None,
+        domNode = None,
+        key = None,
+      )
+    }
+
+    val component = Component.create(
+      render = RenderTest,
+      props = TestProps(),
+      opId = 1,
+      name = Some("RenderTest"),
+    )
+
+    DOMOperations.mount(component, getContainer)
+    getContainer.textContent shouldBe "0"
+  }
+
 //  it should "respond to click events" in withDebugLogging {
 //    var clicked = false
 //
