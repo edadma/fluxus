@@ -40,26 +40,49 @@ object CounterApp {
     }
 
     div(
-      cls := "flex flex-col items-center gap-4 p-8",
-      h1(
-        cls := "text-2xl font-bold",
-        "Counter Example",
-      ),
+      cls := "flex flex-col items-center justify-center min-h-screen bg-base-200",
       div(
-        cls := "text-4xl font-bold",
-        count.toString,
-      ),
-      div(
-        cls := "flex gap-4",
-        button(
-          cls     := "btn btn-primary",
-          onClick := handleIncrement,
-          "+",
-        ),
-        button(
-          cls     := "btn btn-secondary",
-          onClick := handleDecrement,
-          "-",
+        cls := "card w-96 bg-base-100 shadow-xl",
+        div(
+          cls := "card-body items-center text-center",
+          h2(
+            cls := "card-title text-3xl mb-4",
+            "Counter Example",
+          ),
+          div(
+            cls := "stats shadow mb-4",
+            div(
+              cls := "stat",
+              div(
+                cls := "stat-title",
+                "Current Count",
+              ),
+              div(
+                cls := "stat-value text-4xl",
+                count.toString,
+              ),
+              div(
+                cls   := "stat-desc animate-[bounce_0.3s_ease-in-out] text-lg",
+                style := "transform-origin: center;",
+                if (count > 0) "Positive"
+                else if (count < 0) "Negative"
+                else "Zero",
+              ),
+            ),
+          ),
+          div(
+            cls := "card-actions",
+            button(
+              cls     := "btn btn-primary btn-lg",
+              onClick := handleDecrement,
+              "-",
+            ),
+            button(
+              cls     := "btn btn-primary btn-lg",
+              onClick := handleIncrement,
+              "+",
+            ),
+          ),
         ),
       ),
     )
@@ -80,7 +103,7 @@ object CounterApp {
       props = CounterProps(),
       key = None,
       opId = opId,
-      name = Some("Counter"), // Explicitly name it Counter
+      name = Some("Counter"),
     )
 
     Logger.debug(
