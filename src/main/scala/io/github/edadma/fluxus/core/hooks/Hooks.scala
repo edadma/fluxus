@@ -97,9 +97,9 @@ object Hooks {
 
     val hookIndex = instance.hookIndex
 
-    // Get or create the hook
+    // Always create hook if none exist, otherwise reuse
     val hook = if (hookIndex >= instance.hooks.length) {
-      // First render - create new hook
+      // First hook creation - needed regardless of render phase
       Logger.debug(
         Category.StateEffect,
         "Creating new state hook",
@@ -199,9 +199,9 @@ object Hooks {
               "componentId"   -> instance.id,
               "componentType" -> instance.componentType,
               "oldValue"      -> oldValue,
+              "needsRender"   -> instance.needsRender,
               "newValue"      -> newValue,
               "stateVersion"  -> instance.stateVersion,
-              "needsRender"   -> instance.needsRender,
               "updateSource"  -> Thread.currentThread().getStackTrace.take(5).mkString("\n"),
             ),
           )
@@ -212,22 +212,14 @@ object Hooks {
       instance.hooks = instance.hooks :+ stateHook
       stateHook
     } else {
-      // Subsequent renders - reuse existing hook
-      val existingHook = instance.hooks(hookIndex).asInstanceOf[StateHook[T]]
-      Logger.trace(
-        Category.StateEffect,
-        "Reusing existing state hook",
-        opId,
-        Map(
-          "componentId"  -> instance.id,
-          "hookIndex"    -> hookIndex,
-          "currentValue" -> existingHook.value,
-        ),
-      )
-      existingHook
+      // Reuse existing hook
+      instance.hooks(hookIndex).asInstanceOf[StateHook[T]]
     }
 
-    instance.hookIndex += 1
+    // Only increment hook index during render phase
+    if (instance.isRendering) {
+      instance.hookIndex += 1
+    }
 
     Logger.debug(
       Category.StateEffect,
@@ -235,7 +227,7 @@ object Hooks {
       opId,
       Map(
         "componentId"   -> instance.id,
-        "hookIndex"     -> (instance.hookIndex - 1),
+        "hookIndex"     -> hookIndex,
         "returnedValue" -> hook.value,
         "totalHooksNow" -> instance.hooks.length,
       ),
@@ -243,6 +235,7 @@ object Hooks {
 
     (hook.value, hook.setState)
   }
+
   def useEffect(effectFn: () => (() => Unit), deps: Option[Seq[Any]] = None): Unit = {
     val opId = Logger.nextOperationId
 
