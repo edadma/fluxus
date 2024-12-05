@@ -25,7 +25,7 @@ object CounterApp {
         clickOpId,
         Map("currentCount" -> count),
       )
-      setCount(count + 1)
+      setCount(_ + 1)
     }
 
     def handleDecrement(e: dom.Event): Unit = {
@@ -36,7 +36,7 @@ object CounterApp {
         clickOpId,
         Map("currentCount" -> count),
       )
-      setCount(count - 1)
+      setCount(_ - 1)
     }
 
     div(

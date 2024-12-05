@@ -38,7 +38,7 @@ class DOMOperationsTest extends DOMSpec {
           opId,
           Map("currentCount" -> count),
         )
-        setCount(count + 1)
+        setCount(_ + 1)
       }
 
       // Create the node without any self-references
