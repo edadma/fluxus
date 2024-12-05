@@ -15,153 +15,58 @@ object DOMOperations {
       Category.VirtualDOM,
       s"Creating DOM node",
       opId,
-      Map(
-        "nodeType" -> vnode.getClass.getSimpleName,
-      ),
+      Map("nodeType" -> vnode.getClass.getSimpleName),
     )
 
     val node = vnode match {
-      case ElementNode(tag, props, events, children, _, _, _, namespace, _) =>
+      case elem: ElementNode =>
         Logger.debug(
           Category.VirtualDOM,
           s"Creating element",
           opId,
           Map(
-            "tag"        -> tag,
-            "propsCount" -> props.size,
-            "childCount" -> children.size,
+            "tag"        -> elem.tag,
+            "propsCount" -> elem.props.size,
+            "childCount" -> elem.children.size,
           ),
         )
 
-        val element = dom.document.createElement(tag)
+        val element = dom.document.createElement(elem.tag)
 
-        // Log events being processed
-        if (events.nonEmpty) {
-          Logger.debug(
-            Category.VirtualDOM,
-            "Processing events for element",
-            opId,
-            Map(
-              "tag"        -> tag,
-              "eventCount" -> events.size,
-              "events"     -> events.keys.mkString(", "),
-            ),
-          )
-        }
-
-        for ((name, value) <- props) {
-          Logger.trace(
-            Category.VirtualDOM,
-            s"Setting attribute",
-            opId,
-            Map(
-              "element"   -> tag,
-              "attribute" -> name,
-              "value"     -> value,
-            ),
-          )
+        // Set attributes
+        for ((name, value) <- elem.props) {
           element.setAttribute(name, value.toString)
         }
 
-        // Handle events
-        for ((eventName, handler) <- events) {
+        // Set event handlers
+        for ((eventName, handler) <- elem.events) {
           val domEventName = eventName.substring(2).toLowerCase
-          val listener     = handler.asInstanceOf[dom.Event => Unit]
-
-          Logger.debug(
-            Category.VirtualDOM,
-            "Adding event listener",
-            opId,
-            Map(
-              "tag"          -> tag,
-              "eventName"    -> eventName,
-              "domEventName" -> domEventName,
-              "handlerType"  -> handler.getClass.getName,
-            ),
-          )
-
-          try {
-            element.addEventListener(domEventName, listener)
-            Logger.debug(
-              Category.VirtualDOM,
-              "Event listener added successfully",
-              opId,
-              Map(
-                "tag"       -> tag,
-                "eventName" -> domEventName,
-              ),
-            )
-          } catch {
-            case e: Throwable =>
-              Logger.error(
-                Category.VirtualDOM,
-                "Failed to add event listener",
-                opId,
-                Map(
-                  "tag"       -> tag,
-                  "eventName" -> domEventName,
-                  "error"     -> e.getMessage,
-                  "stack"     -> e.getStackTrace.mkString("\n"),
-                ),
-              )
-          }
+          element.addEventListener(domEventName, handler.asInstanceOf[dom.Event => Unit])
         }
 
-        children.zipWithIndex.foreach { case (child, index) =>
-          Logger.trace(
-            Category.VirtualDOM,
-            s"Creating child",
-            opId,
-            Map(
-              "parent"     -> tag,
-              "childIndex" -> index,
-              "childType"  -> child.getClass.getSimpleName,
-            ),
-          )
-          element.appendChild(createDOMNode(child))
+        // Create child nodes
+        for (child <- elem.children) {
+          val childDom = createDOMNode(child)
+          element.appendChild(childDom)
         }
 
+        // Update DOM reference for this element
+        elem.domNode = Some(element)
         element
 
-      case node @ TextNode(text, _, _, _) =>
-        Logger.debug(
-          Category.VirtualDOM,
-          s"Creating text node",
-          opId,
-          Map(
-            "textLength"  -> text.length,
-            "textPreview" -> text.take(20),
-          ),
-        )
-        val domNode = dom.document.createTextNode(text)
-        // Store DOM node reference in the TextNode instance
-        node.domNode = Some(domNode)
+      case textNode: TextNode =>
+        val domNode = dom.document.createTextNode(textNode.text)
+        textNode.domNode = Some(domNode)
         domNode
 
-      case ComponentNode(component, props, instance: Option[ComponentInstance], _) =>
-        Logger.debug(
-          Category.VirtualDOM,
-          s"Processing component node",
-          opId,
-          Map(
-            "componentType" -> component.getClass.getName,
-          ),
-        )
-
-        instance match {
+      case compNode: ComponentNode =>
+        compNode.instance match {
           case Some(inst) =>
             inst.rendered match {
               case Some(rendered) =>
-                Logger.debug(
-                  Category.VirtualDOM,
-                  s"Rendering component output",
-                  opId,
-                  Map(
-                    "componentType" -> inst.componentType,
-                    "outputType"    -> rendered.getClass.getSimpleName,
-                  ),
-                )
-                createDOMNode(rendered)
+                val domNode = createDOMNode(rendered)
+                inst.domNode = Some(domNode)
+                domNode
               case None =>
                 throw NodeValidationError(
                   "Component has no rendered output",
@@ -172,7 +77,7 @@ object DOMOperations {
           case None =>
             throw NodeValidationError(
               "Component has no instance",
-              Map("component" -> component.getClass.getName),
+              Map("component" -> compNode.component.getClass.getName),
               opId,
             )
         }
@@ -183,14 +88,16 @@ object DOMOperations {
       s"DOM node creation complete",
       opId,
       Map(
-        "nodeType" -> node.nodeName,
+        "nodeType"    -> node.nodeName,
+        "hasParent"   -> (node.parentNode != null),
+        "vNodeHasDom" -> vnode.domNode.isDefined,
       ),
     )
 
     node
   }
 
-  def mount(node: FluxusNode, container: dom.Element): FluxusNode = {
+  def mount(node: FluxusNode, container: dom.Element): Unit = {
     val opId = Logger.nextOperationId
 
     Logger.info(
@@ -210,18 +117,8 @@ object DOMOperations {
       }
     }
 
-    // Create and append the node
     Logger.debug(Category.VirtualDOM, "Creating root DOM node", opId)
     val domNode = createDOMNode(node)
-
-    // Create new node with DOM reference
-    val updatedNode = node match {
-      case e: ElementNode =>
-        e.copy(domNode = Some(domNode.asInstanceOf[dom.Element]))
-      case t: TextNode =>
-        t.copy(domNode = Some(domNode))
-      case _ => node // Components handle their own DOM nodes
-    }
 
     Logger.debug(Category.VirtualDOM, "Appending to container", opId)
     container.appendChild(domNode)
@@ -230,9 +127,10 @@ object DOMOperations {
       Category.VirtualDOM,
       "App mount complete",
       opId,
-      Map("rootNodeType" -> domNode.nodeName),
+      Map(
+        "rootNodeType" -> domNode.nodeName,
+        "rootHasDom"   -> node.domNode.isDefined,
+      ),
     )
-
-    updatedNode
   }
 }

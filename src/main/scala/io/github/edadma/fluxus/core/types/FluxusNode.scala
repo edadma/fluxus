@@ -14,7 +14,7 @@ case class ElementNode(
     events: Map[String, Any],
     children: Vector[FluxusNode],
     parent: Option[FluxusNode],
-    domNode: Option[Element],
+    var domNode: Option[Node],
     key: Option[String],
     namespace: Option[String] = None,
     ref: Option[Element => Unit] = None,
@@ -27,7 +27,7 @@ case class ComponentNode(
     key: Option[String],
 ) extends FluxusNode {
   val parent: Option[FluxusNode] = None
-  val domNode: Option[Node]      = None
+  var domNode: Option[Node]      = None
 }
 
 case class TextNode(

@@ -124,8 +124,8 @@ object Hooks {
 
         if (instance.isInCleanup) {
           Logger.warn(Category.StateEffect, "State update during cleanup - skipped", updateOpId)
-        } else if (!instance.isUpdating) { // Add update lock
-          instance.isUpdating = true       // Set lock
+        } else if (!instance.isUpdating) {
+          instance.isUpdating = true
           try {
             // Handle both direct value and function updates
             val newValue = update match {
@@ -157,18 +157,61 @@ object Hooks {
             // Get new rendered output
             val newRendered = instance.render(updateOpId)
 
-            // Diff and update DOM
-            instance.domNode.foreach { container =>
-              Logger.debug(
-                Category.StateEffect,
-                "Updating DOM after state change",
-                updateOpId,
-                Map(
-                  "componentId"   -> instance.id,
-                  "componentType" -> instance.componentType,
-                ),
-              )
-              Reconciler.diff(oldRendered, newRendered, container.asInstanceOf[dom.Element])
+            // Log the rendered nodes' DOM references
+            Logger.debug(
+              Category.StateEffect,
+              "DOM references for update",
+              updateOpId,
+              Map(
+                "oldRenderedHasDom" -> oldRendered.flatMap(_.domNode).isDefined,
+                "newRenderedHasDom" -> newRendered.flatMap(_.domNode).isDefined,
+                "oldDomType"        -> oldRendered.flatMap(_.domNode).map(_.nodeName).getOrElse("none"),
+                "parentExists"      -> oldRendered.flatMap(_.domNode).map(_.parentNode != null).getOrElse(false),
+                "parentType" -> oldRendered.flatMap(_.domNode).map(_.parentNode).map(_.nodeName).getOrElse("none"),
+              ),
+            )
+
+            // Try each possible container source in order of preference
+            def findContainer: Option[dom.Element] = {
+              def isElement(node: dom.Node): Boolean =
+                node != null && node.nodeType == 1 // 1 is ELEMENT_NODE
+
+              oldRendered.flatMap(_.domNode).flatMap(node =>
+                Option(node.parentNode).filter(isElement).map(_.asInstanceOf[dom.Element]),
+              ).orElse {
+                instance.domNode.flatMap(node =>
+                  Option(node.parentNode).filter(isElement).map(_.asInstanceOf[dom.Element]),
+                )
+              }
+            }
+
+            findContainer match {
+              case Some(elem) =>
+                Logger.debug(
+                  Category.StateEffect,
+                  "Updating DOM",
+                  updateOpId,
+                  Map(
+                    "containerType"       -> elem.nodeName,
+                    "containerChildCount" -> elem.childNodes.length,
+                    "componentId"         -> instance.id,
+                    "componentType"       -> instance.componentType,
+                  ),
+                )
+                Reconciler.diff(oldRendered, newRendered, elem)
+              case None =>
+                Logger.error(
+                  Category.StateEffect,
+                  "No DOM element found for update",
+                  updateOpId,
+                  Map(
+                    "componentId"      -> instance.id,
+                    "hasRendered"      -> oldRendered.isDefined,
+                    "hasInstance"      -> instance.domNode.isDefined,
+                    "renderNodeType"   -> oldRendered.map(_.getClass.getSimpleName).getOrElse("none"),
+                    "instanceNodeType" -> instance.domNode.map(_.nodeName).getOrElse("none"),
+                  ),
+                )
             }
 
             Logger.debug(
@@ -185,7 +228,7 @@ object Hooks {
               ),
             )
           } finally {
-            instance.isUpdating = false // Release lock
+            instance.isUpdating = false
           }
         }
       }

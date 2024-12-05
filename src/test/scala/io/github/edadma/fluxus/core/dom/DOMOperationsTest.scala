@@ -14,108 +14,149 @@ import scala.scalajs.js
 class DOMOperationsTest extends DOMSpec {
   case class TestProps()
 
-//  it should "update DOM when state changes in a nested component" in withDebugLogging {
-//    var renders = 0
-//
-//    def TestComponent(props: TestProps): FluxusNode = {
-//      renders += 1
-//      val renderCount = renders // Capture current value
-//      val opId        = Logger.nextOperationId
-//
-//      Logger.debug(
-//        Category.Component,
-//        "Component rendering",
-//        opId,
-//        Map("renderCount" -> renderCount),
-//      )
-//
-//      val (count, setCount) = useState(0)
-//
-//      val node = ElementNode(
-//        tag = "div",
-//        props = Map.empty,
-//        events = Map.empty,
-//        children = Vector(
-//          ElementNode(
-//            tag = "button",
-//            props = Map.empty,
-//            events = Map("onClick" -> ((_: dom.Event) => {
-//              Logger.debug(
-//                Category.StateEffect,
-//                "Button clicked - updating state",
-//                opId,
-//                Map("currentCount" -> count),
-//              )
-//              setCount(count + 1)
-//            })),
-//            children = Vector.empty,
-//            parent = None,
-//            domNode = None,
-//            key = None,
-//          ),
-//          ElementNode(
-//            tag = "span",
-//            props = Map.empty,
-//            events = Map.empty,
-//            children = Vector(TextNode(count.toString, None, None, None)),
-//            parent = None,
-//            domNode = None,
-//            key = None,
-//          ),
-//        ),
-//        parent = None,
-//        domNode = None,
-//        key = None,
-//      )
-//
-//      Logger.debug(
-//        Category.Component,
-//        "Render complete",
-//        opId,
-//        Map(
-//          "renderCount" -> renderCount,
-//          "stateValue"  -> count,
-//        ),
-//      )
-//
-//      node
-//    }
-//
-//    val component = Component.create(
-//      render = TestComponent,
-//      props = TestProps(),
-//      opId = 1,
-//      name = Some("TestComponent"),
-//    )
-//
-//    DOMOperations.mount(component, getContainer)
-//    val span = getContainer.querySelector("span")
-//    span.textContent shouldBe "0"
-//
-//    // Simulate click with debug logging
-//    val button     = getContainer.querySelector("button")
-//    val clickEvent = dom.document.createEvent("Event")
-//    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
-//
-//    Logger.debug(
-//      Category.VirtualDOM,
-//      "Dispatching click event",
-//      Logger.nextOperationId,
-//      Map("currentContent" -> span.textContent),
-//    )
-//
-//    button.dispatchEvent(clickEvent)
-//
-//    Logger.debug(
-//      Category.VirtualDOM,
-//      "After click event",
-//      Logger.nextOperationId,
-//      Map("newContent" -> span.textContent),
-//    )
-//
-//    span.textContent shouldBe "1"
-//    renders shouldBe 2 // Should have initial render and update render
-//  }
+  it should "update DOM when state changes in a nested component" in withDebugLogging {
+    var renders = 0
+
+    def TestComponent(props: TestProps): FluxusNode = {
+      renders += 1
+      val renderCount = renders // Capture current value
+      val opId        = Logger.nextOperationId
+
+      Logger.debug(
+        Category.Component,
+        "Component rendering",
+        opId,
+        Map("renderCount" -> renderCount),
+      )
+
+      val (count, setCount) = useState(0)
+
+      def handleClick(e: dom.Event): Unit = {
+        // Log after node is created but before state update
+        Logger.debug(
+          Category.StateEffect,
+          "Button clicked - updating state",
+          opId,
+          Map("currentCount" -> count),
+        )
+        setCount(count + 1)
+      }
+
+      // Create the node without any self-references
+      val button = ElementNode(
+        tag = "button",
+        props = Map.empty,
+        events = Map("onClick" -> handleClick),
+        children = Vector.empty,
+        parent = None,
+        domNode = None,
+        key = None,
+      )
+
+      val span = ElementNode(
+        tag = "span",
+        props = Map.empty,
+        events = Map.empty,
+        children = Vector(TextNode(count.toString, None, None, None)),
+        parent = None,
+        domNode = None,
+        key = None,
+      )
+
+      val node = ElementNode(
+        tag = "div",
+        props = Map.empty,
+        events = Map.empty,
+        children = Vector(button, span),
+        parent = None,
+        domNode = None,
+        key = None,
+      )
+
+      // Log DOM node information after creation
+      Logger.debug(
+        Category.VirtualDOM,
+        "Element node state",
+        opId,
+        Map(
+          "hasDomNode"  -> node.domNode.isDefined,
+          "domNodeType" -> node.domNode.map(_.nodeName).getOrElse("none"),
+        ),
+      )
+
+      Logger.debug(
+        Category.Component,
+        "Render complete",
+        opId,
+        Map(
+          "renderCount" -> renderCount,
+          "stateValue"  -> count,
+        ),
+      )
+
+      node
+    }
+
+    val component = Component.create(
+      render = TestComponent,
+      props = TestProps(),
+      opId = 1,
+      name = Some("TestComponent"),
+    )
+
+    val container = getContainer
+    DOMOperations.mount(component, container)
+
+    // Verify initial state
+    val span = container.querySelector("span")
+    span.textContent shouldBe "0"
+
+    // Log DOM state before click
+    val button = container.querySelector("button")
+    Logger.debug(
+      Category.VirtualDOM,
+      "DOM state before click",
+      Logger.nextOperationId,
+      Map(
+        "spanContent"        -> span.textContent,
+        "buttonParentExists" -> (button.parentNode != null),
+        "buttonParentType"   -> button.parentNode.nodeName,
+        "spanParentExists"   -> (span.parentNode != null),
+        "spanParentType"     -> span.parentNode.nodeName,
+      ),
+    )
+
+    // Simulate click
+    val clickEvent = dom.document.createEvent("Event")
+    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+
+    Logger.debug(
+      Category.VirtualDOM,
+      "Dispatching click event",
+      Logger.nextOperationId,
+      Map("currentContent" -> span.textContent),
+    )
+
+    button.dispatchEvent(clickEvent)
+
+    // Log DOM state after click
+    Logger.debug(
+      Category.VirtualDOM,
+      "DOM state after click",
+      Logger.nextOperationId,
+      Map(
+        "spanContent"        -> span.textContent,
+        "buttonParentExists" -> (button.parentNode != null),
+        "buttonParentType"   -> button.parentNode.nodeName,
+        "spanParentExists"   -> (span.parentNode != null),
+        "spanParentType"     -> span.parentNode.nodeName,
+      ),
+    )
+
+    // Verify update
+    span.textContent shouldBe "1"
+    renders shouldBe 2
+  }
 
 //  "Component with state" should "render initial state correctly" in withDebugLogging {
 //    // Test just initial render
@@ -616,43 +657,43 @@ class DOMOperationsTest extends DOMSpec {
 //    span.textContent shouldBe "1"
 //  }
 
-  it should "update element attributes" in withDebugLogging {
-    val oldNode = ElementNode(
-      tag = "div",
-      props = Map("class" -> "old"),
-      events = Map.empty,
-      children = Vector.empty,
-      parent = None,
-      domNode = None,
-      key = None,
-    )
-
-    val newNode = ElementNode(
-      tag = "div",
-      props = Map("class" -> "new"),
-      events = Map.empty,
-      children = Vector.empty,
-      parent = None,
-      domNode = None,
-      key = None,
-    )
-
-    val mountedNode = DOMOperations.mount(oldNode, getContainer)
-    Logger.debug(
-      Category.VirtualDOM,
-      "Node mounted",
-      Logger.nextOperationId,
-      Map(
-        "hasDomNode" -> mountedNode.domNode.isDefined,
-        "props"      -> mountedNode.asInstanceOf[ElementNode].props,
-      ),
-    )
-
-    Reconciler.diff(Some(mountedNode), Some(newNode), getContainer)
-
-    val div = getContainer.querySelector("div").asInstanceOf[html.Element]
-    div.className shouldBe "new"
-  }
+//  it should "update element attributes" in withDebugLogging {
+//    val oldNode = ElementNode(
+//      tag = "div",
+//      props = Map("class" -> "old"),
+//      events = Map.empty,
+//      children = Vector.empty,
+//      parent = None,
+//      domNode = None,
+//      key = None,
+//    )
+//
+//    val newNode = ElementNode(
+//      tag = "div",
+//      props = Map("class" -> "new"),
+//      events = Map.empty,
+//      children = Vector.empty,
+//      parent = None,
+//      domNode = None,
+//      key = None,
+//    )
+//
+//    val mountedNode = DOMOperations.mount(oldNode, getContainer)
+//    Logger.debug(
+//      Category.VirtualDOM,
+//      "Node mounted",
+//      Logger.nextOperationId,
+//      Map(
+//        "hasDomNode" -> mountedNode.domNode.isDefined,
+//        "props"      -> mountedNode.asInstanceOf[ElementNode].props,
+//      ),
+//    )
+//
+//    Reconciler.diff(Some(mountedNode), Some(newNode), getContainer)
+//
+//    val div = getContainer.querySelector("div").asInstanceOf[html.Element]
+//    div.className shouldBe "new"
+//  }
 
 //  it should "handle text node updates" in {
 //    val oldNode = TextNode("old text", None, None, None)

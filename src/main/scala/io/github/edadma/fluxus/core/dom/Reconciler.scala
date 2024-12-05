@@ -10,10 +10,8 @@ import org.scalajs.dom
 import org.scalajs.dom.{Element => DOMElement, Text => DOMText, Node => DOMNode}
 
 object Reconciler {
-  def diff(oldNode: Option[FluxusNode], newNode: Option[FluxusNode], container: DOMElement): Unit = {
-    val opId      = Logger.nextOperationId
-    val startTime = System.currentTimeMillis()
-    val config    = FrameworkConfig.current
+  def diff(oldNode: Option[FluxusNode], newNode: Option[FluxusNode], container: dom.Element): Unit = {
+    val opId = Logger.nextOperationId
 
     Logger.debug(
       Category.VirtualDOM,
@@ -25,71 +23,153 @@ object Reconciler {
       ),
     )
 
-    try {
-      (oldNode, newNode) match {
-        case (Some(old), None) =>
-          Logger.debug(Category.VirtualDOM, "Removing node", opId)
-          removeNode(old, container, opId)
-        case (None, Some(new_)) =>
-          Logger.debug(Category.VirtualDOM, "Adding new node", opId)
-          val newDomNode = DOMOperations.createDOMNode(new_)
-          container.appendChild(newDomNode)
-        case (Some(old), Some(new_)) if old.key != new_.key =>
-          Logger.debug(Category.VirtualDOM, "Different keys - replacing node", opId)
-          replaceNode(old, new_, container, opId)
-        case (Some(old), Some(new_)) => (old, new_) match {
-            case (oldText: TextNode, newText: TextNode) =>
-              Logger.debug(
-                Category.VirtualDOM,
-                "Comparing text nodes",
-                opId,
-                Map(
-                  "oldText"     -> oldText.text,
-                  "newText"     -> newText.text,
-                  "isDifferent" -> (oldText.text != newText.text),
-                  "hasDomNode"  -> oldText.domNode.isDefined,
-                ),
-              )
+    (oldNode, newNode) match {
+      case (Some(old), None) =>
+        Logger.debug(Category.VirtualDOM, "Removing node", opId)
+        old.domNode.foreach { node =>
+          container.removeChild(node)
+          old.domNode = None // Clear the reference
+        }
+
+      case (None, Some(new_)) =>
+        Logger.debug(Category.VirtualDOM, "Adding new node", opId)
+        val newDomNode = DOMOperations.createDOMNode(new_)
+        container.appendChild(newDomNode)
+
+      case (Some(old), Some(new_)) if old.key != new_.key =>
+        Logger.debug(Category.VirtualDOM, "Different keys - replacing node", opId)
+        old.domNode.foreach { oldDom =>
+          val newDom = DOMOperations.createDOMNode(new_)
+          container.replaceChild(newDom, oldDom)
+          old.domNode = None // Clear old reference
+        }
+
+      case (Some(old), Some(new_)) => (old, new_) match {
+          case (oldText: TextNode, newText: TextNode) =>
+            oldText.domNode.foreach { textNode =>
               if (oldText.text != newText.text) {
-                oldText.domNode.foreach(_.textContent = newText.text)
+                textNode.textContent = newText.text
               }
-            case (oldElem: ElementNode, newElem: ElementNode) =>
-              Logger.debug(Category.VirtualDOM, "Comparing element nodes", opId)
-              diffElements(oldElem, newElem, opId)
-            case (oldComp: ComponentNode, newComp: ComponentNode) =>
-              Logger.debug(Category.VirtualDOM, "Comparing component nodes", opId)
-              diffComponents(oldComp, newComp, opId)
-            case _ =>
-              if (old.getClass != new_.getClass) {
-                Logger.debug(Category.VirtualDOM, "Different types - replacing node", opId)
-                replaceNode(old, new_, container, opId)
+              newText.domNode = Some(textNode) // Pass the DOM reference to the new node
+            }
+
+          case (oldElem: ElementNode, newElem: ElementNode) =>
+            Logger.debug(Category.VirtualDOM, "Comparing element nodes", opId)
+            diffElements(oldElem, newElem, container, opId)
+
+          case (oldComp: ComponentNode, newComp: ComponentNode) =>
+            Logger.debug(Category.VirtualDOM, "Comparing component nodes", opId)
+            diffComponents(oldComp, newComp, container, opId)
+
+          case _ =>
+            if (old.getClass != new_.getClass) {
+              old.domNode.foreach { oldDom =>
+                val newDom = DOMOperations.createDOMNode(new_)
+                container.replaceChild(newDom, oldDom)
+                old.domNode = None // Clear old reference
               }
-          }
-        case (None, None) =>
-          Logger.debug(Category.VirtualDOM, "No nodes to diff", opId)
+            }
+        }
+
+      case (None, None) =>
+        Logger.debug(Category.VirtualDOM, "No nodes to diff", opId)
+    }
+  }
+
+  private def diffElements(oldNode: ElementNode, newNode: ElementNode, container: dom.Element, opId: Int): Unit = {
+    Logger.debug(
+      Category.VirtualDOM,
+      "DiffElements details",
+      opId,
+      Map(
+        "oldNodeHasDomNode" -> oldNode.domNode.isDefined,
+        "oldNodeChildren"   -> oldNode.children.length,
+        "newNodeChildren"   -> newNode.children.length,
+        "oldNodeTag"        -> oldNode.tag,
+        "newNodeTag"        -> newNode.tag,
+        "oldNodeProps"      -> oldNode.props,
+        "newNodeProps"      -> newNode.props,
+      ),
+    )
+
+    if (oldNode.tag != newNode.tag) {
+      oldNode.domNode.foreach { domNode =>
+        val newDom = DOMOperations.createDOMNode(newNode)
+        container.replaceChild(newDom, domNode)
+        oldNode.domNode = None
+      }
+      return
+    }
+
+    oldNode.domNode.foreach { domNode =>
+      // Cast to Element since we know this is an element node
+      val element = domNode.asInstanceOf[dom.Element]
+
+      // Update attributes
+      val oldProps = oldNode.props
+      val newProps = newNode.props
+
+      // Remove old props
+      oldProps.keys.foreach { name =>
+        if (!newProps.contains(name)) {
+          element.removeAttribute(name)
+        }
       }
 
-      val duration = System.currentTimeMillis() - startTime
-      if (duration > config.renderTimeout) {
-        Logger.warn(
-          Category.Render,
-          "Render timeout exceeded",
-          opId,
-          Map(
-            "duration" -> duration,
-            "timeout"  -> config.renderTimeout,
-          ),
-        )
+      // Set new/changed props
+      newProps.foreach { case (name, value) =>
+        val newValue = value.toString
+        if (oldProps.get(name).map(_.toString) != Some(newValue)) {
+          element.setAttribute(name, newValue)
+        }
       }
-    } catch {
-      case e: Throwable =>
-        Logger.error(
-          Category.VirtualDOM,
-          "Error during diff operation",
-          opId,
-          Map("error" -> e.getMessage),
-        )
-        throw e
+
+      // Update children
+      val oldChildren = oldNode.children
+      val newChildren = newNode.children
+
+      // Handle children updates
+      var i = 0
+      while (i < Math.max(oldChildren.length, newChildren.length)) {
+        val oldChild = oldChildren.lift(i)
+        val newChild = newChildren.lift(i)
+
+        diff(oldChild, newChild, element)
+        i += 1
+      }
+
+      // Pass DOM reference to new node
+      newNode.domNode = Some(element)
+    }
+  }
+
+  private def diffComponents(
+      oldNode: ComponentNode,
+      newNode: ComponentNode,
+      container: dom.Element,
+      opId: Int,
+  ): Unit = {
+    (oldNode.instance, newNode.instance) match {
+      case (Some(oldInst), Some(newInst)) =>
+        if (oldInst.componentType != newInst.componentType) {
+          oldInst.domNode.foreach { oldDom =>
+            val newDom = DOMOperations.createDOMNode(newNode)
+            container.replaceChild(newDom, oldDom)
+            oldInst.domNode = None
+          }
+        } else {
+          // Diff the rendered output
+          val oldRendered = oldInst.rendered
+          val newRendered = newInst.rendered
+
+          oldInst.domNode.foreach { element =>
+            diff(oldRendered, newRendered, element.asInstanceOf[dom.Element])
+            // Pass DOM reference to new instance
+            newInst.domNode = Some(element)
+          }
+        }
+      case _ =>
+        Logger.error(Category.VirtualDOM, "Invalid component instance state", opId)
     }
   }
 
@@ -183,7 +263,7 @@ object Reconciler {
         opId,
         Map(
           "elementType" -> element.nodeName,
-          "elementId"   -> element.id,
+          "elementId"   -> element.asInstanceOf[dom.Element].id,
         ),
       )
 
