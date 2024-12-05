@@ -1,9 +1,12 @@
 package io.github.edadma.fluxus.testing
 
+import io.github.edadma.fluxus.core.hooks.Hooks
+import io.github.edadma.fluxus.logging.Logger
 import org.scalajs.dom
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+
 import scala.scalajs.js
 import js.annotation.JSImport
 

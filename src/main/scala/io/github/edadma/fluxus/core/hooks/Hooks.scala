@@ -118,96 +118,77 @@ object Hooks {
 
         if (instance.isRendering) {
           val error = "Cannot update state during render"
-          Logger.error(
-            Category.StateEffect,
-            error,
-            updateOpId,
-            Map(
-              "componentId"   -> instance.id,
-              "componentType" -> instance.componentType,
-              "hookIndex"     -> hookIndex,
-              "stackTrace"    -> Thread.currentThread().getStackTrace.mkString("\n"),
-            ),
-          )
+          Logger.error(Category.StateEffect, error, updateOpId)
           throw HookValidationError(error, Map("componentId" -> instance.id), updateOpId)
         }
 
         if (instance.isInCleanup) {
-          Logger.warn(
-            Category.StateEffect,
-            "State update during cleanup - skipped",
-            updateOpId,
-            Map(
-              "componentId"   -> instance.id,
-              "componentType" -> instance.componentType,
-              "hookIndex"     -> hookIndex,
-              "updateValue"   -> update,
-              "stackTrace"    -> Thread.currentThread().getStackTrace.mkString("\n"),
-            ),
-          )
-        } else {
-          // Handle both direct value and function updates
-          val newValue = update match {
-            case f: (T => T) @unchecked => f(currentValue)
-            case v: T @unchecked        => v
-          }
+          Logger.warn(Category.StateEffect, "State update during cleanup - skipped", updateOpId)
+        } else if (!instance.isUpdating) { // Add update lock
+          instance.isUpdating = true       // Set lock
+          try {
+            // Handle both direct value and function updates
+            val newValue = update match {
+              case f: (T => T) @unchecked => f(currentValue)
+              case v: T @unchecked        => v
+            }
 
-          Logger.debug(
-            Category.StateEffect,
-            "State update",
-            updateOpId,
-            Map(
-              "componentId"  -> instance.id,
-              "hookIndex"    -> hookIndex,
-              "oldValue"     -> currentValue,
-              "newValue"     -> newValue,
-              "updateType"   -> (if (update.isInstanceOf[(?) => ?]) "function" else "direct"),
-              "stateVersion" -> instance.stateVersion,
-            ),
-          )
-
-          val oldValue = currentValue
-          currentValue = newValue
-          instance.hooks = instance.hooks.updated(hookIndex, StateHook(currentValue, setter))
-          instance.needsRender = true
-
-          // Store old rendered output
-          val oldRendered = instance.rendered
-
-          // Get new rendered output
-          val newRendered = instance.render(updateOpId)
-
-          // Diff and update DOM
-          instance.domNode.foreach { container =>
             Logger.debug(
               Category.StateEffect,
-              "Updating DOM after state change",
+              "State update",
+              updateOpId,
+              Map(
+                "componentId"  -> instance.id,
+                "hookIndex"    -> hookIndex,
+                "oldValue"     -> currentValue,
+                "newValue"     -> newValue,
+                "updateType"   -> (if (update.isInstanceOf[(?) => ?]) "function" else "direct"),
+                "stateVersion" -> instance.stateVersion,
+              ),
+            )
+
+            val oldValue = currentValue
+            currentValue = newValue
+            instance.hooks = instance.hooks.updated(hookIndex, StateHook(currentValue, setter))
+
+            // Store old rendered output
+            val oldRendered = instance.rendered
+
+            // Get new rendered output
+            val newRendered = instance.render(updateOpId)
+
+            // Diff and update DOM
+            instance.domNode.foreach { container =>
+              Logger.debug(
+                Category.StateEffect,
+                "Updating DOM after state change",
+                updateOpId,
+                Map(
+                  "componentId"   -> instance.id,
+                  "componentType" -> instance.componentType,
+                ),
+              )
+              Reconciler.diff(oldRendered, newRendered, container.asInstanceOf[dom.Element])
+            }
+
+            Logger.debug(
+              Category.StateEffect,
+              "State updated",
               updateOpId,
               Map(
                 "componentId"   -> instance.id,
                 "componentType" -> instance.componentType,
+                "oldValue"      -> oldValue,
+                "needsRender"   -> instance.needsRender,
+                "newValue"      -> newValue,
+                "stateVersion"  -> instance.stateVersion,
               ),
             )
-            Reconciler.diff(oldRendered, newRendered, container.asInstanceOf[dom.Element])
+          } finally {
+            instance.isUpdating = false // Release lock
           }
-
-          Logger.debug(
-            Category.StateEffect,
-            "State updated",
-            updateOpId,
-            Map(
-              "componentId"   -> instance.id,
-              "componentType" -> instance.componentType,
-              "oldValue"      -> oldValue,
-              "needsRender"   -> instance.needsRender,
-              "newValue"      -> newValue,
-              "stateVersion"  -> instance.stateVersion,
-              "updateSource"  -> Thread.currentThread().getStackTrace.take(5).mkString("\n"),
-            ),
-          )
         }
       }
-
       val stateHook = StateHook(currentValue, setter)
       instance.hooks = instance.hooks :+ stateHook
       stateHook

@@ -9,22 +9,9 @@ import io.github.edadma.fluxus.logging.Logger.{Category, LogLevel}
 import io.github.edadma.fluxus.error.HookValidationError
 import org.scalatest.BeforeAndAfterEach
 import Hooks.useState
+import io.github.edadma.fluxus.testing.BaseTest
 
-class HooksTest extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
-  override def beforeEach(): Unit = {
-    Logger.setLevel(LogLevel.OFF)
-  }
-
-  // Helper to run a test with debug logging
-  def withDebugLogging(test: => Unit): Unit = {
-    Logger.setLevel(LogLevel.DEBUG)
-    try {
-      test
-    } finally {
-      Logger.setLevel(LogLevel.OFF)
-    }
-  }
-
+class HooksTest extends BaseTest {
   // Helper to simulate a render using an existing or new instance
   def simulateRender(render: () => Unit, instance: Option[ComponentInstance] = None): ComponentInstance = {
     val componentInstance = instance.getOrElse(

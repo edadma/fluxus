@@ -188,7 +188,28 @@ object Reconciler {
 
     // Set new/changed props
     newProps.foreach { case (name, value) =>
-      if (!oldProps.get(name).contains(value)) {
+      val oldValue = oldProps.get(name)
+      val needsUpdate = oldValue match {
+        case Some(old) =>
+          val oldStr = old.toString
+          val newStr = value.toString
+          if (oldStr != newStr) {
+            Logger.debug(
+              Category.VirtualDOM,
+              "Attribute value changed",
+              opId,
+              Map(
+                "attribute" -> name,
+                "oldValue"  -> oldStr,
+                "newValue"  -> newStr,
+              ),
+            )
+            true
+          } else false
+        case None => true
+      }
+
+      if (needsUpdate) {
         Logger.trace(
           Category.VirtualDOM,
           "Setting attribute",
@@ -259,23 +280,13 @@ object Reconciler {
   private def diffComponents(oldNode: ComponentNode, newNode: ComponentNode, opId: Int): Unit = {
     (oldNode.instance, newNode.instance) match {
       case (Some(oldInst), Some(newInst)) =>
-        // Check tree depth before proceeding
-        checkTreeDepth(newInst, opId)
-
         val startTime = System.currentTimeMillis()
+
         if (oldInst.componentType != newInst.componentType) {
           // Different component types - full replace
-          Logger.debug(
-            Category.VirtualDOM,
-            "Different component types",
-            opId,
-            Map(
-              "oldType" -> oldInst.componentType,
-              "newType" -> newInst.componentType,
-            ),
-          )
+          Logger.debug(Category.VirtualDOM, "Different component types", opId)
           oldInst.rendered.zip(oldNode.domNode).foreach { case (oldRendered, container) =>
-            removeNode(oldRendered, container.asInstanceOf[DOMElement], opId)
+            removeNode(oldRendered, container.asInstanceOf[dom.Element], opId)
           }
           newInst.rendered.foreach { newRendered =>
             oldNode.domNode.foreach { container =>
@@ -286,12 +297,7 @@ object Reconciler {
           // Same component type - maybe update
           val shouldUpdate = oldInst.props != newInst.props || oldInst.needsRender
           if (shouldUpdate) {
-            Logger.debug(
-              Category.VirtualDOM,
-              "Updating component",
-              opId,
-              Map("componentType" -> oldInst.componentType),
-            )
+            Logger.debug(Category.VirtualDOM, "Updating component", opId)
 
             // Create updated instance with new props
             val updatedInst = oldInst.copy(props = newInst.props)
@@ -300,7 +306,7 @@ object Reconciler {
             // Re-render and track timing
             oldInst.rendered.zip(newInst.rendered).foreach { case (oldRendered, newRendered) =>
               oldNode.domNode.foreach { container =>
-                diff(Some(oldRendered), Some(newRendered), container.asInstanceOf[DOMElement])
+                diff(Some(oldRendered), Some(newRendered), container.asInstanceOf[dom.Element])
               }
             }
 
@@ -309,33 +315,10 @@ object Reconciler {
             updatedInst.totalRenderTime += duration
             updatedInst.updateCount += 1
             updatedInst.lastUpdateTime = System.currentTimeMillis()
-
-            // Record debug information if enabled
-            if (FrameworkConfig.current.debugMode) {
-              DebugTools.recordRender(
-                updatedInst.id,
-                RenderInfo(
-                  componentType = updatedInst.componentType,
-                  props = updatedInst.props,
-                  state = updatedInst.hooks,
-                  duration = duration,
-                  depth = updatedInst.depth,
-                ),
-                opId,
-              )
-            }
           }
         }
       case _ =>
-        Logger.error(
-          Category.VirtualDOM,
-          "Invalid component instance state",
-          opId,
-          Map(
-            "oldHasInstance" -> oldNode.instance.isDefined,
-            "newHasInstance" -> newNode.instance.isDefined,
-          ),
-        )
+        Logger.error(Category.VirtualDOM, "Invalid component instance state", opId)
     }
   }
 }

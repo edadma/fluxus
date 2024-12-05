@@ -190,12 +190,12 @@ object DOMOperations {
     node
   }
 
-  def mount(vnode: FluxusNode, container: DOMElement): Unit = {
+  def mount(node: FluxusNode, container: dom.Element): Unit = {
     val opId = Logger.nextOperationId
 
     Logger.info(
       Category.VirtualDOM,
-      s"Starting app mount",
+      "Starting app mount",
       opId,
       Map(
         "containerId"       -> container.id,
@@ -203,33 +203,57 @@ object DOMOperations {
       ),
     )
 
+    // Clear container only on initial mount
     if (container.hasChildNodes()) {
-      Logger.debug(
-        Category.VirtualDOM,
-        s"Clearing container",
-        opId,
-        Map(
-          "childCount" -> container.childNodes.length,
-        ),
-      )
+      Logger.debug(Category.VirtualDOM, "Clearing container", opId)
       while (container.firstChild != null) {
         container.removeChild(container.firstChild)
       }
     }
 
-    Logger.debug(Category.VirtualDOM, s"Creating root DOM node", opId)
-    val domNode = createDOMNode(vnode)
+    // If we're mounting a component, attach container reference
+    if (node.isInstanceOf[ComponentNode]) {
+      node.asInstanceOf[ComponentNode].instance.foreach { instance =>
+        Logger.debug(
+          Category.VirtualDOM,
+          "Setting component DOM node reference",
+          opId,
+          Map("componentId" -> instance.id),
+        )
+        instance.domNode = Some(container)
 
-    Logger.debug(Category.VirtualDOM, s"Appending to container", opId)
+        // Prevent re-mounting if a diff is in progress
+        if (instance.isUpdating) {
+          Logger.debug(
+            Category.VirtualDOM,
+            "Skipping mount during update",
+            opId,
+            Map("componentId" -> instance.id),
+          )
+          return
+        }
+      }
+    }
+
+    // Create and append the node
+    Logger.debug(Category.VirtualDOM, "Creating root DOM node", opId)
+    val domNode = createDOMNode(node)
+
+    // Store DOM node reference on virtual node to support diffing
+    node match {
+      case e: ElementNode => e.copy(domNode = Some(domNode.asInstanceOf[dom.Element]))
+      case t: TextNode    => t.copy(domNode = Some(domNode))
+      case _              => // Components handle their own DOM nodes
+    }
+
+    Logger.debug(Category.VirtualDOM, "Appending to container", opId)
     container.appendChild(domNode)
 
     Logger.info(
       Category.VirtualDOM,
-      s"App mount complete",
+      "App mount complete",
       opId,
-      Map(
-        "rootNodeType" -> domNode.nodeName,
-      ),
+      Map("rootNodeType" -> domNode.nodeName),
     )
   }
 }

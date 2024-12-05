@@ -18,6 +18,10 @@ object Logger {
   private var currentLevel = LogLevel.INFO
   private var operationId  = 0
 
+  def resetOperationId(): Unit = {
+    operationId = 0
+  }
+
   def nextOperationId: Int = {
     operationId += 1
     operationId

@@ -53,6 +53,7 @@ case class ComponentInstance(
     var refs: Map[String, Any] = Map.empty,
     var domNode: Option[Node] = None,
     var debugName: Option[String] = None,
+    var isUpdating: Boolean = false,
 ) {
   def render(opId: Int): Option[FluxusNode] = {
     Logger.debug(Category.Component, "Starting component render", opId)
