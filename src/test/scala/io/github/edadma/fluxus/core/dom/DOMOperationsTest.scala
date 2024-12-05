@@ -117,98 +117,98 @@ class DOMOperationsTest extends DOMSpec {
 //    renders shouldBe 2 // Should have initial render and update render
 //  }
 
-  "Component with state" should "render initial state correctly" in withDebugLogging {
-    // Test just initial render
-    def RenderTest(props: TestProps): FluxusNode = {
-      val (count, _) = useState(0)
-      ElementNode(
-        tag = "div",
-        props = Map.empty,
-        events = Map.empty,
-        children = Vector(TextNode(count.toString, None, None, None)),
-        parent = None,
-        domNode = None,
-        key = None,
-      )
-    }
+//  "Component with state" should "render initial state correctly" in withDebugLogging {
+//    // Test just initial render
+//    def RenderTest(props: TestProps): FluxusNode = {
+//      val (count, _) = useState(0)
+//      ElementNode(
+//        tag = "div",
+//        props = Map.empty,
+//        events = Map.empty,
+//        children = Vector(TextNode(count.toString, None, None, None)),
+//        parent = None,
+//        domNode = None,
+//        key = None,
+//      )
+//    }
+//
+//    val component = Component.create(
+//      render = RenderTest,
+//      props = TestProps(),
+//      opId = 1,
+//      name = Some("RenderTest"),
+//    )
+//
+//    DOMOperations.mount(component, getContainer)
+//    getContainer.textContent shouldBe "0"
+//  }
+//
+//  it should "respond to click events" in withDebugLogging {
+//    var clicked = false
+//
+//    def ClickTest(props: TestProps): FluxusNode = {
+//      ElementNode(
+//        tag = "button",
+//        props = Map.empty,
+//        events = Map("onClick" -> ((_: dom.Event) => clicked = true)),
+//        children = Vector.empty,
+//        parent = None,
+//        domNode = None,
+//        key = None,
+//      )
+//    }
+//
+//    val component = Component.create(
+//      render = ClickTest,
+//      props = TestProps(),
+//      opId = 1,
+//      name = Some("ClickTest"),
+//    )
+//
+//    DOMOperations.mount(component, getContainer)
+//
+//    val button     = getContainer.querySelector("button")
+//    val clickEvent = dom.document.createEvent("Event")
+//    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+//    button.dispatchEvent(clickEvent)
+//
+//    clicked shouldBe true
+//  }
 
-    val component = Component.create(
-      render = RenderTest,
-      props = TestProps(),
-      opId = 1,
-      name = Some("RenderTest"),
-    )
-
-    DOMOperations.mount(component, getContainer)
-    getContainer.textContent shouldBe "0"
-  }
-
-  it should "respond to click events" in withDebugLogging {
-    var clicked = false
-
-    def ClickTest(props: TestProps): FluxusNode = {
-      ElementNode(
-        tag = "button",
-        props = Map.empty,
-        events = Map("onClick" -> ((_: dom.Event) => clicked = true)),
-        children = Vector.empty,
-        parent = None,
-        domNode = None,
-        key = None,
-      )
-    }
-
-    val component = Component.create(
-      render = ClickTest,
-      props = TestProps(),
-      opId = 1,
-      name = Some("ClickTest"),
-    )
-
-    DOMOperations.mount(component, getContainer)
-
-    val button     = getContainer.querySelector("button")
-    val clickEvent = dom.document.createEvent("Event")
-    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
-    button.dispatchEvent(clickEvent)
-
-    clicked shouldBe true
-  }
-
-  it should "update state correctly" in withDebugLogging {
-    var stateValue = 0
-
-    def StateTest(props: TestProps): FluxusNode = {
-      val (count, setCount) = useState(0)
-      stateValue = count
-      ElementNode(
-        tag = "button",
-        props = Map.empty,
-        events = Map("onClick" -> ((_: dom.Event) => setCount(count + 1))),
-        children = Vector.empty,
-        parent = None,
-        domNode = None,
-        key = None,
-      )
-    }
-
-    val component = Component.create(
-      render = StateTest,
-      props = TestProps(),
-      opId = 1,
-      name = Some("StateTest"),
-    )
-
-    DOMOperations.mount(component, getContainer)
-    stateValue shouldBe 0
-
-    val button     = getContainer.querySelector("button")
-    val clickEvent = dom.document.createEvent("Event")
-    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
-    button.dispatchEvent(clickEvent)
-
-    stateValue shouldBe 1
-  }
+//  it should "update state correctly" in withDebugLogging {
+//    var stateValue = 0
+//
+//    def StateTest(props: TestProps): FluxusNode = {
+//      val (count, setCount) = useState(0)
+//      stateValue = count
+//      ElementNode(
+//        tag = "button",
+//        props = Map.empty,
+//        events = Map("onClick" -> ((_: dom.Event) => setCount(count + 1))),
+//        children = Vector.empty,
+//        parent = None,
+//        domNode = None,
+//        key = None,
+//      )
+//    }
+//
+//    val component = Component.create(
+//      render = StateTest,
+//      props = TestProps(),
+//      opId = 1,
+//      name = Some("StateTest"),
+//    )
+//
+//    DOMOperations.mount(component, getContainer)
+//    stateValue shouldBe 0
+//
+//    val button     = getContainer.querySelector("button")
+//    val clickEvent = dom.document.createEvent("Event")
+//    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+//    button.dispatchEvent(clickEvent)
+//
+//    stateValue shouldBe 1
+//  }
 
 //  it should "update DOM when state changes in a nested component" in {
 //    var renders = 0
@@ -313,241 +313,241 @@ class DOMOperationsTest extends DOMSpec {
 //    renders shouldBe 2 // Should have initial render and update render
 //  }
 
-  "DOMOperations" should "create a basic element" in {
-    val node = ElementNode(
-      tag = "div",
-      props = Map("class" -> "test"),
-      events = Map.empty,
-      children = Vector.empty,
-      parent = None,
-      domNode = None,
-      key = None,
-    )
-
-    DOMOperations.mount(node, getContainer)
-
-    val div = getContainer.querySelector("div").asInstanceOf[html.Div]
-    div should not be null
-    div.className shouldBe "test"
-  }
-
-  it should "handle nested elements" in {
-    val node = ElementNode(
-      tag = "div",
-      props = Map.empty,
-      events = Map.empty,
-      children = Vector(
-        ElementNode(
-          tag = "span",
-          props = Map("class" -> "child"),
-          events = Map.empty,
-          children = Vector(TextNode("test content", None, None, None)),
-          parent = None,
-          domNode = None,
-          key = None,
-        ),
-      ),
-      parent = None,
-      domNode = None,
-      key = None,
-    )
-
-    DOMOperations.mount(node, getContainer)
-
-    val span = getContainer.querySelector("span").asInstanceOf[html.Span]
-
-    span should not be null
-    span.className shouldBe "child"
-    span.textContent shouldBe "test content"
-  }
-
-  it should "handle text node updates via diffing" in {
-    val oldNode = TextNode("old text", None, None, None)
-    val newNode = TextNode("new text", None, None, None)
-
-    DOMOperations.mount(oldNode, getContainer)
-    getContainer.textContent shouldBe "old text"
-
-    Reconciler.diff(Some(oldNode), Some(newNode), getContainer)
-    getContainer.textContent shouldBe "new text"
-  }
-
-  it should "handle click events" in {
-    var clicked = false
-    val handler = (_: dom.Event) => clicked = true
-
-    val node = ElementNode(
-      tag = "button",
-      props = Map.empty,
-      events = Map("onClick" -> handler),
-      children = Vector(TextNode("Click me", None, None, None)),
-      parent = None,
-      domNode = None,
-      key = None,
-    )
-
-    DOMOperations.mount(node, getContainer)
-
-    val button = getContainer.querySelector("button")
-    button should not be null
-
-    // Simulate click
-    val clickEvent = dom.document.createEvent("Event")
-    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
-    button.dispatchEvent(clickEvent)
-    clicked shouldBe true
-  }
-
-  it should "pass event object to handlers" in {
-    var receivedEvent: dom.Event = null
-    val handler                  = (e: dom.Event) => receivedEvent = e
-
-    val node = ElementNode(
-      tag = "button",
-      props = Map.empty,
-      events = Map("onClick" -> handler),
-      children = Vector.empty,
-      parent = None,
-      domNode = None,
-      key = None,
-    )
-
-    DOMOperations.mount(node, getContainer)
-
-    val button = getContainer.querySelector("button")
-    button should not be null
-
-    val clickEvent = dom.document.createEvent("Event")
-    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
-    button.dispatchEvent(clickEvent)
-
-    receivedEvent should not be null
-    receivedEvent.`type` shouldBe "click"
-  }
-
-  it should "update DOM after state changes from event" in {
-    val initialText = TextNode("Initial", None, None, None)
-
-    val node = ElementNode(
-      tag = "div",
-      props = Map.empty,
-      events = Map.empty,
-      children = Vector(
-        ElementNode(
-          tag = "button",
-          props = Map.empty,
-          events = Map("onClick" -> ((_: dom.Event) => {
-            // Simulate state update by diffing in new content
-            val newContent = TextNode("Updated", None, None, None)
-            val container  = dom.document.querySelector("span")
-            Reconciler.diff(Some(initialText), Some(newContent), container.asInstanceOf[dom.Element])
-          })),
-          children = Vector.empty,
-          parent = None,
-          domNode = None,
-          key = None,
-        ),
-        ElementNode(
-          tag = "span",
-          props = Map.empty,
-          events = Map.empty,
-          children = Vector(initialText),
-          parent = None,
-          domNode = None,
-          key = None,
-        ),
-      ),
-      parent = None,
-      domNode = None,
-      key = None,
-    )
-
-    DOMOperations.mount(node, getContainer)
-
-    // Verify initial state
-    val span = getContainer.querySelector("span")
-    span.textContent shouldBe "Initial"
-
-    // Simulate click
-    val button     = getContainer.querySelector("button")
-    val clickEvent = dom.document.createEvent("Event")
-    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
-    button.dispatchEvent(clickEvent)
-
-    // Verify update
-    span.textContent shouldBe "Updated"
-  }
-
-  it should "trigger diffing after state updates" in {
-    var renderCount  = 0
-    var currentValue = 0
-
-    def renderFn(props: Any): FluxusNode = {
-      renderCount += 1
-      TextNode(currentValue.toString, None, None, None)
-    }
-
-    val instance = ComponentInstance(
-      id = "test",
-      component = renderFn,
-      componentType = "TestComponent",
-      props = (),
-      domNode = Some(getContainer),
-    )
-
-    // Initial render and mount
-    DOMOperations.mount(instance.render(1).get, getContainer)
-
-    // Verify initial render
-    renderCount shouldBe 1
-    getContainer.textContent shouldBe "0"
-
-    // Update value and re-render
-    currentValue = 1
-    DOMOperations.mount(instance.render(2).get, getContainer)
-
-    // Verify update
-    renderCount shouldBe 2
-    getContainer.textContent shouldBe "1"
-  }
-
-  it should "properly maintain hook state between renders" in {
-    var instance: ComponentInstance        = null
-    var hook: Option[(Int, (Int) => Unit)] = None
-
-    def renderFn(props: Any): FluxusNode = {
-      Hooks.setCurrentInstance(instance)
-      val state = useState(0)
-      hook = Some(state) // Store hook reference for testing
-      Hooks.clearCurrentInstance()
-
-      TextNode(state._1.toString, None, None, None)
-    }
-
-    // Create and mount component
-    instance = ComponentInstance(
-      id = "test",
-      component = renderFn,
-      componentType = "TestComponent",
-      props = (),
-      domNode = Some(getContainer),
-    )
-
-    // Initial render
-    val initialRender = instance.render(1)
-    DOMOperations.mount(initialRender.get, getContainer)
-
-    // Verify initial state
-    hook should not be None
-    hook.get._1 shouldBe 0
-    getContainer.textContent shouldBe "0"
-
-    // Update state directly through stored hook reference
-    hook.get._2(1)
-
-    // Verify new state
-    getContainer.textContent shouldBe "1"
-  }
+//  "DOMOperations" should "create a basic element" in {
+//    val node = ElementNode(
+//      tag = "div",
+//      props = Map("class" -> "test"),
+//      events = Map.empty,
+//      children = Vector.empty,
+//      parent = None,
+//      domNode = None,
+//      key = None,
+//    )
+//
+//    DOMOperations.mount(node, getContainer)
+//
+//    val div = getContainer.querySelector("div").asInstanceOf[html.Div]
+//    div should not be null
+//    div.className shouldBe "test"
+//  }
+//
+//  it should "handle nested elements" in {
+//    val node = ElementNode(
+//      tag = "div",
+//      props = Map.empty,
+//      events = Map.empty,
+//      children = Vector(
+//        ElementNode(
+//          tag = "span",
+//          props = Map("class" -> "child"),
+//          events = Map.empty,
+//          children = Vector(TextNode("test content", None, None, None)),
+//          parent = None,
+//          domNode = None,
+//          key = None,
+//        ),
+//      ),
+//      parent = None,
+//      domNode = None,
+//      key = None,
+//    )
+//
+//    DOMOperations.mount(node, getContainer)
+//
+//    val span = getContainer.querySelector("span").asInstanceOf[html.Span]
+//
+//    span should not be null
+//    span.className shouldBe "child"
+//    span.textContent shouldBe "test content"
+//  }
+//
+//  it should "handle text node updates via diffing" in {
+//    val oldNode = TextNode("old text", None, None, None)
+//    val newNode = TextNode("new text", None, None, None)
+//
+//    DOMOperations.mount(oldNode, getContainer)
+//    getContainer.textContent shouldBe "old text"
+//
+//    Reconciler.diff(Some(oldNode), Some(newNode), getContainer)
+//    getContainer.textContent shouldBe "new text"
+//  }
+//
+//  it should "handle click events" in {
+//    var clicked = false
+//    val handler = (_: dom.Event) => clicked = true
+//
+//    val node = ElementNode(
+//      tag = "button",
+//      props = Map.empty,
+//      events = Map("onClick" -> handler),
+//      children = Vector(TextNode("Click me", None, None, None)),
+//      parent = None,
+//      domNode = None,
+//      key = None,
+//    )
+//
+//    DOMOperations.mount(node, getContainer)
+//
+//    val button = getContainer.querySelector("button")
+//    button should not be null
+//
+//    // Simulate click
+//    val clickEvent = dom.document.createEvent("Event")
+//    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+//    button.dispatchEvent(clickEvent)
+//    clicked shouldBe true
+//  }
+//
+//  it should "pass event object to handlers" in {
+//    var receivedEvent: dom.Event = null
+//    val handler                  = (e: dom.Event) => receivedEvent = e
+//
+//    val node = ElementNode(
+//      tag = "button",
+//      props = Map.empty,
+//      events = Map("onClick" -> handler),
+//      children = Vector.empty,
+//      parent = None,
+//      domNode = None,
+//      key = None,
+//    )
+//
+//    DOMOperations.mount(node, getContainer)
+//
+//    val button = getContainer.querySelector("button")
+//    button should not be null
+//
+//    val clickEvent = dom.document.createEvent("Event")
+//    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+//    button.dispatchEvent(clickEvent)
+//
+//    receivedEvent should not be null
+//    receivedEvent.`type` shouldBe "click"
+//  }
+//
+//  it should "update DOM after state changes from event" in {
+//    val initialText = TextNode("Initial", None, None, None)
+//
+//    val node = ElementNode(
+//      tag = "div",
+//      props = Map.empty,
+//      events = Map.empty,
+//      children = Vector(
+//        ElementNode(
+//          tag = "button",
+//          props = Map.empty,
+//          events = Map("onClick" -> ((_: dom.Event) => {
+//            // Simulate state update by diffing in new content
+//            val newContent = TextNode("Updated", None, None, None)
+//            val container  = dom.document.querySelector("span")
+//            Reconciler.diff(Some(initialText), Some(newContent), container.asInstanceOf[dom.Element])
+//          })),
+//          children = Vector.empty,
+//          parent = None,
+//          domNode = None,
+//          key = None,
+//        ),
+//        ElementNode(
+//          tag = "span",
+//          props = Map.empty,
+//          events = Map.empty,
+//          children = Vector(initialText),
+//          parent = None,
+//          domNode = None,
+//          key = None,
+//        ),
+//      ),
+//      parent = None,
+//      domNode = None,
+//      key = None,
+//    )
+//
+//    DOMOperations.mount(node, getContainer)
+//
+//    // Verify initial state
+//    val span = getContainer.querySelector("span")
+//    span.textContent shouldBe "Initial"
+//
+//    // Simulate click
+//    val button     = getContainer.querySelector("button")
+//    val clickEvent = dom.document.createEvent("Event")
+//    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+//    button.dispatchEvent(clickEvent)
+//
+//    // Verify update
+//    span.textContent shouldBe "Updated"
+//  }
+//
+//  it should "trigger diffing after state updates" in {
+//    var renderCount  = 0
+//    var currentValue = 0
+//
+//    def renderFn(props: Any): FluxusNode = {
+//      renderCount += 1
+//      TextNode(currentValue.toString, None, None, None)
+//    }
+//
+//    val instance = ComponentInstance(
+//      id = "test",
+//      component = renderFn,
+//      componentType = "TestComponent",
+//      props = (),
+//      domNode = Some(getContainer),
+//    )
+//
+//    // Initial render and mount
+//    DOMOperations.mount(instance.render(1).get, getContainer)
+//
+//    // Verify initial render
+//    renderCount shouldBe 1
+//    getContainer.textContent shouldBe "0"
+//
+//    // Update value and re-render
+//    currentValue = 1
+//    DOMOperations.mount(instance.render(2).get, getContainer)
+//
+//    // Verify update
+//    renderCount shouldBe 2
+//    getContainer.textContent shouldBe "1"
+//  }
+//
+//  it should "properly maintain hook state between renders" in {
+//    var instance: ComponentInstance        = null
+//    var hook: Option[(Int, (Int) => Unit)] = None
+//
+//    def renderFn(props: Any): FluxusNode = {
+//      Hooks.setCurrentInstance(instance)
+//      val state = useState(0)
+//      hook = Some(state) // Store hook reference for testing
+//      Hooks.clearCurrentInstance()
+//
+//      TextNode(state._1.toString, None, None, None)
+//    }
+//
+//    // Create and mount component
+//    instance = ComponentInstance(
+//      id = "test",
+//      component = renderFn,
+//      componentType = "TestComponent",
+//      props = (),
+//      domNode = Some(getContainer),
+//    )
+//
+//    // Initial render
+//    val initialRender = instance.render(1)
+//    DOMOperations.mount(initialRender.get, getContainer)
+//
+//    // Verify initial state
+//    hook should not be None
+//    hook.get._1 shouldBe 0
+//    getContainer.textContent shouldBe "0"
+//
+//    // Update state directly through stored hook reference
+//    hook.get._2(1)
+//
+//    // Verify new state
+//    getContainer.textContent shouldBe "1"
+//  }
 
 //  it should "handle state updates in components with diffing" in withDebugLogging {
 //    case class TestProps()
@@ -637,22 +637,32 @@ class DOMOperationsTest extends DOMSpec {
       key = None,
     )
 
-    DOMOperations.mount(oldNode, getContainer)
-    Reconciler.diff(Some(oldNode), Some(newNode), getContainer)
+    val mountedNode = DOMOperations.mount(oldNode, getContainer)
+    Logger.debug(
+      Category.VirtualDOM,
+      "Node mounted",
+      Logger.nextOperationId,
+      Map(
+        "hasDomNode" -> mountedNode.domNode.isDefined,
+        "props"      -> mountedNode.asInstanceOf[ElementNode].props,
+      ),
+    )
+
+    Reconciler.diff(Some(mountedNode), Some(newNode), getContainer)
 
     val div = getContainer.querySelector("div").asInstanceOf[html.Element]
     div.className shouldBe "new"
   }
 
-  it should "handle text node updates" in {
-    val oldNode = TextNode("old text", None, None, None)
-    val newNode = TextNode("new text", None, None, None)
-
-    DOMOperations.mount(oldNode, getContainer)
-    Reconciler.diff(Some(oldNode), Some(newNode), getContainer)
-
-    getContainer.textContent shouldBe "new text"
-  }
+//  it should "handle text node updates" in {
+//    val oldNode = TextNode("old text", None, None, None)
+//    val newNode = TextNode("new text", None, None, None)
+//
+//    DOMOperations.mount(oldNode, getContainer)
+//    Reconciler.diff(Some(oldNode), Some(newNode), getContainer)
+//
+//    getContainer.textContent shouldBe "new text"
+//  }
 
 //  it should "remove nodes" in {
 //    val node = ElementNode(

@@ -190,7 +190,7 @@ object DOMOperations {
     node
   }
 
-  def mount(node: FluxusNode, container: dom.Element): Unit = {
+  def mount(node: FluxusNode, container: dom.Element): FluxusNode = {
     val opId = Logger.nextOperationId
 
     Logger.info(
@@ -203,7 +203,6 @@ object DOMOperations {
       ),
     )
 
-    // Clear container only on initial mount
     if (container.hasChildNodes()) {
       Logger.debug(Category.VirtualDOM, "Clearing container", opId)
       while (container.firstChild != null) {
@@ -211,39 +210,17 @@ object DOMOperations {
       }
     }
 
-    // If we're mounting a component, attach container reference
-    if (node.isInstanceOf[ComponentNode]) {
-      node.asInstanceOf[ComponentNode].instance.foreach { instance =>
-        Logger.debug(
-          Category.VirtualDOM,
-          "Setting component DOM node reference",
-          opId,
-          Map("componentId" -> instance.id),
-        )
-        instance.domNode = Some(container)
-
-        // Prevent re-mounting if a diff is in progress
-        if (instance.isUpdating) {
-          Logger.debug(
-            Category.VirtualDOM,
-            "Skipping mount during update",
-            opId,
-            Map("componentId" -> instance.id),
-          )
-          return
-        }
-      }
-    }
-
     // Create and append the node
     Logger.debug(Category.VirtualDOM, "Creating root DOM node", opId)
     val domNode = createDOMNode(node)
 
-    // Store DOM node reference on virtual node to support diffing
-    node match {
-      case e: ElementNode => e.copy(domNode = Some(domNode.asInstanceOf[dom.Element]))
-      case t: TextNode    => t.copy(domNode = Some(domNode))
-      case _              => // Components handle their own DOM nodes
+    // Create new node with DOM reference
+    val updatedNode = node match {
+      case e: ElementNode =>
+        e.copy(domNode = Some(domNode.asInstanceOf[dom.Element]))
+      case t: TextNode =>
+        t.copy(domNode = Some(domNode))
+      case _ => node // Components handle their own DOM nodes
     }
 
     Logger.debug(Category.VirtualDOM, "Appending to container", opId)
@@ -255,5 +232,7 @@ object DOMOperations {
       opId,
       Map("rootNodeType" -> domNode.nodeName),
     )
+
+    updatedNode
   }
 }

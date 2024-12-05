@@ -143,6 +143,21 @@ object Reconciler {
   }
 
   private def diffElements(oldNode: ElementNode, newNode: ElementNode, opId: Int): Unit = {
+    Logger.debug(
+      Category.VirtualDOM,
+      "DiffElements details",
+      opId,
+      Map(
+        "oldNodeTag"        -> oldNode.tag,
+        "newNodeTag"        -> newNode.tag,
+        "oldNodeProps"      -> oldNode.props,
+        "newNodeProps"      -> newNode.props,
+        "oldNodeHasDomNode" -> oldNode.domNode.isDefined,
+        "oldNodeChildren"   -> oldNode.children.length,
+        "newNodeChildren"   -> newNode.children.length,
+      ),
+    )
+
     if (oldNode.tag != newNode.tag) {
       Logger.debug(
         Category.VirtualDOM,
@@ -162,6 +177,16 @@ object Reconciler {
     }
 
     oldNode.domNode.foreach { element =>
+      Logger.debug(
+        Category.VirtualDOM,
+        "Found DOM node for diff",
+        opId,
+        Map(
+          "elementType" -> element.nodeName,
+          "elementId"   -> element.id,
+        ),
+      )
+
       val domElement = element.asInstanceOf[DOMElement]
 
       // Update attributes
@@ -178,10 +203,30 @@ object Reconciler {
       newProps: Map[String, Any],
       opId: Int,
   ): Unit = {
+    Logger.debug(
+      Category.VirtualDOM,
+      "Updating attributes",
+      opId,
+      Map(
+        "oldProps"         -> oldProps,
+        "newProps"         -> newProps,
+        "element"          -> element.nodeName,
+        "currentClassName" -> element.getAttribute("class"),
+      ),
+    )
+
     // Remove old props
     oldProps.keys.foreach { name =>
       if (!newProps.contains(name)) {
-        Logger.trace(Category.VirtualDOM, s"Removing attribute: $name", opId)
+        Logger.debug(
+          Category.VirtualDOM,
+          "Removing attribute",
+          opId,
+          Map(
+            "name"     -> name,
+            "oldValue" -> oldProps(name),
+          ),
+        )
         element.removeAttribute(name)
       }
     }
@@ -206,19 +251,51 @@ object Reconciler {
             )
             true
           } else false
-        case None => true
+        case None =>
+          Logger.debug(
+            Category.VirtualDOM,
+            "New attribute found",
+            opId,
+            Map(
+              "attribute" -> name,
+              "value"     -> value,
+            ),
+          )
+          true
       }
 
       if (needsUpdate) {
-        Logger.trace(
+        Logger.debug(
           Category.VirtualDOM,
           "Setting attribute",
           opId,
-          Map("name" -> name, "value" -> value),
+          Map(
+            "name"          -> name,
+            "value"         -> value,
+            "elementBefore" -> element.getAttribute(name),
+          ),
         )
         element.setAttribute(name, value.toString)
+        Logger.debug(
+          Category.VirtualDOM,
+          "Attribute set complete",
+          opId,
+          Map(
+            "name"         -> name,
+            "elementAfter" -> element.getAttribute(name),
+          ),
+        )
       }
     }
+
+    Logger.debug(
+      Category.VirtualDOM,
+      "Attributes update complete",
+      opId,
+      Map(
+        "finalClassName" -> element.getAttribute("class"),
+      ),
+    )
   }
 
   private def updateChildren(oldNode: ElementNode, newNode: ElementNode, container: DOMElement, opId: Int): Unit = {
