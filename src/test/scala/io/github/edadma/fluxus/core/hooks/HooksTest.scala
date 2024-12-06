@@ -1,13 +1,9 @@
 package io.github.edadma.fluxus.core.hooks
 
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
 import io.github.edadma.fluxus.core.types.*
 import io.github.edadma.fluxus.core.util.IdGenerator
-import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.{Category, LogLevel}
-import io.github.edadma.fluxus.error.HookValidationError
-import org.scalatest.BeforeAndAfterEach
 import Hooks.useState
 import io.github.edadma.fluxus.testing.BaseTest
 
