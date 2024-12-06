@@ -5,6 +5,8 @@ import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.Category
 import io.github.edadma.fluxus.error.NodeValidationError
 import org.scalajs.dom
+import io.github.edadma.fluxus.core.dom.DOMExtensions._
+import io.github.edadma.fluxus.core.hooks.EffectHook
 
 object DOMOperations {
   def createDOMNode(vnode: FluxusNode): dom.Node = {
@@ -121,6 +123,43 @@ object DOMOperations {
 
     Logger.debug(Category.VirtualDOM, "Appending to container", opId)
     container.appendChild(domNode)
+
+    // Run effects after DOM operations are complete
+    node match {
+      case ComponentNode(_, _, Some(instance), _) =>
+        Logger.debug(
+          Category.StateEffect,
+          "Running component effects after mount",
+          opId,
+          Map(
+            "componentId" -> instance.id,
+            "effectCount" -> instance.effects.length,
+          ),
+        )
+
+        // Execute queued effects
+        val effects = instance.effects
+        instance.effects = Vector.empty // Clear queue before running
+        effects.foreach { effect =>
+          try {
+            effect()
+          } catch {
+            case error: Throwable =>
+              Logger.error(
+                Category.StateEffect,
+                "Effect execution failed",
+                opId,
+                Map(
+                  "error"       -> error.getMessage,
+                  "componentId" -> instance.id,
+                ),
+              )
+              instance.hasEffectError = true
+          }
+        }
+
+      case _ => // Not a component node, no effects to run
+    }
 
     Logger.info(
       Category.VirtualDOM,
