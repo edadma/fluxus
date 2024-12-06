@@ -1,12 +1,14 @@
 package io.github.edadma.fluxus.examples
 
-import io.github.edadma.fluxus.api.Element._
-import io.github.edadma.fluxus.core.types._
-import io.github.edadma.fluxus.core.hooks.Hooks._
+import io.github.edadma.fluxus.api.Element.*
+import io.github.edadma.fluxus.core.types.*
+import io.github.edadma.fluxus.core.hooks.Hooks.*
 import io.github.edadma.fluxus.core.dom.DOMOperations
 import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.{Category, LogLevel}
 import org.scalajs.dom
+
+import scala.scalajs.js
 
 object TimerApp {
   case class TimerProps()
@@ -17,20 +19,20 @@ object TimerApp {
 
     val (seconds, setSeconds) = useState(0)
 
-    // Set up timer effect
+    // Set up timer effect with proper function conversion
     useEffect(
       () => {
         Logger.debug(Category.StateEffect, "Setting up timer effect", opId)
 
-        val intervalId = dom.window.setInterval(
-          () => {
-            Logger.debug(Category.StateEffect, "Timer tick", opId)
-            setSeconds(_ + 1)
-          },
-          1000,
-        )
+        // Convert the callback to a js.Function0
+        val callback: js.Function0[Unit] = () => {
+          Logger.debug(Category.StateEffect, "Timer tick", opId)
+          setSeconds(prev => prev + 1)
+        }
 
-        // Cleanup function to clear interval
+        val intervalId = dom.window.setInterval(callback, 1000)
+
+        // Cleanup function
         () => {
           Logger.debug(Category.StateEffect, "Cleaning up timer", opId)
           dom.window.clearInterval(intervalId)
