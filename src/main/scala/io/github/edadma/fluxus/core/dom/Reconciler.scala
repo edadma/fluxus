@@ -2,12 +2,11 @@ package io.github.edadma.fluxus.core.dom
 
 import io.github.edadma.fluxus.core.types._
 import io.github.edadma.fluxus.core.context.FrameworkConfig
-import io.github.edadma.fluxus.core.debug.{DebugTools, RenderInfo}
 import io.github.edadma.fluxus.error.ResourceValidationError
 import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.Category
 import org.scalajs.dom
-import org.scalajs.dom.{Element => DOMElement, Text => DOMText, Node => DOMNode}
+import org.scalajs.dom.{Element => DOMElement}
 
 object Reconciler {
   def diff(oldNode: Option[FluxusNode], newNode: Option[FluxusNode], container: dom.Element): Unit = {
