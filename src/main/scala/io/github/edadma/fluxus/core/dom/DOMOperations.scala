@@ -5,7 +5,6 @@ import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.Category
 import io.github.edadma.fluxus.error.NodeValidationError
 import org.scalajs.dom
-import org.scalajs.dom.{Element => DOMElement, Text => DOMText}
 
 object DOMOperations {
   def createDOMNode(vnode: FluxusNode): dom.Node = {
