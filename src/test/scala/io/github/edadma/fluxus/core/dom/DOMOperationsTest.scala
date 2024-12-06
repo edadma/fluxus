@@ -356,7 +356,7 @@ class DOMOperationsTest extends DOMSpec {
     clicked shouldBe true
   }
 
-  it should "update state correctly" in withDebugLogging {
+  it should "update state correctly" in {
     var stateValue = 0
 
     def StateTest(props: TestProps): FluxusNode = {
@@ -730,7 +730,7 @@ class DOMOperationsTest extends DOMSpec {
     getContainer.textContent shouldBe "1"
   }
 
-  it should "handle state updates in components with diffing" in withDebugLogging {
+  it should "handle state updates in components with diffing" in {
     case class TestProps()
 
     var rendered: Option[FluxusNode] = None // Store rendered output
