@@ -24,3 +24,4 @@ project/plugins/project/
 node_modules/
 output.css
 code
+*.zip
