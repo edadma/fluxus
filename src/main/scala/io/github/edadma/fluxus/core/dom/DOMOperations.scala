@@ -7,6 +7,8 @@ import io.github.edadma.fluxus.error.NodeValidationError
 import io.github.edadma.fluxus.core.hooks.EffectHook
 import org.scalajs.dom
 
+import scala.scalajs.js
+
 object DOMOperations {
   def createDOMNode(vnode: FluxusNode): dom.Node = {
     val opId = Logger.nextOperationId
@@ -110,20 +112,52 @@ object DOMOperations {
       ),
     )
 
-    // Run cleanup on existing components
+    // Clean up any existing component before mounting new one
     if (container.hasChildNodes()) {
       Logger.debug(Category.VirtualDOM, "Clearing container", opId)
 
-      node match {
-        case ComponentNode(_, _, Some(oldInstance), _) =>
-          oldInstance.rendered match {
-            case Some(rendered) =>
-              runCleanupEffects(oldInstance, opId)
-            case None =>
+      // Find and cleanup any existing component
+      val maybeExistingComponent = node match {
+        case ComponentNode(_, _, Some(newInstance), _) =>
+          // Look for existing component instance
+          Option(container.firstChild).flatMap { firstChild =>
+            container.childNodes.collectFirst {
+              case node if node.hasOwnProperty("__fluxusInstance") =>
+                node.asInstanceOf[js.Dynamic].__fluxusInstance.asInstanceOf[ComponentInstance]
+            }
           }
-        case _ =>
+        case _ => None
       }
 
+      // Run cleanup on existing component if found
+      maybeExistingComponent.foreach { oldInstance =>
+        Logger.debug(
+          Category.StateEffect,
+          "Running cleanup for existing component",
+          opId,
+          Map("componentId" -> oldInstance.id),
+        )
+        oldInstance.hooks.foreach {
+          case hook: EffectHook =>
+            hook.cleanup.foreach { cleanup =>
+              try {
+                Logger.debug(Category.StateEffect, "Running effect cleanup", opId)
+                cleanup()
+              } catch {
+                case error: Throwable =>
+                  Logger.error(
+                    Category.StateEffect,
+                    "Effect cleanup failed",
+                    opId,
+                    Map("error" -> error.getMessage),
+                  )
+              }
+            }
+          case _ => // Not an effect hook
+        }
+      }
+
+      // Clear container
       while (container.firstChild != null) {
         container.removeChild(container.firstChild)
       }
@@ -132,14 +166,21 @@ object DOMOperations {
     Logger.debug(Category.VirtualDOM, "Creating root DOM node", opId)
     val domNode = createDOMNode(node)
 
+    // Store component instance reference on DOM node if this is a component
+    node match {
+      case ComponentNode(_, _, Some(instance), _) =>
+        domNode.asInstanceOf[js.Dynamic].__fluxusInstance = instance.asInstanceOf[js.Any]
+      case _ =>
+    }
+
     Logger.debug(Category.VirtualDOM, "Appending to container", opId)
     container.appendChild(domNode)
 
-    // Run initial effects
+    // Run initial effects for new component
     node match {
       case ComponentNode(_, _, Some(instance), _) =>
         runInitialEffects(instance, opId)
-      case _ => // Not a component
+      case _ =>
     }
 
     Logger.info(
