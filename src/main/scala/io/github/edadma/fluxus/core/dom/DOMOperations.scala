@@ -97,7 +97,7 @@ object DOMOperations {
     node
   }
 
-  def mount(node: FluxusNode, container: dom.Element): Unit = {
+  def mount(node: FluxusNode, container: dom.Element): dom.Node = {
     val opId = Logger.nextOperationId
 
     Logger.info(
@@ -132,5 +132,7 @@ object DOMOperations {
         "rootHasDom"   -> node.domNode.isDefined,
       ),
     )
+
+    domNode
   }
 }
