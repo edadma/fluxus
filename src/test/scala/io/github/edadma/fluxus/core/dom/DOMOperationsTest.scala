@@ -55,75 +55,75 @@ class DOMOperationsTest extends DOMSpec {
     div should not be null
   }
 
-//  it should "execute effect cleanup when remounting" in {
-//    var effectCount  = 0
-//    var cleanupCount = 0
-//    case class TestProps()
-//
-//    def TestComponent(props: TestProps): FluxusNode = {
-//      // Add debug logging for cleanup function creation
-//      val cleanup = () => {
-//        cleanupCount += 1
-//        Logger.debug(
-//          Category.StateEffect,
-//          "Cleanup function executed",
-//          Logger.nextOperationId,
-//          Map("newCleanupCount" -> cleanupCount),
-//        )
-//      }
-//
-//      Hooks.useEffect(() => {
-//        effectCount += 1
-//        Logger.debug(
-//          Category.StateEffect,
-//          "Effect executed",
-//          Logger.nextOperationId,
-//          Map(
-//            "newEffectCount"    -> effectCount,
-//            "willReturnCleanup" -> true,
-//          ),
-//        )
-//        cleanup
-//      })
-//
-//      ElementNode(
-//        tag = "div",
-//        props = Map.empty,
-//        events = Map.empty,
-//        children = Vector.empty,
-//        parent = None,
-//        domNode = None,
-//        key = None,
-//      )
-//    }
-//
-//    // First mount
-//    val component1 = Component.create(
-//      render = TestComponent(_),
-//      props = TestProps(),
-//      opId = 1,
-//      name = Some("TestComponent"),
-//    )
-//
-//    DOMOperations.mount(component1, getContainer)
-//    effectCount shouldBe 1
-//    cleanupCount shouldBe 0
-//
-//    // Second mount should trigger cleanup of first
-//    val component2 = Component.create(
-//      render = TestComponent(_),
-//      props = TestProps(),
-//      opId = 2,
-//      name = Some("TestComponent"),
-//    )
-//
-//    DOMOperations.mount(component2, getContainer)
-//
-//    effectCount shouldBe 2  // New effect should run
-//    cleanupCount shouldBe 1 // Old effect should be cleaned up
-//  }
+  it should "execute effect cleanup when remounting" in {
+    var effectCount  = 0
+    var cleanupCount = 0
+    case class TestProps()
 
-  it should "update DOM twice when state changes in a nested component" in {
+    def TestComponent(props: TestProps): FluxusNode = {
+      // Add debug logging for cleanup function creation
+      val cleanup = () => {
+        cleanupCount += 1
+        Logger.debug(
+          Category.StateEffect,
+          "Cleanup function executed",
+          Logger.nextOperationId,
+          Map("newCleanupCount" -> cleanupCount),
+        )
+      }
+
+      Hooks.useEffect(() => {
+        effectCount += 1
+        Logger.debug(
+          Category.StateEffect,
+          "Effect executed",
+          Logger.nextOperationId,
+          Map(
+            "newEffectCount"    -> effectCount,
+            "willReturnCleanup" -> true,
+          ),
+        )
+        cleanup
+      })
+
+      ElementNode(
+        tag = "div",
+        props = Map.empty,
+        events = Map.empty,
+        children = Vector.empty,
+        parent = None,
+        domNode = None,
+        key = None,
+      )
+    }
+
+    // First mount
+    val component1 = Component.create(
+      render = TestComponent(_),
+      props = TestProps(),
+      opId = 1,
+      name = Some("TestComponent"),
+    )
+
+    DOMOperations.mount(component1, getContainer)
+    effectCount shouldBe 1
+    cleanupCount shouldBe 0
+
+    // Second mount should trigger cleanup of first
+    val component2 = Component.create(
+      render = TestComponent(_),
+      props = TestProps(),
+      opId = 2,
+      name = Some("TestComponent"),
+    )
+
+    DOMOperations.mount(component2, getContainer)
+
+    effectCount shouldBe 2  // New effect should run
+    cleanupCount shouldBe 1 // Old effect should be cleaned up
+  }
+
+  it should "update DOM twice when state changes in a nested component" in withDebugLogging {
     case class TestProps()
     var renders = 0
 
