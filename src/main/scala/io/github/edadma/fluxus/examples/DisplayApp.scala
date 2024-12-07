@@ -1,9 +1,7 @@
 package io.github.edadma.fluxus.examples
 
 import io.github.edadma.fluxus.api.*
-import io.github.edadma.fluxus.core.types.{ElementNode, FluxusNode}
-
-import scala.language.postfixOps
+import io.github.edadma.fluxus.core.types.FluxusNode
 
 object DisplayApp:
   case class DisplayProps(message: String, color: String = "alert-primary")
@@ -29,7 +27,7 @@ object DisplayApp:
   def App: FluxusNode =
     div(
       cls := "min-h-screen bg-base-200 p-8",
-      Header <>,
+      Header <> (),
       div(
         cls := "card bg-base-100 shadow-xl max-w-md mx-auto",
         div(

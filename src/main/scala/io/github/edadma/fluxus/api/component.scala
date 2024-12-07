@@ -11,7 +11,6 @@ val noProps = NoProps()
 
 implicit class FunctionComponent[P <: Product](f: P => FluxusNode):
   def <>(props: P): ComponentNode =
-    println("functionComponent")
     Component.create(
       render = f,
       props = props,
@@ -21,8 +20,7 @@ implicit class FunctionComponent[P <: Product](f: P => FluxusNode):
     )
 
 implicit class ProplessComponent(f: () => FluxusNode):
-  def <> : ComponentNode =
-    println("proplessComponent")
+  def <>(u: Unit): ComponentNode =
     Component.create(
       render = _ => f(), // Ignore the Any parameter and just call f
       props = noProps,
