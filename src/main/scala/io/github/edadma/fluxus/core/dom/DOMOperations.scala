@@ -228,36 +228,133 @@ object DOMOperations {
     }
   }
 
+//  private def runInitialEffects(instance: ComponentInstance, opId: Int): Unit = {
+//    Logger.debug(
+//      Category.StateEffect,
+//      "Running initial effects",
+//      opId,
+//      Map(
+//        "componentId" -> instance.id,
+//        "effectCount" -> instance.effects.length,
+//      ),
+//    )
+//
+//    val effects = instance.effects
+//    instance.effects = Vector.empty // Clear queue before running
+//    effects.foreach { effect =>
+//      try {
+//        effect()
+//      } catch {
+//        case error: Throwable =>
+//          Logger.error(
+//            Category.StateEffect,
+//            "Effect execution failed",
+//            opId,
+//            Map(
+//              "error"       -> error.getMessage,
+//              "componentId" -> instance.id,
+//            ),
+//          )
+//          instance.hasEffectError = true
+//      }
+//    }
+//  }
+
   private def runInitialEffects(instance: ComponentInstance, opId: Int): Unit = {
     Logger.debug(
       Category.StateEffect,
-      "Running initial effects",
+      "Starting effect execution",
       opId,
       Map(
-        "componentId" -> instance.id,
-        "effectCount" -> instance.effects.length,
+        "componentId"   -> instance.id,
+        "componentType" -> instance.componentType,
+        "effectCount"   -> instance.effects.length,
+        "hasRendered"   -> instance.rendered.isDefined,
       ),
     )
 
-    val effects = instance.effects
-    instance.effects = Vector.empty // Clear queue before running
-    effects.foreach { effect =>
-      try {
-        effect()
-      } catch {
-        case error: Throwable =>
-          Logger.error(
+    // Run this component's effects
+    if (instance.effects.nonEmpty) {
+      val effects = instance.effects
+      instance.effects = Vector.empty // Clear queue before running
+
+      effects.zipWithIndex.foreach { case (effect, idx) =>
+        try {
+          Logger.debug(
             Category.StateEffect,
-            "Effect execution failed",
+            s"Running effect ${idx + 1}/${effects.length}",
             opId,
             Map(
-              "error"       -> error.getMessage,
-              "componentId" -> instance.id,
+              "componentId"   -> instance.id,
+              "componentType" -> instance.componentType,
             ),
           )
-          instance.hasEffectError = true
+          effect()
+        } catch {
+          case error: Throwable =>
+            Logger.error(
+              Category.StateEffect,
+              "Effect execution failed",
+              opId,
+              Map(
+                "componentId" -> instance.id,
+                "effectIndex" -> idx,
+                "error"       -> error.getMessage,
+                "errorType"   -> error.getClass.getName,
+              ),
+            )
+            instance.hasEffectError = true
+        }
       }
     }
+
+    // Find and run effects for child components
+    instance.rendered.foreach { rendered =>
+      def runChildEffects(node: FluxusNode): Unit = {
+        node match {
+          case ComponentNode(_, _, Some(childInstance), _) =>
+            Logger.debug(
+              Category.StateEffect,
+              "Found child component",
+              opId,
+              Map(
+                "parentId"         -> instance.id,
+                "childId"          -> childInstance.id,
+                "childType"        -> childInstance.componentType,
+                "childEffectCount" -> childInstance.effects.length,
+              ),
+            )
+            runInitialEffects(childInstance, opId)
+
+          case ElementNode(_, _, _, children, _, _, _, _, _) =>
+            children.foreach(runChildEffects)
+
+          case _ => // TextNodes have no children
+        }
+      }
+
+      Logger.debug(
+        Category.StateEffect,
+        "Starting child component search",
+        opId,
+        Map(
+          "parentId"   -> instance.id,
+          "parentType" -> instance.componentType,
+        ),
+      )
+
+      runChildEffects(rendered)
+    }
+
+    Logger.debug(
+      Category.StateEffect,
+      "Effect execution complete",
+      opId,
+      Map(
+        "componentId"   -> instance.id,
+        "componentType" -> instance.componentType,
+      ),
+    )
   }
 
   def diff(oldNode: Option[FluxusNode], newNode: Option[FluxusNode], container: dom.Element): Unit = {

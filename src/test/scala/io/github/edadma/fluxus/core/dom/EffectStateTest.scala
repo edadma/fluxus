@@ -64,7 +64,7 @@ class EffectStateTest extends DOMSpec {
     getContainer.textContent shouldBe "Updated"
   }
 
-  "Child component with useEffect" should "update state immediately after mount" in withDebugLogging {
+  "Child component with useEffect" should "update state immediately after mount" in {
     var childRenderCount = 0
     var childEffectRan   = false
 

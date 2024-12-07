@@ -3,7 +3,6 @@ package io.github.edadma.fluxus.examples
 import io.github.edadma.fluxus.api.*
 import io.github.edadma.fluxus.core.types.*
 import io.github.edadma.fluxus.core.hooks.Hooks.*
-import io.github.edadma.fluxus.core.dom.DOMOperations
 import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.{Category, LogLevel}
 import org.scalajs.dom
