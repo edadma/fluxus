@@ -4,26 +4,6 @@ import io.github.edadma.fluxus.api.*
 import io.github.edadma.fluxus.core.types.FluxusNode
 
 object DisplayApp:
-  case class DisplayProps(message: String, color: String = "alert-primary")
-
-  val Display: DisplayProps => FluxusNode =
-    case DisplayProps(message, color) =>
-      div(
-        cls := s"alert $color shadow-lg",
-        div(
-          span(message),
-        ),
-      )
-
-  val Header: () => FluxusNode = () =>
-    div(
-      cls := "navbar bg-base-100 mb-10",
-      div(
-        cls := "flex-1",
-        span(cls := "text-xl font-bold", "Demo App"),
-      ),
-    )
-
   def App: FluxusNode =
     div(
       cls := "min-h-screen bg-base-200 p-8",
@@ -41,3 +21,23 @@ object DisplayApp:
         ),
       ),
     )
+
+  def Header: () => FluxusNode = () =>
+    div(
+      cls := "navbar bg-base-100 mb-10",
+      div(
+        cls := "flex-1",
+        span(cls := "text-xl font-bold", "Demo App"),
+      ),
+    )
+
+  case class DisplayProps(message: String, color: String = "alert-primary")
+
+  def Display: DisplayProps => FluxusNode =
+    case DisplayProps(message, color) =>
+      div(
+        cls := s"alert $color shadow-lg",
+        div(
+          span(message),
+        ),
+      )
