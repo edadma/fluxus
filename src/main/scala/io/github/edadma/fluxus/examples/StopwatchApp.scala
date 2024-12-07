@@ -31,7 +31,7 @@ object StopwatchApp:
         else
           () => () // No cleanup needed if not running
       },
-      Some(Seq(running)),
+      Seq(running),
     )
 
     def toggleRunning(): Unit =
@@ -99,7 +99,7 @@ object StopwatchApp:
 
         () => timers.clearInterval(intervalId)
       },
-      Some(Seq()),
+      Nil,
     )
 
     div(

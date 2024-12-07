@@ -260,15 +260,16 @@ object Hooks {
     (hook.value, hook.setState)
   }
 
-  def useEffect(effectFn: () => (() => Unit), deps: Option[Seq[Any]] = None): Unit = {
-    val opId = Logger.nextOperationId
+  def useEffect(effectFn: () => (() => Unit), deps: Seq[Any] | Null = null): Unit = {
+    val depsOption = Option(deps)
+    val opId       = Logger.nextOperationId
 
     Logger.debug(
       Category.StateEffect,
       "useEffect called",
       opId,
       Map(
-        "dependencies" -> deps.map(_.mkString(", ")).getOrElse("none"),
+        "dependencies" -> depsOption.map(_.mkString(", ")).getOrElse("none"),
       ),
     )
 
@@ -310,12 +311,12 @@ object Hooks {
         Map(
           "componentId"       -> instance.id,
           "hookIndex"         -> hookIndex,
-          "hasDeps"           -> deps.isDefined,
+          "hasDeps"           -> depsOption.isDefined,
           "existingHookCount" -> instance.hooks.length,
         ),
       )
 
-      val effectHook = EffectHook(deps, effectFn)
+      val effectHook = EffectHook(depsOption, effectFn)
       instance.hooks = instance.hooks :+ effectHook
 
       // Queue effect
@@ -394,7 +395,7 @@ object Hooks {
         }
       })
     } else {
-      // Subsequent renders - check deps
+      // Subsequent renders - check depsOption
       val existingHook = instance.hooks(hookIndex).asInstanceOf[EffectHook]
 
       Logger.trace(
@@ -405,11 +406,11 @@ object Hooks {
           "componentId" -> instance.id,
           "hookIndex"   -> hookIndex,
           "oldDeps"     -> existingHook.deps.map(_.mkString(", ")).getOrElse("none"),
-          "newDeps"     -> deps.map(_.mkString(", ")).getOrElse("none"),
+          "newDeps"     -> depsOption.map(_.mkString(", ")).getOrElse("none"),
         ),
       )
 
-      if (depsChanged(existingHook.deps, deps)) {
+      if (depsChanged(existingHook.deps, depsOption)) {
         Logger.debug(
           Category.StateEffect,
           "Effect dependencies changed",
@@ -418,7 +419,7 @@ object Hooks {
             "componentId" -> instance.id,
             "hookIndex"   -> hookIndex,
             "oldDeps"     -> existingHook.deps.map(_.mkString(", ")).getOrElse("none"),
-            "newDeps"     -> deps.map(_.mkString(", ")).getOrElse("none"),
+            "newDeps"     -> depsOption.map(_.mkString(", ")).getOrElse("none"),
           ),
         )
 
@@ -496,7 +497,7 @@ object Hooks {
       }
 
       // Update deps
-      instance.hooks = instance.hooks.updated(hookIndex, existingHook.copy(deps = deps))
+      instance.hooks = instance.hooks.updated(hookIndex, existingHook.copy(deps = depsOption))
     }
 
     instance.hookIndex += 1
