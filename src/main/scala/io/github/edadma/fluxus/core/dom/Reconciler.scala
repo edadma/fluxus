@@ -271,22 +271,128 @@ object Reconciler {
     }
   }
 
-  private def runInitialEffects(instance: ComponentInstance, opId: Int): Unit = {
+//  private def runInitialEffects(instance: ComponentInstance, opId: Int): Unit = {
+//    runQueuedEffects(instance, opId)
+//
+//    // Run effects for child components
+//    instance.rendered.foreach { rendered =>
+//      def runChildEffects(node: FluxusNode): Unit = {
+//        node match {
+//          case ComponentNode(_, _, Some(childInstance), _) =>
+//            runInitialEffects(childInstance, opId)
+//          case ElementNode(_, _, _, children, _, _, _, _, _) =>
+//            children.foreach(runChildEffects)
+//          case _ => // TextNodes have no children
+//        }
+//      }
+//      runChildEffects(rendered)
+//    }
+//  }
+//
+//  private def runQueuedEffects(instance: ComponentInstance, opId: Int): Unit = {
+//    if (instance.effects.nonEmpty) {
+//      Logger.debug(
+//        Category.StateEffect,
+//        "Running queued effects",
+//        opId,
+//        Map(
+//          "componentId" -> instance.id,
+//          "effectCount" -> instance.effects.length,
+//        ),
+//      )
+//
+//      val effects = instance.effects
+//      instance.effects = Vector.empty // Clear queue before running
+//
+//      effects.foreach { effect =>
+//        try {
+//          effect()
+//        } catch {
+//          case error: Throwable =>
+//            Logger.error(
+//              Category.StateEffect,
+//              "Effect execution failed",
+//              opId,
+//              Map(
+//                "componentId" -> instance.id,
+//                "error"       -> error.getMessage,
+//              ),
+//            )
+//            instance.hasEffectError = true
+//        }
+//      }
+//    }
+//  }
+
+  private[fluxus] def runInitialEffects(instance: ComponentInstance, opId: Int, isMount: Boolean = false): Unit = {
+    Logger.debug(
+      Category.StateEffect,
+      if (isMount) "Starting initial mount effect execution" else "Starting effect execution",
+      opId,
+      Map(
+        "componentId"   -> instance.id,
+        "componentType" -> instance.componentType,
+        "effectCount"   -> instance.effects.length,
+        "hasRendered"   -> instance.rendered.isDefined,
+        "isMount"       -> isMount,
+      ),
+    )
+
+    // Run any queued effects first
     runQueuedEffects(instance, opId)
 
-    // Run effects for child components
+    // Find and run effects for child components
     instance.rendered.foreach { rendered =>
       def runChildEffects(node: FluxusNode): Unit = {
         node match {
           case ComponentNode(_, _, Some(childInstance), _) =>
-            runInitialEffects(childInstance, opId)
+            Logger.debug(
+              Category.StateEffect,
+              "Found child component",
+              opId,
+              Map(
+                "parentId"         -> instance.id,
+                "childId"          -> childInstance.id,
+                "childType"        -> childInstance.componentType,
+                "childEffectCount" -> childInstance.effects.length,
+                "parentIsMount"    -> isMount,
+              ),
+            )
+            // Pass isMount flag to children
+            runInitialEffects(childInstance, opId, isMount)
+
           case ElementNode(_, _, _, children, _, _, _, _, _) =>
             children.foreach(runChildEffects)
+
           case _ => // TextNodes have no children
         }
       }
+
+      Logger.debug(
+        Category.StateEffect,
+        "Starting child component search",
+        opId,
+        Map(
+          "parentId"   -> instance.id,
+          "parentType" -> instance.componentType,
+          "isMount"    -> isMount,
+        ),
+      )
+
       runChildEffects(rendered)
     }
+
+    Logger.debug(
+      Category.StateEffect,
+      "Effect execution complete",
+      opId,
+      Map(
+        "componentId"   -> instance.id,
+        "componentType" -> instance.componentType,
+        "isMount"       -> isMount,
+        "effectCount"   -> instance.effects.length,
+      ),
+    )
   }
 
   private def runQueuedEffects(instance: ComponentInstance, opId: Int): Unit = {
@@ -304,8 +410,17 @@ object Reconciler {
       val effects = instance.effects
       instance.effects = Vector.empty // Clear queue before running
 
-      effects.foreach { effect =>
+      effects.zipWithIndex.foreach { case (effect, idx) =>
         try {
+          Logger.debug(
+            Category.StateEffect,
+            s"Running effect ${idx + 1}/${effects.length}",
+            opId,
+            Map(
+              "componentId"   -> instance.id,
+              "componentType" -> instance.componentType,
+            ),
+          )
           effect()
         } catch {
           case error: Throwable =>
@@ -315,12 +430,24 @@ object Reconciler {
               opId,
               Map(
                 "componentId" -> instance.id,
+                "effectIndex" -> idx,
                 "error"       -> error.getMessage,
+                "errorType"   -> error.getClass.getName,
               ),
             )
             instance.hasEffectError = true
         }
       }
+
+      Logger.debug(
+        Category.StateEffect,
+        "Queued effects complete",
+        opId,
+        Map(
+          "componentId" -> instance.id,
+          "effectCount" -> effects.length,
+        ),
+      )
     }
   }
 

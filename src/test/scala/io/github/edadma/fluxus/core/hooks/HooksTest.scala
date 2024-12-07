@@ -52,7 +52,7 @@ class HooksTest extends BaseTest {
     }
   }
 
-  "useState" should "maintain consistent hook indexes across renders" in {
+  "useState" should "maintain consistent hook indexes across renders" in withDebugLogging {
     var instance: ComponentInstance = null
 
     def component(props: Any): FluxusNode = {
