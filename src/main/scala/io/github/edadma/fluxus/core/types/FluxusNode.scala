@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core.types
 
-import org.scalajs.dom.{Element, Node, Text}
+import org.scalajs.dom.{Element, Node}
 
 sealed trait FluxusNode {
   val key: Option[String]

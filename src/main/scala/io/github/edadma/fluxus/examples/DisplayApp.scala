@@ -1,9 +1,9 @@
 package io.github.edadma.fluxus.examples
 
 import io.github.edadma.fluxus.api.*
-import io.github.edadma.fluxus.core.dom.DOMOperations
 import io.github.edadma.fluxus.core.types.{ElementNode, FluxusNode}
-import org.scalajs.dom
+
+import scala.language.postfixOps
 
 object DisplayApp:
   case class DisplayProps(message: String, color: String = "alert-primary")
@@ -26,11 +26,10 @@ object DisplayApp:
       ),
     )
 
-  // Main app component with no props
-  def App: ElementNode =
+  def App: FluxusNode =
     div(
       cls := "min-h-screen bg-base-200 p-8",
-      Header(),
+      Header <>,
       div(
         cls := "card bg-base-100 shadow-xl max-w-md mx-auto",
         div(
