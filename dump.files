@@ -19,8 +19,8 @@ DOMOperations.scala
 ./src/main/scala/io/github/edadma/fluxus/core/hooks
 Hooks.scala
 ./src/main/scala/io/github/edadma/fluxus/core/types
-FluxusNode.scala
 ComponentInstance.scala
+FluxusNode.scala
 ./src/main/scala/io/github/edadma/fluxus/core/util
 IdGenerator.scala
 
@@ -34,8 +34,10 @@ Logger.scala
 
 # example apps
 ./src/main/scala/io/github/edadma/fluxus/examples
-DisplayApp.scala
 CounterApp.scala
+DisplayApp.scala
+EffectTestApp.scala
+main.scala
 StopwatchApp.scala
 TimerApp.scala
 
@@ -49,6 +51,7 @@ BaseTest.scala
 DOMSpec.scala
 ./src/test/scala/io/github/edadma/fluxus/core/dom
 DOMOperationsTest.scala
+EffectStateTest.scala
 ./src/test/scala/io/github/edadma/fluxus/core/hooks
 HooksTest.scala
 ./src/test/scala/io/github/edadma/fluxus/core/types
