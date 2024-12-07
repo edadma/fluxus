@@ -4,7 +4,9 @@
 
 ; api
 ./src/main/scala/io/github/edadma/fluxus/api
-Element.scala
+component.scala
+createElement.scala
+renderApp.scala
 
 ; core
 ./src/main/scala/io/github/edadma/fluxus/core/context
@@ -34,6 +36,7 @@ Logger.scala
 ./src/main/scala/io/github/edadma/fluxus/examples
 TestApp.scala
 CounterApp.scala
+StopwatchApp.scala
 
 ; index.html for the test apps
 ./public
