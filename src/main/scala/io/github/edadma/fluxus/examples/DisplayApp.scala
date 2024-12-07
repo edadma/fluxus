@@ -17,10 +17,20 @@ object DisplayApp:
         ),
       )
 
+  val Header: () => FluxusNode = () =>
+    div(
+      cls := "navbar bg-base-100 mb-10",
+      div(
+        cls := "flex-1",
+        span(cls := "text-xl font-bold", "Demo App"),
+      ),
+    )
+
   // Main app component with no props
   def App: ElementNode =
     div(
       cls := "min-h-screen bg-base-200 p-8",
+      Header(),
       div(
         cls := "card bg-base-100 shadow-xl max-w-md mx-auto",
         div(

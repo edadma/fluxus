@@ -5,8 +5,8 @@ import io.github.edadma.fluxus.logging.Logger
 
 import scala.language.implicitConversions
 
-implicit class FunctionComponent(f: Any => FluxusNode):
-  def <>(props: Product): ComponentNode =
+implicit class FunctionComponent[P <: Product](f: P => FluxusNode):
+  def <>(props: P): ComponentNode =
     println("functionToComponent")
     Component.create(
       render = f,
