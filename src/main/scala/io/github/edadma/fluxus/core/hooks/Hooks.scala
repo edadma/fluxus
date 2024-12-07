@@ -286,96 +286,40 @@ object Hooks {
       throw HookValidationError(error, Map.empty, opId)
     }
 
-    Logger.trace(
-      Category.StateEffect,
-      "Component state for useEffect",
-      opId,
-      Map(
-        "componentId"    -> instance.id,
-        "componentType"  -> instance.componentType,
-        "isRendering"    -> instance.isRendering,
-        "hookIndex"      -> instance.hookIndex,
-        "effectCount"    -> instance.effects.length,
-        "hasEffectError" -> instance.hasEffectError,
-      ),
-    )
-
     val hookIndex = instance.hookIndex
 
     if (hookIndex >= instance.hooks.length) {
-      // First render - create new hook
+      // First time this hook is being used
       Logger.debug(
         Category.StateEffect,
         "Creating new effect hook",
         opId,
         Map(
-          "componentId"       -> instance.id,
-          "hookIndex"         -> hookIndex,
-          "hasDeps"           -> depsOption.isDefined,
-          "existingHookCount" -> instance.hooks.length,
+          "componentId" -> instance.id,
+          "hookIndex"   -> hookIndex,
+          "hasDeps"     -> depsOption.isDefined,
         ),
       )
 
       val effectHook = EffectHook(depsOption, effectFn)
       instance.hooks = instance.hooks :+ effectHook
 
-      // Queue effect
-      val effectIndex = instance.effects.length
+      // Queue initial effect
       instance.effects = instance.effects :+ (() => {
         Logger.debug(
           Category.StateEffect,
-          "Running effect",
+          "Running initial effect",
           opId,
           Map(
             "componentId" -> instance.id,
             "hookIndex"   -> hookIndex,
-            "effectIndex" -> effectIndex,
             "hasCleanup"  -> effectHook.cleanup.isDefined,
           ),
         )
 
         try {
-          // Run cleanup if exists
-          if (effectHook.cleanup.isDefined) {
-            Logger.debug(
-              Category.StateEffect,
-              "Running effect cleanup",
-              opId,
-              Map(
-                "componentId" -> instance.id,
-                "hookIndex"   -> hookIndex,
-                "effectIndex" -> effectIndex,
-              ),
-            )
-            runEffectCleanup(effectHook, opId)
-          }
-
-          // Run effect and store cleanup
-          Logger.trace(
-            Category.StateEffect,
-            "Executing effect function",
-            opId,
-            Map(
-              "componentId" -> instance.id,
-              "hookIndex"   -> hookIndex,
-              "effectIndex" -> effectIndex,
-            ),
-          )
-
           val cleanupFn = effectFn()
           effectHook.cleanup = Some(cleanupFn)
-
-          Logger.debug(
-            Category.StateEffect,
-            "Effect executed successfully",
-            opId,
-            Map(
-              "componentId" -> instance.id,
-              "hookIndex"   -> hookIndex,
-              "effectIndex" -> effectIndex,
-              "hasCleanup"  -> effectHook.cleanup.isDefined,
-            ),
-          )
         } catch {
           case error: Throwable =>
             Logger.error(
@@ -384,36 +328,22 @@ object Hooks {
               opId,
               Map(
                 "componentId" -> instance.id,
-                "hookIndex"   -> hookIndex,
-                "effectIndex" -> effectIndex,
                 "error"       -> error.getMessage,
-                "errorType"   -> error.getClass.getName,
-                "stackTrace"  -> error.getStackTrace.mkString("\n"),
               ),
             )
             instance.hasEffectError = true
         }
       })
     } else {
-      // Subsequent renders - check depsOption
+      // Hook already exists - check if we need to re-run
       val existingHook = instance.hooks(hookIndex).asInstanceOf[EffectHook]
 
-      Logger.trace(
-        Category.StateEffect,
-        "Checking effect dependencies",
-        opId,
-        Map(
-          "componentId" -> instance.id,
-          "hookIndex"   -> hookIndex,
-          "oldDeps"     -> existingHook.deps.map(_.mkString(", ")).getOrElse("none"),
-          "newDeps"     -> depsOption.map(_.mkString(", ")).getOrElse("none"),
-        ),
-      )
+      val shouldRerun = depsChanged(existingHook.deps, depsOption)
 
-      if (depsChanged(existingHook.deps, depsOption)) {
+      if (shouldRerun) {
         Logger.debug(
           Category.StateEffect,
-          "Effect dependencies changed",
+          "Dependencies changed - queuing effect re-run",
           opId,
           Map(
             "componentId" -> instance.id,
@@ -423,71 +353,30 @@ object Hooks {
           ),
         )
 
-        // Queue new effect
-        val effectIndex = instance.effects.length
+        // Queue effect with cleanup
         instance.effects = instance.effects :+ (() => {
+          // Run cleanup using the helper function
+          runEffectCleanup(existingHook, opId)
+
           try {
-            if (existingHook.cleanup.isDefined) {
-              Logger.debug(
-                Category.StateEffect,
-                "Running cleanup before effect re-run",
-                opId,
-                Map(
-                  "componentId" -> instance.id,
-                  "hookIndex"   -> hookIndex,
-                  "effectIndex" -> effectIndex,
-                ),
-              )
-              runEffectCleanup(existingHook, opId)
-            }
-
-            Logger.debug(
-              Category.StateEffect,
-              "Re-running effect with new dependencies",
-              opId,
-              Map(
-                "componentId" -> instance.id,
-                "hookIndex"   -> hookIndex,
-                "effectIndex" -> effectIndex,
-              ),
-            )
-
+            // Run new effect
             val cleanupFn = effectFn()
             existingHook.cleanup = Some(cleanupFn)
-
-            Logger.debug(
-              Category.StateEffect,
-              "Effect re-run complete",
-              opId,
-              Map(
-                "componentId"   -> instance.id,
-                "hookIndex"     -> hookIndex,
-                "effectIndex"   -> effectIndex,
-                "hasNewCleanup" -> existingHook.cleanup.isDefined,
-              ),
-            )
           } catch {
             case error: Throwable =>
               Logger.error(
                 Category.StateEffect,
                 "Effect re-run failed",
                 opId,
-                Map(
-                  "componentId" -> instance.id,
-                  "hookIndex"   -> hookIndex,
-                  "effectIndex" -> effectIndex,
-                  "error"       -> error.getMessage,
-                  "errorType"   -> error.getClass.getName,
-                  "stackTrace"  -> error.getStackTrace.mkString("\n"),
-                ),
+                Map("error" -> error.getMessage),
               )
               instance.hasEffectError = true
           }
         })
       } else {
-        Logger.trace(
+        Logger.debug(
           Category.StateEffect,
-          "Effect dependencies unchanged - skipping re-run",
+          "Dependencies unchanged - skipping effect",
           opId,
           Map(
             "componentId" -> instance.id,
@@ -496,59 +385,19 @@ object Hooks {
         )
       }
 
-      // Update deps
-      instance.hooks = instance.hooks.updated(hookIndex, existingHook.copy(deps = depsOption))
+      // Update stored deps
+      instance.hooks = instance.hooks.updated(
+        hookIndex,
+        existingHook.copy(deps = depsOption),
+      )
     }
 
     instance.hookIndex += 1
-
-    Logger.debug(
-      Category.StateEffect,
-      "useEffect setup complete",
-      opId,
-      Map(
-        "componentId"        -> instance.id,
-        "hookIndex"          -> (instance.hookIndex - 1),
-        "totalHooksNow"      -> instance.hooks.length,
-        "totalEffectsQueued" -> instance.effects.length,
-      ),
-    )
-  }
-
-  private def runEffectCleanup(effect: EffectHook, opId: Int): Unit = {
-    effect.cleanup.foreach { cleanup =>
-      try {
-        Logger.debug(
-          Category.StateEffect,
-          "Running effect cleanup",
-          opId,
-          Map("hasCleanup" -> true),
-        )
-        cleanup()
-        Logger.debug(
-          Category.StateEffect,
-          "Effect cleanup completed successfully",
-          opId,
-        )
-      } catch {
-        case error: Throwable =>
-          Logger.error(
-            Category.StateEffect,
-            "Effect cleanup error",
-            opId,
-            Map(
-              "error"      -> error.getMessage,
-              "errorType"  -> error.getClass.getName,
-              "stackTrace" -> error.getStackTrace.mkString("\n"),
-            ),
-          )
-      }
-    }
-    effect.cleanup = None
   }
 
   private def depsChanged(oldDeps: Option[Seq[Any]], newDeps: Option[Seq[Any]]): Boolean = {
     val opId = Logger.nextOperationId
+
     Logger.trace(
       Category.StateEffect,
       "Checking effect dependencies for changes",
@@ -560,9 +409,9 @@ object Hooks {
     )
 
     val changed = (oldDeps, newDeps) match {
-      case (None, None)      => true // No deps array provided - run every time
-      case (Some(old), None) => true // Changed from deps to no deps - run
-      case (None, Some(_))   => true // Changed from no deps to deps - run
+      case (None, None)    => true // No deps array provided - run every time
+      case (Some(_), None) => true // Changed from deps to no deps - run
+      case (None, Some(_)) => true // Changed from no deps to deps - run
       case (Some(old), Some(current)) =>
         if (old.length != current.length) {
           Logger.debug(
@@ -601,5 +450,28 @@ object Hooks {
     )
 
     changed
+  }
+
+  private def runEffectCleanup(effect: EffectHook, opId: Int): Unit = {
+    effect.cleanup.foreach { cleanup =>
+      try {
+        Logger.debug(Category.StateEffect, "Running effect cleanup", opId)
+        cleanup()
+        Logger.debug(Category.StateEffect, "Effect cleanup completed successfully", opId)
+      } catch {
+        case error: Throwable =>
+          Logger.error(
+            Category.StateEffect,
+            "Effect cleanup error",
+            opId,
+            Map(
+              "error"      -> error.getMessage,
+              "errorType"  -> error.getClass.getName,
+              "stackTrace" -> error.getStackTrace.mkString("\n"),
+            ),
+          )
+      }
+    }
+    effect.cleanup = None
   }
 }
