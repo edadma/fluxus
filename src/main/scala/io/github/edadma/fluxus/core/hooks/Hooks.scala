@@ -1,6 +1,7 @@
 package io.github.edadma.fluxus.core.hooks
 
 import io.github.edadma.fluxus.core.dom.Reconciler
+import io.github.edadma.fluxus.core.dom.Reconciler.diff
 import io.github.edadma.fluxus.core.types.*
 import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.Category
@@ -99,7 +100,7 @@ object Hooks {
 
     // Always create hook if none exist, otherwise reuse
     val hook = if (hookIndex >= instance.hooks.length) {
-      // First hook creation - needed regardless of render phase
+      // First hook creation
       Logger.debug(
         Category.StateEffect,
         "Creating new state hook",
@@ -157,21 +158,7 @@ object Hooks {
             // Get new rendered output
             val newRendered = instance.render(updateOpId)
 
-            // Log the rendered nodes' DOM references
-            Logger.debug(
-              Category.StateEffect,
-              "DOM references for update",
-              updateOpId,
-              Map(
-                "oldRenderedHasDom" -> oldRendered.flatMap(_.domNode).isDefined,
-                "newRenderedHasDom" -> newRendered.flatMap(_.domNode).isDefined,
-                "oldDomType"        -> oldRendered.flatMap(_.domNode).map(_.nodeName).getOrElse("none"),
-                "parentExists"      -> oldRendered.flatMap(_.domNode).map(_.parentNode != null).getOrElse(false),
-                "parentType" -> oldRendered.flatMap(_.domNode).map(_.parentNode).map(_.nodeName).getOrElse("none"),
-              ),
-            )
-
-            // Try each possible container source in order of preference
+            // Find container element
             def findContainer: Option[dom.Element] = {
               def isElement(node: dom.Node): Boolean =
                 node != null && node.nodeType == 1 // 1 is ELEMENT_NODE
@@ -198,7 +185,14 @@ object Hooks {
                     "componentType"       -> instance.componentType,
                   ),
                 )
-                Reconciler.diff(oldRendered, newRendered, elem)
+
+                // Update DOM through the component instance to ensure effects run
+                diff(
+                  Some(ComponentNode(instance.component, instance.props, Some(instance), None)),
+                  Some(ComponentNode(instance.component, instance.props, Some(instance), None)),
+                  elem,
+                )
+
               case None =>
                 Logger.error(
                   Category.StateEffect,
@@ -232,18 +226,15 @@ object Hooks {
           }
         }
       }
+
       val stateHook = StateHook(currentValue, setter)
       instance.hooks = instance.hooks :+ stateHook
       stateHook
     } else {
-      // Reuse existing hook
       instance.hooks(hookIndex).asInstanceOf[StateHook[T]]
     }
 
-    // Only increment hook index during render phase
-    if (instance.isRendering) {
-      instance.hookIndex += 1
-    }
+    instance.hookIndex += 1
 
     Logger.debug(
       Category.StateEffect,
