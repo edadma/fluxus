@@ -20,27 +20,29 @@ object StopwatchApp:
     useEffect(
       () => {
         if running then
+          // Create interval using dom.window.setInterval
           val interval = dom.window.setInterval(
             () => {
-              setTime(now - start)
+              val currentTime = now - start
+              setTime(currentTime)
             },
-            10,
+            10, // Update every 10ms for smooth display
           )
 
+          // Return cleanup function
           () => dom.window.clearInterval(interval)
         else
           () => () // No cleanup needed if not running
       },
-      Seq(running),
+      Seq(running, start), // Add start to dependencies to handle resets correctly
     )
 
-    def toggleRunning(): Unit =
+    def toggleRunning(e: Event): Unit =
       if !running then
-        setStart(now - time)
-
+        setStart(now - time) // Preserve accumulated time when resuming
       setRunning(!running)
 
-    def resetTimer(): Unit =
+    def resetTimer(e: Event): Unit =
       setRunning(false)
       setTime(0.0)
       setStart(now)
@@ -68,14 +70,14 @@ object StopwatchApp:
           div(
             cls := "flex gap-2",
             button(
-              cls := "btn btn-primary w-20",
+              cls     := "btn btn-primary w-20",
+              onClick := toggleRunning,
               if running then "Stop" else "Start",
-              onClick := ((e: Event) => toggleRunning()),
             ),
             button(
-              cls := "btn btn-secondary w-20",
+              cls     := "btn btn-secondary w-20",
+              onClick := resetTimer,
               "Reset",
-              onClick := ((e: Event) => resetTimer()),
             ),
           ),
           MemoryStats <> (),
@@ -83,23 +85,33 @@ object StopwatchApp:
       ),
     )
 
-  def MemoryStats = () =>
+  def MemoryStats: () => FluxusNode = () =>
     val (stats, setStats) = useState(Map[String, Double]())
 
     useEffect(
       () => {
-        val intervalId = timers.setInterval(1000) {
-          val mem = js.Dynamic.global.performance.memory.asInstanceOf[js.Dynamic]
-          setStats(Map(
-            "used"  -> (mem.usedJSHeapSize.asInstanceOf[Double] / (1024 * 1024)),
-            "total" -> (mem.totalJSHeapSize.asInstanceOf[Double] / (1024 * 1024)),
-            "limit" -> (mem.jsHeapSizeLimit.asInstanceOf[Double] / (1024 * 1024)),
-          ))
-        }
+        // Safe access to memory stats
+        def updateMemoryStats(): Unit =
+          if js.Dynamic.global.performance != null &&
+            js.Dynamic.global.performance.memory != null
+          then
+            val mem = js.Dynamic.global.performance.memory.asInstanceOf[js.Dynamic]
+            setStats(Map(
+              "used"  -> (mem.usedJSHeapSize.asInstanceOf[Double] / (1024 * 1024)),
+              "total" -> (mem.totalJSHeapSize.asInstanceOf[Double] / (1024 * 1024)),
+              "limit" -> (mem.jsHeapSizeLimit.asInstanceOf[Double] / (1024 * 1024)),
+            ))
 
-        () => timers.clearInterval(intervalId)
+        // Initial update
+        updateMemoryStats()
+
+        // Set up interval
+        val intervalId = dom.window.setInterval(() => updateMemoryStats(), 1000)
+
+        // Cleanup
+        () => dom.window.clearInterval(intervalId)
       },
-      Nil,
+      Seq(), // Empty deps array - run once on mount
     )
 
     div(

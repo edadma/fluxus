@@ -143,7 +143,7 @@ class HooksTest extends BaseTest {
           effectCount += 1
           () => { cleanupCount += 1 }
         },
-        Some(Seq(deps)),
+        Seq(deps),
       )
     }
 
@@ -160,7 +160,7 @@ class HooksTest extends BaseTest {
             effectCount += 1
             () => { cleanupCount += 1 }
           },
-          Some(Seq(deps)),
+          Seq(deps),
         )
       },
       Some(instance),
@@ -182,7 +182,7 @@ class HooksTest extends BaseTest {
           effectCount += 1
           () => {}
         },
-        Some(deps),
+        deps,
       )
     }
 
@@ -197,7 +197,7 @@ class HooksTest extends BaseTest {
             effectCount += 1
             () => {}
           },
-          Some(deps),
+          deps,
         )
       },
       Some(instance),
