@@ -123,7 +123,7 @@ class DOMOperationsTest extends DOMSpec {
     cleanupCount shouldBe 1 // Old effect should be cleaned up
   }
 
-  it should "update DOM twice when state changes in a nested component" in withDebugLogging {
+  it should "update DOM twice when state changes in a nested component" in {
     case class TestProps()
     var renders = 0
 
