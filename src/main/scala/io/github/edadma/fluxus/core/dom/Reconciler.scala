@@ -119,39 +119,25 @@ object Reconciler {
                         Map(
                           "componentId"   -> newInst.id,
                           "componentType" -> newInst.componentType,
+                          "hasEffects"    -> newInst.effects.nonEmpty,
                         ),
                       )
 
-                      // Run cleanup of old effects if needed
+                      // First run cleanup on old effects
                       runCleanupEffects(oldInst, opId)
 
-                      // Diff rendered output
+                      // Then do DOM updates
                       diff(oldInst.rendered, newInst.rendered, element.asInstanceOf[dom.Element])
-
-                      // Update DOM reference
                       newInst.domNode = Some(element)
 
-                      // Run any effects queued during render
-                      if (newInst.effects.nonEmpty) {
-                        Logger.debug(
-                          Category.StateEffect,
-                          "Running queued effects after update",
-                          opId,
-                          Map(
-                            "componentId" -> newInst.id,
-                            "effectCount" -> newInst.effects.length,
-                          ),
-                        )
-                        runInitialEffects(newInst, opId, isMount = false)
-                      }
+                      // Finally run new effects
+                      runInitialEffects(newInst, opId, isMount = false)
                     }
                   }
                 }
-
               case _ =>
                 Logger.error(Category.VirtualDOM, "Invalid component instance state", opId)
             }
-
           case _ => replaceNode(old, new_, container, opId)
         }
 
@@ -366,62 +352,6 @@ object Reconciler {
         }
       }
       runChildEffects(rendered)
-    }
-  }
-
-  private def runQueuedEffects(instance: ComponentInstance, opId: Int): Unit = {
-    if (instance.effects.nonEmpty) {
-      Logger.debug(
-        Category.StateEffect,
-        "Running queued effects",
-        opId,
-        Map(
-          "componentId" -> instance.id,
-          "effectCount" -> instance.effects.length,
-        ),
-      )
-
-      val effects = instance.effects
-      instance.effects = Vector.empty // Clear queue before running
-
-      effects.zipWithIndex.foreach { case (effect, idx) =>
-        try {
-          Logger.debug(
-            Category.StateEffect,
-            s"Running effect ${idx + 1}/${effects.length}",
-            opId,
-            Map(
-              "componentId"   -> instance.id,
-              "componentType" -> instance.componentType,
-            ),
-          )
-          effect()
-        } catch {
-          case error: Throwable =>
-            Logger.error(
-              Category.StateEffect,
-              "Effect execution failed",
-              opId,
-              Map(
-                "componentId" -> instance.id,
-                "effectIndex" -> idx,
-                "error"       -> error.getMessage,
-                "errorType"   -> error.getClass.getName,
-              ),
-            )
-            instance.hasEffectError = true
-        }
-      }
-
-      Logger.debug(
-        Category.StateEffect,
-        "Queued effects complete",
-        opId,
-        Map(
-          "componentId" -> instance.id,
-          "effectCount" -> effects.length,
-        ),
-      )
     }
   }
 
