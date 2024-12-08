@@ -33,4 +33,5 @@ plugins.sbt
 # support for running test apps
 ./public
 index.html
-./src/main/resources/styles/tailwind.css
+./src/main/resources/styles
+tailwind.css
