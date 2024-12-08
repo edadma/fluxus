@@ -51,6 +51,7 @@ BaseTest.scala
 DOMSpec.scala
 ./src/test/scala/io/github/edadma/fluxus/core/dom
 DOMOperationsTest.scala
+EffectRerunTest.scala
 EffectStateTest.scala
 ./src/test/scala/io/github/edadma/fluxus/core/hooks
 HooksTest.scala
