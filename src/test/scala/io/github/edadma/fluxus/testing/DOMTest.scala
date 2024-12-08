@@ -1,7 +1,7 @@
 package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.TextNode
-import io.github.edadma.core.createDOMNode
+import io.github.edadma.fluxus.core.{createDOMNode, createDOM}
 import org.scalajs.dom
 import org.scalajs.dom.Node
 

@@ -1,4 +1,4 @@
-package io.github.edadma.testing
+package io.github.edadma.fluxus.testing
 
 import org.scalajs.dom
 import org.scalatest.flatspec.AnyFlatSpec

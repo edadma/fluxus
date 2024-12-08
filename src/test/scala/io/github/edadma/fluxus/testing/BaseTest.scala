@@ -1,4 +1,4 @@
-package io.github.edadma.testing
+package io.github.edadma.fluxus.testing
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
