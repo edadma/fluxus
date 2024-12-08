@@ -307,59 +307,6 @@ object Reconciler {
     }
   }
 
-//  private def runInitialEffects(instance: ComponentInstance, opId: Int): Unit = {
-//    runQueuedEffects(instance, opId)
-//
-//    // Run effects for child components
-//    instance.rendered.foreach { rendered =>
-//      def runChildEffects(node: FluxusNode): Unit = {
-//        node match {
-//          case ComponentNode(_, _, Some(childInstance), _) =>
-//            runInitialEffects(childInstance, opId)
-//          case ElementNode(_, _, _, children, _, _, _, _, _) =>
-//            children.foreach(runChildEffects)
-//          case _ => // TextNodes have no children
-//        }
-//      }
-//      runChildEffects(rendered)
-//    }
-//  }
-//
-//  private def runQueuedEffects(instance: ComponentInstance, opId: Int): Unit = {
-//    if (instance.effects.nonEmpty) {
-//      Logger.debug(
-//        Category.StateEffect,
-//        "Running queued effects",
-//        opId,
-//        Map(
-//          "componentId" -> instance.id,
-//          "effectCount" -> instance.effects.length,
-//        ),
-//      )
-//
-//      val effects = instance.effects
-//      instance.effects = Vector.empty // Clear queue before running
-//
-//      effects.foreach { effect =>
-//        try {
-//          effect()
-//        } catch {
-//          case error: Throwable =>
-//            Logger.error(
-//              Category.StateEffect,
-//              "Effect execution failed",
-//              opId,
-//              Map(
-//                "componentId" -> instance.id,
-//                "error"       -> error.getMessage,
-//              ),
-//            )
-//            instance.hasEffectError = true
-//        }
-//      }
-//    }
-//  }
-
   private[fluxus] def runInitialEffects(instance: ComponentInstance, opId: Int, isMount: Boolean = false): Unit = {
     Logger.debug(
       Category.StateEffect,

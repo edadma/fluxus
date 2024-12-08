@@ -62,7 +62,3 @@ ComponentTest.scala
 build.sbt
 package.json
 tailwind.config.js
-
-# old code that might be useful to refer to
-./
-old-DOMOperations-scala
