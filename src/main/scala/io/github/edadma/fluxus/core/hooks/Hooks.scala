@@ -49,12 +49,11 @@ object Hooks {
   }
 
   def clearCurrentInstance(): Unit = {
-    val opId = Logger.nextOperationId
     currentInstance.foreach(instance =>
       Logger.debug(
         Category.StateEffect,
         "Clearing current instance",
-        opId,
+        Logger.nextOperationId,
         Map(
           "instanceId"    -> instance.id,
           "componentType" -> instance.componentType,
@@ -77,37 +76,21 @@ object Hooks {
       Category.StateEffect,
       "useState called",
       opId,
-      Map(
-        "initialValue" -> initialValue,
-        "valueType"    -> initialValue.getClass.getName,
-      ),
+      Map("initialValue" -> initialValue, "valueType" -> initialValue.getClass.getName),
     )
 
     val instance = currentInstance.getOrElse {
-      val error = "useState must be called within a component"
-      Logger.error(
-        Category.StateEffect,
-        error,
-        opId,
-        Map(
-          "stackTrace" -> Thread.currentThread().getStackTrace.mkString("\n"),
-        ),
-      )
-      throw HookValidationError(error, Map.empty, opId)
+      throw new Error("useState must be called within a component")
     }
 
     val hookIndex = instance.hookIndex
 
-    // Create or get hook
     val hook = if (hookIndex < instance.hooks.length) {
       Logger.debug(
         Category.StateEffect,
         "Reusing existing state hook",
         opId,
-        Map(
-          "componentId" -> instance.id,
-          "hookIndex"   -> hookIndex,
-        ),
+        Map("componentId" -> instance.id, "hookIndex" -> hookIndex),
       )
       instance.hooks(hookIndex).asInstanceOf[StateHook[T]]
     } else {
@@ -125,8 +108,7 @@ object Hooks {
 
       val newHook = StateHook[T](initialValue)
 
-      // Define setState function to handle both value and function updates
-      newHook.setState = { (update: T | (T => T)) =>
+      newHook.setState = (update: T | (T => T)) => {
         val updateOpId = Logger.nextOperationId
 
         Logger.debug(
@@ -145,9 +127,9 @@ object Hooks {
           Logger.warn(Category.StateEffect, "State update during cleanup - skipped", updateOpId)
         } else if (instance.isRendering) {
           Logger.error(Category.StateEffect, "Cannot update state during render", updateOpId)
-          throw HookValidationError("Cannot update state during render", Map.empty, updateOpId)
+          throw new Error("Cannot update state during render")
         } else {
-          // Calculate new value based on update type
+          // Calculate new value
           val newValue = update match {
             case f: Function1[_, _] => f.asInstanceOf[T => T](newHook.currentValue)
             case value              => value.asInstanceOf[T]
@@ -157,23 +139,27 @@ object Hooks {
             Category.StateEffect,
             "Applying state update",
             updateOpId,
-            Map(
-              "oldValue" -> newHook.currentValue,
-              "newValue" -> newValue,
-            ),
+            Map("oldValue" -> newHook.currentValue, "newValue" -> newValue),
           )
 
           newHook.currentValue = newValue
           instance.needsRender = true
 
-          // Trigger re-render
+          // Important: Set isUpdating before triggering re-render
+          instance.isUpdating = true
+
+          // Re-render with proper component context
           instance.rendered.foreach { rendered =>
             instance.domNode.foreach { element =>
+              val newRendered = instance.render(updateOpId)
+
               Reconciler.diff(
                 Some(rendered),
-                instance.render(updateOpId),
-                element.asInstanceOf[org.scalajs.dom.Element],
+                newRendered,
+                element.asInstanceOf[dom.Element],
               )
+
+              instance.rendered = newRendered
             }
           }
         }
@@ -190,11 +176,11 @@ object Hooks {
       "useState complete",
       opId,
       Map(
+        "isReused"      -> (hookIndex < instance.hooks.length),
         "componentId"   -> instance.id,
+        "totalHooksNow" -> instance.hooks.length,
         "hookIndex"     -> hookIndex,
         "returnedValue" -> hook.value,
-        "totalHooksNow" -> instance.hooks.length,
-        "isReused"      -> (hookIndex < instance.hooks.length),
       ),
     )
 
@@ -216,15 +202,8 @@ object Hooks {
 
     val instance = currentInstance.getOrElse {
       val error = "useEffect must be called within a component"
-      Logger.error(
-        Category.StateEffect,
-        error,
-        opId,
-        Map(
-          "stackTrace" -> Thread.currentThread().getStackTrace.mkString("\n"),
-        ),
-      )
-      throw HookValidationError(error, Map.empty, opId)
+      Logger.error(Category.StateEffect, error, opId)
+      throw new Error(error)
     }
 
     val hookIndex = instance.hookIndex
@@ -294,13 +273,32 @@ object Hooks {
           ),
         )
 
-        // Queue effect with cleanup
-        instance.effects = instance.effects :+ (() => {
-          // Run cleanup using the helper function
-          runEffectCleanup(existingHook, opId)
+        // Create cleanup and new effect function
+        val rerunEffect = () => {
+          // Run cleanup of old effect
+          existingHook.cleanup.foreach { cleanup =>
+            try {
+              Logger.debug(Category.StateEffect, "Running effect cleanup", opId)
+              cleanup()
+            } catch {
+              case error: Throwable =>
+                Logger.error(
+                  Category.StateEffect,
+                  "Effect cleanup error",
+                  opId,
+                  Map("error" -> error.getMessage),
+                )
+            }
+          }
 
+          // Run new effect
           try {
-            // Run new effect
+            Logger.debug(
+              Category.StateEffect,
+              "Running updated effect",
+              opId,
+              Map("componentId" -> instance.id),
+            )
             val cleanupFn = effectFn()
             existingHook.cleanup = Some(cleanupFn)
           } catch {
@@ -313,17 +311,10 @@ object Hooks {
               )
               instance.hasEffectError = true
           }
-        })
-      } else {
-        Logger.debug(
-          Category.StateEffect,
-          "Dependencies unchanged - skipping effect",
-          opId,
-          Map(
-            "componentId" -> instance.id,
-            "hookIndex"   -> hookIndex,
-          ),
-        )
+        }
+
+        // Add the effect to the instance's effect queue
+        instance.effects = instance.effects :+ rerunEffect
       }
 
       // Update stored deps

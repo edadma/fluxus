@@ -9,140 +9,125 @@ import io.github.edadma.fluxus.logging.Logger.Category
 import org.scalajs.dom
 
 object Reconciler {
-  def diff(oldNode: Option[FluxusNode], newNode: Option[FluxusNode], container: dom.Element): Unit = {
-    val opId = Logger.nextOperationId
+  private case class RenderContext(
+      rootComponent: Option[ComponentInstance] = None,
+      parentNode: Option[FluxusNode] = None,
+  )
 
+  def diff(oldNode: Option[FluxusNode], newNode: Option[FluxusNode], container: dom.Element): Unit = {
+    val opId    = Logger.nextOperationId
+    val context = diffWithContext(oldNode, newNode, container, RenderContext(), opId)
+
+    // Run queued effects after all DOM updates are complete
+    context.rootComponent.foreach { instance =>
+      Logger.debug(
+        Category.StateEffect,
+        "Running queued effects after diff",
+        opId,
+        Map(
+          "componentId"   -> instance.id,
+          "componentType" -> instance.componentType,
+          "effectCount"   -> instance.effects.size,
+        ),
+      )
+      runInitialEffects(instance, opId, false)
+      instance.isUpdating = false
+    }
+  }
+
+  private def diffWithContext(
+      oldNode: Option[FluxusNode],
+      newNode: Option[FluxusNode],
+      container: dom.Element,
+      context: RenderContext,
+      opId: Int,
+  ): RenderContext = {
     Logger.debug(
       Category.VirtualDOM,
       "Starting diff operation",
       opId,
       Map(
-        "oldNode" -> oldNode.map(_.getClass.getSimpleName).getOrElse("None"),
-        "newNode" -> newNode.map(_.getClass.getSimpleName).getOrElse("None"),
+        "oldNode"          -> oldNode.map(_.getClass.getSimpleName).getOrElse("None"),
+        "newNode"          -> newNode.map(_.getClass.getSimpleName).getOrElse("None"),
+        "hasRootComponent" -> context.rootComponent.isDefined,
       ),
     )
 
     (oldNode, newNode) match {
-      case (Some(old), None) =>
-        // Run cleanup before removing node
-        old match {
-          case ComponentNode(_, _, Some(instance), _) =>
-            runCleanupEffects(instance, opId)
+      case (Some(old), Some(new_)) =>
+        (old, new_) match {
+          case (oldComp: ComponentNode, newComp: ComponentNode) =>
+            (oldComp.instance, newComp.instance) match {
+              case (Some(oldInst), Some(newInst)) if oldInst.componentType == newInst.componentType =>
+                // Update component if it's the one that triggered the update or is a child of it
+                val isUpdating = newInst.isUpdating || context.rootComponent.exists(_.id == newInst.id)
+
+                oldInst.domNode.foreach { element =>
+                  if (oldInst.rendered.isDefined && newInst.rendered.isDefined) {
+                    runCleanupEffects(oldInst, opId)
+                    diffWithContext(
+                      oldInst.rendered,
+                      newInst.rendered,
+                      element.asInstanceOf[dom.Element],
+                      if (isUpdating) context.copy(rootComponent = Some(newInst)) else context,
+                      opId,
+                    )
+                    newInst.domNode = Some(element)
+                  }
+                }
+                context
+
+              case _ =>
+                replaceNode(oldComp, newComp, container, opId)
+                context
+            }
+
+          case (oldElem: ElementNode, newElem: ElementNode) if oldElem.tag == newElem.tag =>
+            oldElem.domNode.foreach { node =>
+              val element = node.asInstanceOf[dom.Element]
+              updateAttributes(element, oldElem.props, newElem.props, opId)
+
+              // Maintain context when updating children
+              oldElem.children.zip(newElem.children).foreach { case (oldChild, newChild) =>
+                diffWithContext(Some(oldChild), Some(newChild), element, context, opId)
+              }
+
+              newElem.domNode = Some(element)
+            }
+            context
+
+          case (oldText: TextNode, newText: TextNode) =>
+            oldText.domNode.foreach { node =>
+              if (oldText.text != newText.text) {
+                node.textContent = newText.text
+              }
+              newText.domNode = Some(node)
+            }
+            context
+
           case _ =>
+            replaceNode(old, new_, container, opId)
+            context
         }
 
-        Logger.debug(Category.VirtualDOM, "Removing node", opId)
+      case (Some(old), None) =>
         old.domNode.foreach { node =>
           container.removeChild(node)
           old.domNode = None
         }
+        context
 
       case (None, Some(new_)) =>
-        Logger.debug(Category.VirtualDOM, "Adding new node", opId)
-        val newDomNode = DOMOperations.createDOMNode(new_)
-        container.appendChild(newDomNode)
-
-        // Run initial effects for new component
+        val newDom = DOMOperations.createDOMNode(new_)
+        container.appendChild(newDom)
         new_ match {
-          case ComponentNode(_, _, Some(instance), _) =>
-            runInitialEffects(instance, opId, isMount = true)
+          case ComponentNode(_, _, Some(instance), _) if instance.isUpdating =>
+            context.copy(rootComponent = Some(instance))
           case _ =>
+            context
         }
 
-      case (Some(old), Some(new_)) if old.key != new_.key =>
-        Logger.debug(Category.VirtualDOM, "Different keys - replacing node", opId)
-
-        // Run cleanup on old component
-        old match {
-          case ComponentNode(_, _, Some(instance), _) =>
-            runCleanupEffects(instance, opId)
-          case _ =>
-        }
-
-        old.domNode.foreach { oldDom =>
-          val newDom = DOMOperations.createDOMNode(new_)
-          container.replaceChild(newDom, oldDom)
-          old.domNode = None
-        }
-
-        // Run initial effects for new component
-        new_ match {
-          case ComponentNode(_, _, Some(instance), _) =>
-            runInitialEffects(instance, opId, isMount = true)
-          case _ =>
-        }
-
-      case (Some(old), Some(new_)) =>
-        (old, new_) match {
-          case (oldText: TextNode, newText: TextNode) =>
-            oldText.domNode.foreach { textNode =>
-              if (oldText.text != newText.text) {
-                textNode.textContent = newText.text
-              }
-              newText.domNode = Some(textNode)
-            }
-
-          case (oldElem: ElementNode, newElem: ElementNode) =>
-            if (oldElem.tag != newElem.tag) {
-              replaceNode(oldElem, newElem, container, opId)
-            } else {
-              oldElem.domNode.foreach { domNode =>
-                val element = domNode.asInstanceOf[dom.Element]
-
-                // Update attributes
-                updateAttributes(element, oldElem.props, newElem.props, opId)
-
-                // Update children
-                updateChildren(oldElem, newElem, element, opId)
-
-                newElem.domNode = Some(element)
-              }
-            }
-
-          case (oldComp: ComponentNode, newComp: ComponentNode) =>
-            (oldComp.instance, newComp.instance) match {
-              case (Some(oldInst), Some(newInst)) =>
-                checkTreeDepth(newInst, opId)
-
-                if (oldInst.componentType != newInst.componentType) {
-                  runCleanupEffects(oldInst, opId)
-                  replaceNode(oldComp, newComp, container, opId)
-                  runInitialEffects(newInst, opId, isMount = false)
-                } else {
-                  // Handle same component type update
-                  oldInst.domNode.foreach { element =>
-                    if (oldInst.rendered.isDefined && newInst.rendered.isDefined) {
-                      Logger.debug(
-                        Category.VirtualDOM,
-                        "Updating component",
-                        opId,
-                        Map(
-                          "componentId"   -> newInst.id,
-                          "componentType" -> newInst.componentType,
-                          "hasEffects"    -> newInst.effects.nonEmpty,
-                        ),
-                      )
-
-                      // First run cleanup on old effects
-                      runCleanupEffects(oldInst, opId)
-
-                      // Then do DOM updates
-                      diff(oldInst.rendered, newInst.rendered, element.asInstanceOf[dom.Element])
-                      newInst.domNode = Some(element)
-
-                      // Finally run new effects
-                      runInitialEffects(newInst, opId, isMount = false)
-                    }
-                  }
-                }
-              case _ =>
-                Logger.error(Category.VirtualDOM, "Invalid component instance state", opId)
-            }
-          case _ => replaceNode(old, new_, container, opId)
-        }
-
-      case (None, None) =>
-        Logger.debug(Category.VirtualDOM, "No nodes to diff", opId)
+      case (None, None) => context
     }
   }
 
@@ -175,67 +160,6 @@ object Reconciler {
       if (oldProps.get(name).map(_.toString) != Some(newValue)) {
         element.setAttribute(name, newValue)
       }
-    }
-  }
-
-  private def updateChildren(
-      oldParent: ElementNode,
-      newParent: ElementNode,
-      container: dom.Element,
-      opId: Int,
-  ): Unit = {
-    val oldChildren = oldParent.children
-    val newChildren = newParent.children
-
-    // Handle keyed children first
-    val oldKeyed = oldChildren.filter(_.key.isDefined).map(n => (n.key.get, n)).toMap
-    val newKeyed = newChildren.filter(_.key.isDefined).map(n => (n.key.get, n)).toMap
-
-    // Update/remove/add keyed children
-    var lastKeyedIndex = -1
-    newKeyed.foreach { case (key, newChild) =>
-      oldKeyed.get(key) match {
-        case Some(oldChild) =>
-          // Update existing keyed child
-          diff(Some(oldChild), Some(newChild), container)
-          lastKeyedIndex = oldChildren.indexWhere(_.key.contains(key))
-        case None =>
-          // Add new keyed child
-          val newDom = DOMOperations.createDOMNode(newChild)
-          if (lastKeyedIndex + 1 < oldChildren.length) {
-            oldChildren(lastKeyedIndex + 1).domNode.foreach { nextDom =>
-              container.insertBefore(newDom, nextDom)
-            }
-          } else {
-            container.appendChild(newDom)
-          }
-      }
-    }
-
-    // Remove old keyed children not in new set
-    oldKeyed.keys.foreach { key =>
-      if (!newKeyed.contains(key)) {
-        oldKeyed(key).domNode.foreach(container.removeChild)
-      }
-    }
-
-    // Handle non-keyed children
-    val oldNonKeyed = oldChildren.filter(_.key.isEmpty)
-    val newNonKeyed = newChildren.filter(_.key.isEmpty)
-
-    // Update existing children
-    oldNonKeyed.zip(newNonKeyed).foreach { case (oldChild, newChild) =>
-      diff(Some(oldChild), Some(newChild), container)
-    }
-
-    // Remove extra old children
-    oldNonKeyed.drop(newNonKeyed.length).foreach { oldChild =>
-      oldChild.domNode.foreach(container.removeChild)
-    }
-
-    // Add new children
-    newNonKeyed.drop(oldNonKeyed.length).foreach { newChild =>
-      container.appendChild(DOMOperations.createDOMNode(newChild))
     }
   }
 
