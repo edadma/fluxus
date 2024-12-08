@@ -2,14 +2,14 @@
 
 # ergonomic api
 ./src/main/scala/io/github/edadma/fluxus
-component.scala
+implicits.scala
 createElement.scala
-renderApp.scala
+render.scala
+FluxusNode.scala
 
 # core
 ./src/main/scala/io/github/edadma/fluxus/core
 ComponentInstance.scala
-FluxusNode.scala
 IdGenerator.scala
 
 # example apps
@@ -18,9 +18,10 @@ DisplayApp.scala
 main.scala
 
 # unit testing
-./src/test/scala/io/github/edadma/fluxus
+./src/test/scala/io/github/edadma/fluxus/testing
 BaseTest.scala
 DOMSpec.scala
+DOMTest.scala
 
 # build files
 ./
