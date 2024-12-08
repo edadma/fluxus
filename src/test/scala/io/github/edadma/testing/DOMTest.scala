@@ -2,6 +2,7 @@ package io.github.edadma.fluxus.core
 
 import io.github.edadma.fluxus.TextNode
 import io.github.edadma.testing.DOMSpec
+import org.scalajs.dom
 import org.scalajs.dom.Node
 
 class DOMTest extends DOMSpec {
@@ -10,7 +11,7 @@ class DOMTest extends DOMSpec {
     val node    = TextNode("Hello world", None, None)
     val domNode = createDOMNode(node)
 
-    domNode.nodeType shouldBe Node.TEXT_NODE
+    domNode.nodeType shouldBe dom.Node.TEXT_NODE
     domNode.textContent shouldBe "Hello world"
     node.domNode shouldBe Some(domNode)
   }

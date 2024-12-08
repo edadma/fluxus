@@ -17,6 +17,7 @@ trait DOMSpec extends BaseTest {
 
   js.Dynamic.global.global.window = jsdom.window
   js.Dynamic.global.global.document = jsdom.window.document
+  js.Dynamic.global.global.Node = jsdom.window.asInstanceOf[js.Dynamic].Node
 
   def getContainer: dom.Element = dom.document.getElementById("app")
 
