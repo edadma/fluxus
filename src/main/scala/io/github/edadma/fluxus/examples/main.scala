@@ -1,5 +1,5 @@
 package io.github.edadma.fluxus.examples
 
-import io.github.edadma.fluxus.api._
+import io.github.edadma.fluxus.renderApp
 
-@main def run(): Unit = renderApp(StopwatchApp.App, "app")
+@main def run(): Unit = renderApp(DisplayApp.App, "app")

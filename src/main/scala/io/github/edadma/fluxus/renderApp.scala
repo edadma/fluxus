@@ -1,7 +1,7 @@
-package io.github.edadma.fluxus.api
+package io.github.edadma.fluxus
 
+import io.github.edadma.fluxus.core.{Component, FluxusNode}
 import io.github.edadma.fluxus.core.dom.DOMOperations
-import io.github.edadma.fluxus.core.types.{Component, FluxusNode}
 import io.github.edadma.fluxus.logging.Logger
 import org.scalajs.dom.{Element, document}
 

@@ -1,4 +1,4 @@
-package io.github.edadma.fluxus.core.types
+package io.github.edadma.fluxus.core
 
 import org.scalajs.dom.{Element, Node}
 

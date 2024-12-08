@@ -1,6 +1,5 @@
-package io.github.edadma.fluxus.testing
+package io.github.edadma.fluxus
 
-import io.github.edadma.fluxus.core.hooks.Hooks
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.BeforeAndAfterEach
@@ -11,9 +10,9 @@ trait BaseTest extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
   override def beforeEach(): Unit = {
     super.beforeEach()
 
-    Logger.setLevel(LogLevel.OFF)
-    Logger.resetOperationId()
-    Hooks.clearCurrentInstance()
+//    Logger.setLevel(LogLevel.OFF)
+//    Logger.resetOperationId()
+//    Hooks.clearCurrentInstance()
   }
 
   def withDebugLogging(test: => Unit): Unit = {

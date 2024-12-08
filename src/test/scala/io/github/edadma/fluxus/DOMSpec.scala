@@ -1,11 +1,7 @@
-package io.github.edadma.fluxus.testing
+package io.github.edadma.fluxus
 
-import io.github.edadma.fluxus.core.hooks.Hooks
-import io.github.edadma.fluxus.logging.Logger
 import org.scalajs.dom
-import org.scalatest.BeforeAndAfterEach
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
 
 import scala.scalajs.js
 import js.annotation.JSImport
@@ -26,10 +22,11 @@ trait DOMSpec extends BaseTest {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+
     // Clear container before each test
-    val container = getContainer
-    while (container.firstChild != null) {
-      container.removeChild(container.firstChild)
-    }
+//    val container = getContainer
+//    while (container.firstChild != null) {
+//      container.removeChild(container.firstChild)
+//    }
   }
 }

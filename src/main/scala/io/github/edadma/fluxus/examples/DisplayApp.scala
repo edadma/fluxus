@@ -1,7 +1,8 @@
 package io.github.edadma.fluxus.examples
 
 import io.github.edadma.fluxus.api.*
-import io.github.edadma.fluxus.core.types.FluxusNode
+import io.github.edadma.fluxus.core.FluxusNode
+import io.github.edadma.fluxus.{cls, div, h1, span}
 
 object DisplayApp:
   def App: FluxusNode =

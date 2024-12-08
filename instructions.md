@@ -1,41 +1,144 @@
-Core Goals
-----------
-- Create a lightweight React-like UI framework in Scala.js
-- Support functional components with props
-- Support hooks (useState, useEffect)
-- Support virtual DOM diffing
-- Make the API feel natural to Scala developers
+# Fluxus Project Goals
 
-Secondary Goals
----------------
-- Keep good type safety
-- Make component creation ergonomic
-- Support common React patterns
+## Overview
 
-Phase 1: Basic Component System
-- Component creation and composition
-- Props passing
-- Event handling
-- Basic state management (useState)
-- Simple effects (useEffect)
-- Virtual DOM with diffing
-- Comprehensive debugging/logging system
-    - Component creation
-    - Render cycles
-    - State changes
-    - Diff operations
-    - DOM updates
+Create a minimalist React-like UI framework in Scala.js that implements core React concepts in their simplest form, prioritizing correctness and clarity over optimization. The framework should handle nested component structures properly while maintaining a predictable and understandable execution model.
 
-General Instructions
----------------------
-- The project is coded in Scala.js.
-- The project has the base package "io.github.edadma.fluxus".
-- All test app should be styled using DaisyUI.
-- Always keep design documents synchronized with changes in implementation, as issues are resolved.
+## Core Features
 
-  A well-documented pseudocode design would help in several ways:
-  - Force clear thinking about the system architecture before coding
-  - Serve as a reference during implementation
-  - Help spot potential issues early
-  - Make it easier to track where implementation deviates from design and why
-  - Provide context for debugging decisions
+### Components
+- Support functional components
+- Handle parent/child component relationships
+- Support nested component trees of arbitrary depth
+- Allow components to maintain state
+- Support rendering lists of components (with simple index-based diffing)
+
+### State Management
+- Allow components to maintain and update state
+- Handle state changes synchronously and completely
+- Each state change triggers a complete re-render cycle
+- No batching of updates (each update processes fully before the next begins)
+
+### Virtual DOM
+- Maintain a virtual DOM tree
+- Support both element nodes (div, span, etc.) and component nodes
+- Perform diffing to determine necessary DOM updates
+- Handle nested structures correctly
+- Support basic list rendering without key optimization
+
+### Effects
+- Support effect hooks similar to React's useEffect
+- Run effects after DOM updates are complete
+- Handle effect cleanup properly
+- Maintain correct ordering of effects in nested components
+
+## Execution Model
+
+### State Change Flow
+1. State update occurs in a component
+2. Component re-renders
+3. Virtual DOM diffing occurs
+4. DOM updates are made
+5. Effects are run
+
+### Nested Component Handling
+1. Parent state changes can trigger child re-renders
+2. Each state change completes fully before handling the next
+3. Effects run in a predictable order based on component hierarchy
+
+## Non-Goals (Initial Version)
+
+These features are explicitly not included in the initial version to maintain simplicity:
+- Batching of state updates
+- Key-based list optimization
+- Performance optimizations
+- Error boundaries
+- Context system
+- Memoization
+- Concurrent rendering
+
+## Implementation Principles
+
+1. Correctness Over Performance
+  - Focus on making things work correctly first
+  - Accept performance trade-offs for simpler implementation
+  - Maintain predictable behavior
+
+2. Clear Mental Model
+  - Each operation should have clear beginning and end
+  - State changes process one at a time
+  - Effects have clear execution timing
+
+3. Proper Nesting Support
+  - Handle deeply nested component structures
+  - Maintain proper parent/child relationships
+  - Support arbitrary nesting depth
+
+## Success Criteria
+
+The framework should:
+1. Handle nested components correctly
+2. Process state changes predictably
+3. Run effects at the right time
+4. Support basic list rendering
+5. Maintain correct DOM state
+6. Handle multiple timer-based updates correctly
+
+## Example Use Cases to Support
+
+1. Basic Counter Component
+  - Single component with state
+  - Button triggers state update
+  - DOM updates reflect state changes
+
+2. Nested Components
+  - Parent component with state
+  - Multiple child components
+  - State changes affect children
+
+3. Timer Components
+  - Multiple independent timers
+  - Each timer maintains own state
+  - Updates don't interfere with each other
+
+4. List Rendering
+  - Basic list of items
+  - Add/remove items
+  - Update individual items
+
+5. Effect Handling
+  - Setup/cleanup of resources
+  - Effects that depend on state
+  - Effects in nested components
+
+## Testing Focus
+
+1. Component Lifecycle
+  - Creation
+  - State updates
+  - Effect execution
+  - Cleanup
+
+2. Nested Structures
+  - Parent/child rendering
+  - Effect ordering
+  - State change propagation
+
+3. Multiple Updates
+  - Timer-based updates
+  - Multiple state changes
+  - Effect execution order
+
+4. DOM Correctness
+  - Proper DOM updates
+  - List rendering
+  - Nested structure updates
+
+## Future Expansion Possibilities
+
+While not included in the initial version, the architecture should be designed such that these features could be added later without major restructuring:
+- Key handling for lists
+- Batched updates
+- Performance optimizations
+- Error boundaries
+- Context system

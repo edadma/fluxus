@@ -1,10 +1,9 @@
-package io.github.edadma.fluxus.core.types
+package io.github.edadma.fluxus.core
 
 import io.github.edadma.fluxus.core.hooks.Hooks
-import io.github.edadma.fluxus.core.util.IdGenerator
+import io.github.edadma.fluxus.error.{NodeValidationError, PropValidationError}
 import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.Category
-import io.github.edadma.fluxus.error.{NodeValidationError, PropValidationError}
 import org.scalajs.dom.{Element, Node}
 
 // Represents an instance of a component with fields organized by category

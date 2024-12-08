@@ -1,6 +1,7 @@
-package io.github.edadma.fluxus.api
+package io.github.edadma.fluxus
 
-import io.github.edadma.fluxus.core.types._
+import io.github.edadma.fluxus.core.{ElementNode, FluxusNode, TextNode}
+import io.github.edadma.fluxus.core.types.*
 import io.github.edadma.fluxus.logging.Logger
 import io.github.edadma.fluxus.logging.Logger.Category
 
