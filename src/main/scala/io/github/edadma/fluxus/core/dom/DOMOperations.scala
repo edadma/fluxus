@@ -82,6 +82,7 @@ object DOMOperations {
               case Some(rendered) =>
                 val domNode = createDOMNode(rendered)
                 inst.domNode = Some(domNode)
+                compNode.domNode = Some(domNode) // <-- Add this line
                 domNode
               case None =>
                 throw NodeValidationError(
@@ -193,7 +194,7 @@ object DOMOperations {
     // Run initial effects for new component
     node match {
       case ComponentNode(_, _, Some(instance), _) =>
-        runInitialEffects(instance, opId)
+        runInitialEffects(instance, opId, isMount = true)
       case _ =>
     }
 

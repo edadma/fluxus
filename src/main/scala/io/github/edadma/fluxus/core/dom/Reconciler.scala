@@ -45,7 +45,7 @@ object Reconciler {
         // Run initial effects for new component
         new_ match {
           case ComponentNode(_, _, Some(instance), _) =>
-            runInitialEffects(instance, opId, isMount = false)
+            runInitialEffects(instance, opId, isMount = true)
           case _ =>
         }
 
@@ -68,7 +68,7 @@ object Reconciler {
         // Run initial effects for new component
         new_ match {
           case ComponentNode(_, _, Some(instance), _) =>
-            runInitialEffects(instance, opId, isMount = false)
+            runInitialEffects(instance, opId, isMount = true)
           case _ =>
         }
 
@@ -294,6 +294,17 @@ object Reconciler {
   }
 
   private[fluxus] def runInitialEffects(instance: ComponentInstance, opId: Int, isMount: Boolean = false): Unit = {
+    if (instance.domNode.isEmpty) {
+      Logger.warn(
+        Category.StateEffect,
+        "No domNode found for component during effects run - assigning from rendered",
+        opId,
+      )
+      instance.rendered.foreach { r =>
+        if (r.domNode.isDefined) instance.domNode = r.domNode
+      }
+    }
+
     Logger.debug(
       Category.StateEffect,
       if (isMount) "Starting initial mount effect execution" else "Running effects after update",
