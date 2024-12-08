@@ -90,36 +90,11 @@ object Reconciler {
                 val element = domNode.asInstanceOf[dom.Element]
 
                 // Update attributes
-                Logger.debug(
-                  Category.VirtualDOM,
-                  "Updating element attributes",
-                  opId,
-                  Map(
-                    "tag"      -> oldElem.tag,
-                    "oldProps" -> oldElem.props,
-                    "newProps" -> newElem.props,
-                  ),
-                )
+                updateAttributes(element, oldElem.props, newElem.props, opId)
 
-                // Remove old attributes not in new set
-                oldElem.props.keys.foreach { name =>
-                  if (!newElem.props.contains(name)) {
-                    element.removeAttribute(name)
-                  }
-                }
-
-                // Set/update new attributes
-                newElem.props.foreach { case (name, value) =>
-                  val newValue = value.toString
-                  if (oldElem.props.get(name).map(_.toString) != Some(newValue)) {
-                    element.setAttribute(name, newValue)
-                  }
-                }
-
-                // Update event listeners
-                // (Would need additional logic for proper event listener cleanup/updates)
-
+                // Update children
                 updateChildren(oldElem, newElem, element, opId)
+
                 newElem.domNode = Some(element)
               }
             }
@@ -129,29 +104,17 @@ object Reconciler {
               case (Some(oldInst), Some(newInst)) =>
                 checkTreeDepth(newInst, opId)
 
-                Logger.debug(
-                  Category.VirtualDOM,
-                  "Comparing component instances",
-                  opId,
-                  Map(
-                    "oldType"  -> oldInst.componentType,
-                    "newType"  -> newInst.componentType,
-                    "oldState" -> oldInst.stateVersion,
-                    "newState" -> newInst.stateVersion,
-                  ),
-                )
-
                 if (oldInst.componentType != newInst.componentType) {
                   runCleanupEffects(oldInst, opId)
                   replaceNode(oldComp, newComp, container, opId)
                   runInitialEffects(newInst, opId, isMount = false)
                 } else {
-                  // Diff the rendered outputs
+                  // Handle same component type update
                   oldInst.domNode.foreach { element =>
                     if (oldInst.rendered.isDefined && newInst.rendered.isDefined) {
                       Logger.debug(
                         Category.VirtualDOM,
-                        "Diffing component rendered output",
+                        "Updating component",
                         opId,
                         Map(
                           "componentId"   -> newInst.id,
@@ -159,16 +122,32 @@ object Reconciler {
                         ),
                       )
 
+                      // Run cleanup of old effects if needed
+                      runCleanupEffects(oldInst, opId)
+
+                      // Diff rendered output
                       diff(oldInst.rendered, newInst.rendered, element.asInstanceOf[dom.Element])
+
+                      // Update DOM reference
                       newInst.domNode = Some(element)
 
                       // Run any effects queued during render
                       if (newInst.effects.nonEmpty) {
-                        runQueuedEffects(newInst, opId)
+                        Logger.debug(
+                          Category.StateEffect,
+                          "Running queued effects after update",
+                          opId,
+                          Map(
+                            "componentId" -> newInst.id,
+                            "effectCount" -> newInst.effects.length,
+                          ),
+                        )
+                        runInitialEffects(newInst, opId, isMount = false)
                       }
                     }
                   }
                 }
+
               case _ =>
                 Logger.error(Category.VirtualDOM, "Invalid component instance state", opId)
             }
@@ -384,72 +363,63 @@ object Reconciler {
   private[fluxus] def runInitialEffects(instance: ComponentInstance, opId: Int, isMount: Boolean = false): Unit = {
     Logger.debug(
       Category.StateEffect,
-      if (isMount) "Starting initial mount effect execution" else "Starting effect execution",
+      if (isMount) "Starting initial mount effect execution" else "Running effects after update",
       opId,
       Map(
         "componentId"   -> instance.id,
         "componentType" -> instance.componentType,
         "effectCount"   -> instance.effects.length,
         "hasRendered"   -> instance.rendered.isDefined,
-        "isMount"       -> isMount,
       ),
     )
 
-    // Run any queued effects first
-    runQueuedEffects(instance, opId)
+    // Run queued effects for this component
+    if (instance.effects.nonEmpty) {
+      val effects = instance.effects
+      instance.effects = Vector.empty // Clear queue before running
 
-    // Find and run effects for child components
+      effects.zipWithIndex.foreach { case (effect, idx) =>
+        try {
+          Logger.debug(
+            Category.StateEffect,
+            s"Running effect ${idx + 1}/${effects.length}",
+            opId,
+            Map(
+              "componentId"   -> instance.id,
+              "componentType" -> instance.componentType,
+            ),
+          )
+          effect()
+        } catch {
+          case error: Throwable =>
+            Logger.error(
+              Category.StateEffect,
+              "Effect execution failed",
+              opId,
+              Map(
+                "componentId" -> instance.id,
+                "effectIndex" -> idx,
+                "error"       -> error.getMessage,
+              ),
+            )
+            instance.hasEffectError = true
+        }
+      }
+    }
+
+    // Run effects for children
     instance.rendered.foreach { rendered =>
       def runChildEffects(node: FluxusNode): Unit = {
         node match {
           case ComponentNode(_, _, Some(childInstance), _) =>
-            Logger.debug(
-              Category.StateEffect,
-              "Found child component",
-              opId,
-              Map(
-                "parentId"         -> instance.id,
-                "childId"          -> childInstance.id,
-                "childType"        -> childInstance.componentType,
-                "childEffectCount" -> childInstance.effects.length,
-                "parentIsMount"    -> isMount,
-              ),
-            )
-            // Pass isMount flag to children
             runInitialEffects(childInstance, opId, isMount)
-
           case ElementNode(_, _, _, children, _, _, _, _, _) =>
             children.foreach(runChildEffects)
-
           case _ => // TextNodes have no children
         }
       }
-
-      Logger.debug(
-        Category.StateEffect,
-        "Starting child component search",
-        opId,
-        Map(
-          "parentId"   -> instance.id,
-          "parentType" -> instance.componentType,
-          "isMount"    -> isMount,
-        ),
-      )
-
       runChildEffects(rendered)
     }
-
-    Logger.debug(
-      Category.StateEffect,
-      "Effect execution complete",
-      opId,
-      Map(
-        "componentId"   -> instance.id,
-        "componentType" -> instance.componentType,
-        "isMount"       -> isMount,
-        "effectCount"   -> instance.effects.length,
-      ),
-    )
   }
 
   private def runQueuedEffects(instance: ComponentInstance, opId: Int): Unit = {
