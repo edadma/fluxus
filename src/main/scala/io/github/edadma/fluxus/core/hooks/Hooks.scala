@@ -13,8 +13,8 @@ sealed trait Hook[T] {
 }
 
 case class StateHook[T](
-    private var currentValue: T,
-    setState: (T | (T => T)) => Unit,
+    var currentValue: T,
+    var setState: (T | (T => T)) => Unit = null,
 ) extends Hook[T] {
   def value: T = currentValue
 }
@@ -98,9 +98,8 @@ object Hooks {
 
     val hookIndex = instance.hookIndex
 
-    // Key change: Only create new hook if it doesn't exist at this index
+    // Create or get hook
     val hook = if (hookIndex < instance.hooks.length) {
-      // Reuse existing hook
       Logger.debug(
         Category.StateEffect,
         "Reusing existing state hook",
@@ -112,7 +111,6 @@ object Hooks {
       )
       instance.hooks(hookIndex).asInstanceOf[StateHook[T]]
     } else {
-      // Create new hook
       Logger.debug(
         Category.StateEffect,
         "Creating new state hook",
@@ -125,14 +123,64 @@ object Hooks {
         ),
       )
 
-      var currentValue = initialValue
-      lazy val setter: (T | (T => T)) => Unit = (update: T | (T => T)) => {
-        // ... rest of setter implementation stays the same ...
+      val newHook = StateHook[T](initialValue)
+
+      // Define setState function to handle both value and function updates
+      newHook.setState = { (update: T | (T => T)) =>
+        val updateOpId = Logger.nextOperationId
+
+        Logger.debug(
+          Category.StateEffect,
+          "State update triggered",
+          updateOpId,
+          Map(
+            "componentId"   -> instance.id,
+            "componentType" -> instance.componentType,
+            "currentValue"  -> newHook.value,
+            "updateType"    -> (if (update.isInstanceOf[Function1[_, _]]) "function" else "value"),
+          ),
+        )
+
+        if (instance.isInCleanup) {
+          Logger.warn(Category.StateEffect, "State update during cleanup - skipped", updateOpId)
+        } else if (instance.isRendering) {
+          Logger.error(Category.StateEffect, "Cannot update state during render", updateOpId)
+          throw HookValidationError("Cannot update state during render", Map.empty, updateOpId)
+        } else {
+          // Calculate new value based on update type
+          val newValue = update match {
+            case f: Function1[_, _] => f.asInstanceOf[T => T](newHook.currentValue)
+            case value              => value.asInstanceOf[T]
+          }
+
+          Logger.debug(
+            Category.StateEffect,
+            "Applying state update",
+            updateOpId,
+            Map(
+              "oldValue" -> newHook.currentValue,
+              "newValue" -> newValue,
+            ),
+          )
+
+          newHook.currentValue = newValue
+          instance.needsRender = true
+
+          // Trigger re-render
+          instance.rendered.foreach { rendered =>
+            instance.domNode.foreach { element =>
+              Reconciler.diff(
+                Some(rendered),
+                instance.render(updateOpId),
+                element.asInstanceOf[org.scalajs.dom.Element],
+              )
+            }
+          }
+        }
       }
 
-      val stateHook = StateHook(currentValue, setter)
-      instance.hooks = instance.hooks :+ stateHook
-      stateHook
+      instance.hooks = instance.hooks :+ newHook
+      newHook
     }
 
     instance.hookIndex += 1
@@ -146,7 +194,7 @@ object Hooks {
         "hookIndex"     -> hookIndex,
         "returnedValue" -> hook.value,
         "totalHooksNow" -> instance.hooks.length,
-        "isReused"      -> (hookIndex < instance.hooks.length), // New debug info
+        "isReused"      -> (hookIndex < instance.hooks.length),
       ),
     )
 

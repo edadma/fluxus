@@ -43,7 +43,20 @@ object DOMOperations {
 
         // Set event handlers
         for ((eventName, handler) <- elem.events) {
+          val opId         = Logger.nextOperationId
           val domEventName = eventName.substring(2).toLowerCase
+
+          Logger.debug(
+            Category.VirtualDOM,
+            "Attaching event handler",
+            opId,
+            Map(
+              "element"      -> elem.tag,
+              "event"        -> eventName,
+              "domEventName" -> domEventName,
+            ),
+          )
+
           element.addEventListener(domEventName, handler.asInstanceOf[dom.Event => Unit])
         }
 

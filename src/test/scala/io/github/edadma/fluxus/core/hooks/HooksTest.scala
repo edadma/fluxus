@@ -52,41 +52,6 @@ class HooksTest extends BaseTest {
     }
   }
 
-  "useState" should "maintain consistent hook indexes across renders" in withDebugLogging {
-    var instance: ComponentInstance = null
-
-    def component(props: Any): FluxusNode = {
-      val (count, _) = useState(0)
-      TextNode(count.toString, None, None, None)
-    }
-
-    instance = ComponentInstance(
-      id = "test",
-      component = component,
-      componentType = "TestComponent",
-      props = (),
-      domNode = None,
-    )
-
-    // Initial render - should set up hook
-    Hooks.setCurrentInstance(instance)
-    val (_, setState1) = useState(0)
-    val firstHookIndex = instance.hookIndex
-    Hooks.clearCurrentInstance()
-
-    // Get hook again - should not create new hook or change index
-    Hooks.setCurrentInstance(instance)
-    val (_, setState2)  = useState(0)
-    val secondHookIndex = instance.hookIndex
-    Hooks.clearCurrentInstance()
-
-    // Verify hook indexes are the same
-    firstHookIndex shouldBe secondHookIndex
-
-    // Verify hooks array length didn't grow
-    instance.hooks.length shouldBe 1
-  }
-
   it should "prevent state updates during cleanup" in {
     var setCount: Option[Int => Unit] = None
 

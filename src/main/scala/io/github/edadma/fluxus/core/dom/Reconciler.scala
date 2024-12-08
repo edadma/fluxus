@@ -45,7 +45,7 @@ object Reconciler {
         // Run initial effects for new component
         new_ match {
           case ComponentNode(_, _, Some(instance), _) =>
-            runInitialEffects(instance, opId)
+            runInitialEffects(instance, opId, isMount = false)
           case _ =>
         }
 
@@ -68,7 +68,7 @@ object Reconciler {
         // Run initial effects for new component
         new_ match {
           case ComponentNode(_, _, Some(instance), _) =>
-            runInitialEffects(instance, opId)
+            runInitialEffects(instance, opId, isMount = false)
           case _ =>
         }
 
@@ -88,7 +88,37 @@ object Reconciler {
             } else {
               oldElem.domNode.foreach { domNode =>
                 val element = domNode.asInstanceOf[dom.Element]
-                updateAttributes(element, oldElem.props, newElem.props, opId)
+
+                // Update attributes
+                Logger.debug(
+                  Category.VirtualDOM,
+                  "Updating element attributes",
+                  opId,
+                  Map(
+                    "tag"      -> oldElem.tag,
+                    "oldProps" -> oldElem.props,
+                    "newProps" -> newElem.props,
+                  ),
+                )
+
+                // Remove old attributes not in new set
+                oldElem.props.keys.foreach { name =>
+                  if (!newElem.props.contains(name)) {
+                    element.removeAttribute(name)
+                  }
+                }
+
+                // Set/update new attributes
+                newElem.props.foreach { case (name, value) =>
+                  val newValue = value.toString
+                  if (oldElem.props.get(name).map(_.toString) != Some(newValue)) {
+                    element.setAttribute(name, newValue)
+                  }
+                }
+
+                // Update event listeners
+                // (Would need additional logic for proper event listener cleanup/updates)
+
                 updateChildren(oldElem, newElem, element, opId)
                 newElem.domNode = Some(element)
               }
@@ -98,17 +128,44 @@ object Reconciler {
             (oldComp.instance, newComp.instance) match {
               case (Some(oldInst), Some(newInst)) =>
                 checkTreeDepth(newInst, opId)
+
+                Logger.debug(
+                  Category.VirtualDOM,
+                  "Comparing component instances",
+                  opId,
+                  Map(
+                    "oldType"  -> oldInst.componentType,
+                    "newType"  -> newInst.componentType,
+                    "oldState" -> oldInst.stateVersion,
+                    "newState" -> newInst.stateVersion,
+                  ),
+                )
+
                 if (oldInst.componentType != newInst.componentType) {
                   runCleanupEffects(oldInst, opId)
                   replaceNode(oldComp, newComp, container, opId)
-                  runInitialEffects(newInst, opId)
+                  runInitialEffects(newInst, opId, isMount = false)
                 } else {
-                  // Diff the rendered output and run queued effects
+                  // Diff the rendered outputs
                   oldInst.domNode.foreach { element =>
                     if (oldInst.rendered.isDefined && newInst.rendered.isDefined) {
+                      Logger.debug(
+                        Category.VirtualDOM,
+                        "Diffing component rendered output",
+                        opId,
+                        Map(
+                          "componentId"   -> newInst.id,
+                          "componentType" -> newInst.componentType,
+                        ),
+                      )
+
                       diff(oldInst.rendered, newInst.rendered, element.asInstanceOf[dom.Element])
                       newInst.domNode = Some(element)
-                      runQueuedEffects(newInst, opId)
+
+                      // Run any effects queued during render
+                      if (newInst.effects.nonEmpty) {
+                        runQueuedEffects(newInst, opId)
+                      }
                     }
                   }
                 }

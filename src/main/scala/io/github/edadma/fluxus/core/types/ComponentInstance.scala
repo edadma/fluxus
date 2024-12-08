@@ -249,16 +249,25 @@ object Component {
     val instance = ComponentInstance(
       component = render.asInstanceOf[Any => FluxusNode],
       componentType = name.getOrElse(render.getClass.getSimpleName),
-      props = props, // No more conversion to Map needed
+      props = props,
       debugName = name,
     )
 
     instance.initialize(opId)
-    instance.render(opId) // Do initial render
+
+    // Initial render with proper state setup
+    Hooks.setCurrentInstance(instance)
+    instance.isRendering = true
+    try {
+      instance.rendered = Some(render(props))
+    } finally {
+      instance.isRendering = false
+      Hooks.clearCurrentInstance()
+    }
 
     ComponentNode(
       component = render,
-      props = props, // Store the case class directly
+      props = props,
       instance = Some(instance),
       key = key,
     )
