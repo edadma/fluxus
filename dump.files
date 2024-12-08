@@ -1,65 +1,36 @@
-; Fluxus project code
+; Fluxus project sources
 
-# framework code files
-
-; api
-./src/main/scala/io/github/edadma/fluxus/api
+# ergonomic api
+./src/main/scala/io/github/edadma/fluxus
 component.scala
 createElement.scala
 renderApp.scala
 
-; core
-./src/main/scala/io/github/edadma/fluxus/core/context
-FrameworkConfig.scala
-./src/main/scala/io/github/edadma/fluxus/core/debug
-DebugTools.scala
-./src/main/scala/io/github/edadma/fluxus/core/dom
-Reconciler.scala
-DOMOperations.scala
-./src/main/scala/io/github/edadma/fluxus/core/hooks
-Hooks.scala
-./src/main/scala/io/github/edadma/fluxus/core/types
+# core
+./src/main/scala/io/github/edadma/fluxus/core
 ComponentInstance.scala
 FluxusNode.scala
-./src/main/scala/io/github/edadma/fluxus/core/util
 IdGenerator.scala
-
-; error
-./src/main/scala/io/github/edadma/fluxus/error
-ValidationError.scala
-
-; logging
-./src/main/scala/io/github/edadma/fluxus/logging
-Logger.scala
 
 # example apps
 ./src/main/scala/io/github/edadma/fluxus/examples
-CounterApp.scala
 DisplayApp.scala
-EffectTestApp.scala
 main.scala
-StopwatchApp.scala
-TimerApp.scala
-
-; index.html for the test apps
-./public
-index.html
 
 # unit testing
-./src/test/scala/io/github/edadma/fluxus/testing
+./src/test/scala/io/github/edadma/fluxus
 BaseTest.scala
 DOMSpec.scala
-./src/test/scala/io/github/edadma/fluxus/core/dom
-DOMOperationsTest.scala
-EffectRerunTest.scala
-EffectStateTest.scala
-./src/test/scala/io/github/edadma/fluxus/core/hooks
-HooksTest.scala
-./src/test/scala/io/github/edadma/fluxus/core/types
-ComponentTest.scala
 
 # build files
 ./
 build.sbt
 package.json
 tailwind.config.js
+./project
+plugins.sbt
+
+# support for running test apps
+./public
+index.html
+./src/main/resources/styles/tailwind.css
