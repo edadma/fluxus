@@ -7,8 +7,12 @@ def createDOMNode(node: FluxusNode): Node = {
   val dom = node match
     case TextNode(text, _, _) =>
       document.createTextNode(text)
-    case ElementNode(tag, props, events, _, _, _, _, _, _) =>
-//    case _: ComponentNode                            =>
+    case ElementNode(tag, props, events, _, _, _, _, namespace, _) =>
+      // Create element with proper namespace if specified
+      namespace match
+        case Some(ns) => document.createElementNS(ns, tag)
+        case None     => document.createElement(tag)
+  //    case _: ComponentNode                            =>
 
   // Store the created DOM node
   node.domNode = Some(dom.asInstanceOf[Node])
