@@ -1,7 +1,7 @@
 package io.github.edadma.fluxus.testing
 
-import io.github.edadma.fluxus.TextNode
-import io.github.edadma.fluxus.core.{createDOMNode, createDOM}
+import io.github.edadma.fluxus.{ElementNode, TextNode}
+import io.github.edadma.fluxus.core.{createDOM, createDOMNode}
 import org.scalajs.dom
 import org.scalajs.dom.Node
 
@@ -13,6 +13,23 @@ class DOMTest extends DOMSpec {
 
     domNode.nodeType shouldBe dom.Node.TEXT_NODE
     domNode.textContent shouldBe "Hello world"
+    node.domNode shouldBe Some(domNode)
+  }
+
+  it should "create an empty div element" in {
+    val node = ElementNode(
+      tag = "div",
+      attrs = Map(),
+      events = Map(),
+      children = Vector(),
+      parent = None,
+      domNode = None,
+      key = None,
+    )
+    val domNode = createDOMNode(node)
+
+    domNode.nodeType shouldBe dom.Node.ELEMENT_NODE
+    domNode.nodeName.toLowerCase shouldBe "div"
     node.domNode shouldBe Some(domNode)
   }
 
