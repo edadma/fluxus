@@ -10,6 +10,7 @@ FluxusNode.scala
 # core
 ./src/main/scala/io/github/edadma/fluxus/core
 ComponentInstance.scala
+createDOM.scala
 IdGenerator.scala
 
 # example apps
