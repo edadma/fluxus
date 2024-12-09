@@ -104,4 +104,99 @@ class DOMTest extends DOMSpec {
     domNode.getAttribute("maxLength") shouldBe "50"
     domNode.getAttribute("tabIndex") shouldBe "1"
   }
+
+  it should "handle style attributes correctly" in {
+    val node = ElementNode(
+      tag = "div",
+      attrs = Map(
+        "style" -> "color: red; font-size: 12px; margin-top: 10px",
+      ),
+      events = Map(),
+      children = Vector(),
+      parent = None,
+      domNode = None,
+      key = None,
+    )
+
+    val domNode       = createDOMNode(node).asInstanceOf[dom.Element]
+    val computedStyle = domNode.asInstanceOf[dom.html.Element].style
+
+    computedStyle.color shouldBe "red"
+    computedStyle.fontSize shouldBe "12px"
+    computedStyle.marginTop shouldBe "10px"
+  }
+
+  it should "handle data attributes with dashes" in {
+    val node = ElementNode(
+      tag = "div",
+      attrs = Map(
+        "data-test-id"   -> "123",
+        "data-user-role" -> "admin",
+        "aria-label"     -> "test label", // Also testing aria attributes while we're at it
+      ),
+      events = Map(),
+      children = Vector(),
+      parent = None,
+      domNode = None,
+      key = None,
+    )
+
+    val domNode = createDOMNode(node).asInstanceOf[dom.Element]
+
+    domNode.getAttribute("data-test-id") shouldBe "123"
+    domNode.getAttribute("data-user-role") shouldBe "admin"
+    domNode.getAttribute("aria-label") shouldBe "test label"
+
+    // Also verify we can access via dataset API
+    domNode.asInstanceOf[dom.html.Element].dataset.get("testId") shouldBe defined
+    domNode.asInstanceOf[dom.html.Element].dataset.get("userRole") shouldBe defined
+  }
+
+  "createDOMNode" should "attach click event handlers to elements" in {
+    var clicked = false
+
+    val node = ElementNode(
+      tag = "button",
+      attrs = Map(),
+      events = Map(
+        "onClick" -> (() => clicked = true),
+      ),
+      children = Vector(),
+      parent = None,
+      domNode = None,
+      key = None,
+    )
+
+    val domNode = createDOMNode(node).asInstanceOf[dom.Element]
+
+    // Simulate a click event
+    domNode.dispatchEvent(new dom.Event("click"))
+
+    clicked shouldBe true
+  }
+
+  it should "pass the event object to event handlers" in {
+    var receivedEvent: dom.Event = null
+
+    val node = ElementNode(
+      tag = "button",
+      attrs = Map(),
+      events = Map(
+        "onClick" -> ((e: dom.Event) => receivedEvent = e),
+      ),
+      children = Vector(),
+      parent = None,
+      domNode = None,
+      key = None,
+    )
+
+    val domNode = createDOMNode(node).asInstanceOf[dom.Element]
+
+    // Simulate a click event
+    val event = new dom.Event("click")
+    domNode.dispatchEvent(event)
+
+    receivedEvent should not be null
+    receivedEvent shouldBe event
+  }
 }
