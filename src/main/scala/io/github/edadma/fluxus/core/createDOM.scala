@@ -1,10 +1,10 @@
 package io.github.edadma.fluxus.core
 
 import io.github.edadma.fluxus.{ElementNode, FluxusNode, TextNode}
-import org.scalajs.dom.{Element, Node, document}
+import org.scalajs.dom.{Element, Node, document, Event}
 
 def createDOMNode(node: FluxusNode): Node = {
-  val dom = node match
+  val domNode = node match
     case TextNode(text, _, _)                                      => document.createTextNode(text)
     case ElementNode(tag, attrs, events, _, _, _, _, namespace, _) =>
       // Create element with proper namespace if specified
@@ -35,10 +35,27 @@ def createDOMNode(node: FluxusNode): Node = {
             elem.setAttribute(name, v.toString)
       }
 
+      // Handle events by converting names and attaching listeners
+      events.foreach { case (eventName, handler) =>
+        // Convert "onClick" to "click" etc
+        val domEventName = eventName.toLowerCase match {
+          case name if name.startsWith("on") => name.substring(2)
+          case name                          => name
+        }
+
+        // Attach event listener based on handler type
+        handler match {
+          case f: (() => _) =>
+            elem.addEventListener(domEventName, (e: Event) => f())
+          case f: ((_) => _) =>
+            elem.addEventListener(domEventName, (e: Event) => f.asInstanceOf[Event => ?](e))
+        }
+      }
+
       elem
   // Store the created DOM node
-  node.domNode = Some(dom.asInstanceOf[Node])
-  dom.asInstanceOf[Node]
+  node.domNode = Some(domNode.asInstanceOf[Node])
+  domNode.asInstanceOf[Node]
 }
 
 def createDOM(root: FluxusNode, container: Element): Unit =
