@@ -5,6 +5,8 @@ import io.github.edadma.fluxus.core.{createDOM, createDOMNode}
 import org.scalajs.dom
 import org.scalajs.dom.Node
 
+import scala.scalajs.js
+
 class DOMTest extends DOMSpec {
 
   "createDOMNode" should "create a DOM text node with correct content" in {
@@ -170,7 +172,10 @@ class DOMTest extends DOMSpec {
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
 
     // Simulate a click event
-    domNode.dispatchEvent(new dom.Event("click"))
+    val clickEvent = dom.document.createEvent("Event")
+
+    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+    domNode.dispatchEvent(clickEvent)
 
     clicked shouldBe true
   }
@@ -193,10 +198,12 @@ class DOMTest extends DOMSpec {
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
 
     // Simulate a click event
-    val event = new dom.Event("click")
-    domNode.dispatchEvent(event)
+    val clickEvent = dom.document.createEvent("Event")
+
+    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+    domNode.dispatchEvent(clickEvent)
 
     receivedEvent should not be null
-    receivedEvent shouldBe event
+    receivedEvent shouldBe clickEvent
   }
 }
