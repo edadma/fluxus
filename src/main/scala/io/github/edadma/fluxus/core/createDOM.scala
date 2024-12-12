@@ -1,21 +1,56 @@
 package io.github.edadma.fluxus.core
 
 import io.github.edadma.fluxus.{ElementNode, FluxusNode, TextNode}
-import org.scalajs.dom.{Element, Node, document, Event}
+import io.github.edadma.logger.LoggerFactory
+import org.scalajs.dom.{Element, Event, Node, document}
+
+val logger = LoggerFactory.getLogger
 
 def createDOMNode(node: FluxusNode): Node = {
-  val domNode = node match
-    case TextNode(text, _, _)                                      => document.createTextNode(text)
-    case ElementNode(tag, attrs, events, _, _, _, _, namespace, _) =>
-      // Create element with proper namespace if specified
-      val elem =
-        namespace match
-          case Some(ns) => document.createElementNS(ns, tag)
-          case None     => document.createElement(tag)
-      //    case _: ComponentNode                            =>
+  logger.debug(
+    "Creating DOM node",
+    category = "DOM",
+    opId = 1,
+    Map(
+      "nodeType"    -> node.getClass.getSimpleName,
+      "nodeDetails" -> node.toString,
+    ),
+  )
 
-      // Set attributes based on their type
+  val domNode = node match
+    case TextNode(text, _, _) =>
+      logger.debug("Creating text node", category = "DOM", opId = 1, Map("text" -> text))
+      document.createTextNode(text)
+
+    case ElementNode(tag, attrs, events, _, _, _, _, namespace, _) =>
+      logger.debug(
+        "Creating element node",
+        category = "DOM",
+        opId = 1,
+        Map(
+          "tag"    -> tag,
+          "attrs"  -> attrs.toString,
+          "events" -> events.toString,
+        ),
+      )
+
+      // Create element with proper namespace if specified
+      val elem = namespace match
+        case Some(ns) => document.createElementNS(ns, tag)
+        case None     => document.createElement(tag)
+
+      // Set attributes
       attrs.foreach { case (name, value) =>
+        logger.debug(
+          "Setting attribute",
+          category = "DOM",
+          opId = 1,
+          Map(
+            "name"  -> name,
+            "value" -> value.toString,
+          ),
+        )
+
         value match
           case b: Boolean =>
             // Only set attribute if true, remove if false
@@ -55,16 +90,47 @@ def createDOMNode(node: FluxusNode): Node = {
       elem
   // Store the created DOM node
   node.domNode = Some(domNode.asInstanceOf[Node])
-  domNode.asInstanceOf[Node]
+  logger.debug(
+    "DOM node created",
+    category = "DOM",
+    opId = 1,
+    Map(
+      "domNode" -> domNode.toString,
+    ),
+  )
+
+  domNode
 }
 
-def createDOM(root: FluxusNode, container: Element): Unit =
+def createDOM(root: FluxusNode, container: Element): Unit = {
+  logger.debug(
+    "Creating DOM tree",
+    category = "DOM",
+    opId = 1,
+    Map(
+      "rootType"      -> root.getClass.getSimpleName,
+      "containerType" -> container.nodeName,
+    ),
+  )
+
   val dom = createDOMNode(root)
 
   root match
     case ElementNode(_, _, _, children, _, _, _, _, _) =>
+      logger.debug(
+        "Processing children",
+        category = "DOM",
+        opId = 1,
+        Map(
+          "childCount" -> children.size,
+        ),
+      )
       children foreach { child =>
         createDOM(child, dom.asInstanceOf[Element])
       }
-    case _ => // Nothing to do for text/component nodes
+    case _ =>
+      logger.debug("Skipping children for non-element node", category = "DOM", opId = 1)
+
+  logger.debug("Appending to container", category = "DOM", opId = 1)
   container.appendChild(dom)
+}

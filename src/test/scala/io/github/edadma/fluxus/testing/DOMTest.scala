@@ -207,8 +207,18 @@ class DOMTest extends DOMSpec {
     receivedEvent shouldBe clickEvent
   }
 
-  "createDOM" should "handle a single child element" in {
+  it should "handle a single child element" in withDebugLogging {
     val container = getContainer
+    logger.debug(
+      "Test container",
+      category = "Test",
+      opId = 1,
+      Map(
+        "container"     -> container.toString,
+        "containerType" -> container.nodeName,
+      ),
+    )
+
     val node = ElementNode(
       tag = "div",
       attrs = Map("class" -> "parent"),
@@ -230,50 +240,101 @@ class DOMTest extends DOMSpec {
     )
 
     createDOM(node, container)
+    logger.debug(
+      "Before assertions",
+      category = "Test",
+      opId = 1,
+      Map(
+        "containerFirstChild" -> Option(container.firstChild).map(_.toString).getOrElse("null"),
+        "containerChildNodes" -> container.childNodes.length,
+      ),
+    )
 
-    // Verify DOM structure
+    // Get the parent div and log its state
     val parentDiv = container.firstChild.asInstanceOf[dom.Element]
-    println(js.JSON.stringify(parentDiv, null, 2))
-//    parentDiv.tagName.toLowerCase shouldBe "div"
-//    parentDiv.getAttribute("class") shouldBe "parent"
-//
-//    val childSpan = parentDiv.firstChild.asInstanceOf[dom.Element]
-//    childSpan.tagName.toLowerCase shouldBe "span"
-//    childSpan.getAttribute("class") shouldBe "child"
+
+    logger.debug(
+      "Parent div details",
+      category = "Test",
+      opId = 1,
+      Map(
+        "parentDiv"        -> parentDiv.toString,
+        "tagName"          -> Option(parentDiv.tagName).map(_.toLowerCase).getOrElse("null"),
+        "class"            -> Option(parentDiv.getAttribute("class")).getOrElse("null"),
+        "childNodesLength" -> parentDiv.childNodes.length,
+        "firstChild"       -> Option(parentDiv.firstChild).map(_.toString).getOrElse("null"),
+      ),
+    )
+
+    // More specific debugging
+    if (parentDiv.hasChildNodes()) {
+      val childSpan = parentDiv.firstChild.asInstanceOf[dom.Element]
+      logger.debug(
+        "Child span state",
+        category = "Test",
+        opId = 1,
+        Map(
+          "childSpan" -> childSpan.toString,
+          "tagName"   -> childSpan.tagName,
+          "className" -> childSpan.getAttribute("class"),
+        ),
+      )
+    } else {
+      logger.warn("No child nodes found", category = "Test", opId = 1)
+    }
+
+    // Original assertions with more context
+    Option(parentDiv.tagName).map(_.toLowerCase) shouldBe Some("div")
+    Option(parentDiv.getAttribute("class")) shouldBe Some("parent")
+
+    val childSpan = parentDiv.firstChild.asInstanceOf[dom.Element]
+    logger.debug(
+      "Child span details",
+      category = "Test",
+      opId = 1,
+      Map(
+        "childSpan" -> childSpan.toString,
+        "tagName"   -> Option(childSpan.tagName).map(_.toLowerCase).getOrElse("null"),
+        "class"     -> Option(childSpan.getAttribute("class")).getOrElse("null"),
+      ),
+    )
+
+    Option(childSpan.tagName).map(_.toLowerCase) shouldBe Some("span")
+    Option(childSpan.getAttribute("class")) shouldBe Some("child")
   }
 
-//  it should "handle multiple children" in {
-//    val container = getContainer
-//    val node = ElementNode(
-//      tag = "div",
-//      attrs = Map(),
-//      events = Map(),
-//      children = Vector(
-//        TextNode("First", None, None),
-//        ElementNode(
-//          tag = "span",
-//          attrs = Map(),
-//          events = Map(),
-//          children = Vector(),
-//          parent = None,
-//          domNode = None,
-//          key = None,
-//        ),
-//        TextNode("Last", None, None),
-//      ),
-//      parent = None,
-//      domNode = None,
-//      key = None,
-//    )
-//
-//    createDOM(node, container)
-//
-//    val parentDiv = container.firstChild.asInstanceOf[dom.Element]
-//    parentDiv.childNodes.length shouldBe 3
-//    parentDiv.childNodes(0).textContent shouldBe "First"
-//    parentDiv.childNodes(1).nodeName.toLowerCase shouldBe "span"
-//    parentDiv.childNodes(2).textContent shouldBe "Last"
-//  }
+  it should "handle multiple children" in {
+    val container = getContainer
+    val node = ElementNode(
+      tag = "div",
+      attrs = Map(),
+      events = Map(),
+      children = Vector(
+        TextNode("First", None, None),
+        ElementNode(
+          tag = "span",
+          attrs = Map(),
+          events = Map(),
+          children = Vector(),
+          parent = None,
+          domNode = None,
+          key = None,
+        ),
+        TextNode("Last", None, None),
+      ),
+      parent = None,
+      domNode = None,
+      key = None,
+    )
+
+    createDOM(node, container)
+
+    val parentDiv = container.firstChild.asInstanceOf[dom.Element]
+    parentDiv.childNodes.length shouldBe 3
+    parentDiv.childNodes(0).textContent shouldBe "First"
+    parentDiv.childNodes(1).nodeName.toLowerCase shouldBe "span"
+    parentDiv.childNodes(2).textContent shouldBe "Last"
+  }
 
   it should "handle deeply nested structures" in {
     val container = getContainer

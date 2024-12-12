@@ -1,5 +1,6 @@
 package io.github.edadma.fluxus.testing
 
+import io.github.edadma.logger.{Logger, LoggerFactory}
 import org.scalajs.dom
 import org.scalatest.flatspec.AnyFlatSpec
 
@@ -25,9 +26,9 @@ trait DOMSpec extends BaseTest {
     super.beforeEach()
 
     // Clear container before each test
-//    val container = getContainer
-//    while (container.firstChild != null) {
-//      container.removeChild(container.firstChild)
-//    }
+    val container = getContainer
+    while (container.firstChild != null) {
+      container.removeChild(container.firstChild)
+    }
   }
 }
