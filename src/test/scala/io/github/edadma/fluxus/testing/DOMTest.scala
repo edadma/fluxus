@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.testing
 
-import io.github.edadma.fluxus.{ElementNode, TextNode}
+import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{createDOM, createDOMNode}
 import org.scalajs.dom
 import org.scalajs.dom.Node
@@ -377,5 +377,41 @@ class DOMTest extends DOMSpec {
     val level3 = level2.querySelector(".level3")
 
     level3.textContent shouldBe "Deeply nested"
+  }
+
+  "ComponentNode" should "render a simple functional component" in {
+    case class NoProps()
+
+    val container = getContainer
+
+    // Simple function that takes no props
+    val SimpleComponent: Any => FluxusNode = _ =>
+      div(
+        cls := "test-component",
+        "Hello from component",
+      )
+
+    val node = ComponentNode(
+      component = SimpleComponent,
+      props = NoProps(),
+      key = None,
+    )
+
+    createDOM(node, container)
+
+    logger.debug(
+      "After component render",
+      category = "Test",
+      opId = 1,
+      Map(
+        "containerChildren" -> container.childNodes.length,
+        "containerHTML"     -> container.innerHTML,
+      ),
+    )
+
+    val componentDiv = container.firstChild.asInstanceOf[dom.Element]
+    componentDiv.tagName.toLowerCase shouldBe "div"
+    componentDiv.getAttribute("class") shouldBe "test-component"
+    componentDiv.textContent shouldBe "Hello from component"
   }
 }

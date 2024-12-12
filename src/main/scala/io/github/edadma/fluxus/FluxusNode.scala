@@ -19,15 +19,13 @@ case class ElementNode(
     ref: Option[Element => Unit] = None,
 ) extends FluxusNode
 
-//case class ComponentNode(
-//    component: ? => FluxusNode,
-//    props: Any,
-//    instance: Option[ComponentInstance],
-//    key: Option[String],
-//) extends FluxusNode {
-//  val parent: Option[FluxusNode] = None
-//  var domNode: Option[Node]      = None
-//}
+case class ComponentNode(
+    component: Any => FluxusNode,
+    props: Any,
+    key: Option[String],
+    parent: Option[FluxusNode] = None,
+    var domNode: Option[Node] = None,
+) extends FluxusNode
 
 case class TextNode(
     text: String,
