@@ -207,7 +207,7 @@ class DOMTest extends DOMSpec {
     receivedEvent shouldBe clickEvent
   }
 
-  it should "handle a single child element" in withDebugLogging {
+  it should "handle a single child element" in {
     val container = getContainer
     logger.debug(
       "Test container",
@@ -379,9 +379,9 @@ class DOMTest extends DOMSpec {
     level3.textContent shouldBe "Deeply nested"
   }
 
-  "ComponentNode" should "render a simple functional component" in {
-    case class NoProps()
+  case class NoProps()
 
+  "ComponentNode" should "render a simple functional component" in withDebugLogging {
     val container = getContainer
 
     // Simple function that takes no props
@@ -400,12 +400,15 @@ class DOMTest extends DOMSpec {
     createDOM(node, container)
 
     logger.debug(
-      "After component render",
+      "Component test state",
       category = "Test",
       opId = 1,
       Map(
-        "containerChildren" -> container.childNodes.length,
-        "containerHTML"     -> container.innerHTML,
+        "containerChildCount" -> container.childNodes.length,
+        "containerInnerHTML"  -> container.innerHTML,
+        "firstChildType"      -> Option(container.firstChild).map(_.nodeType).getOrElse("null"),
+        "firstChildTagName"   -> Option(container.firstChild).map(_.nodeName).getOrElse("null"),
+        "textContent"         -> Option(container.firstChild).map(_.textContent).getOrElse("null"),
       ),
     )
 
@@ -413,5 +416,33 @@ class DOMTest extends DOMSpec {
     componentDiv.tagName.toLowerCase shouldBe "div"
     componentDiv.getAttribute("class") shouldBe "test-component"
     componentDiv.textContent shouldBe "Hello from component"
+  }
+
+  it should "render a component that returns text" in {
+    val container = getContainer
+
+    val TextComponent: Any => FluxusNode = _ => TextNode("Just text", None, None)
+
+    val node = ComponentNode(
+      component = TextComponent,
+      props = NoProps(),
+      key = None,
+    )
+
+    createDOM(node, container)
+
+    logger.debug(
+      "Text component test",
+      category = "Test",
+      opId = 1,
+      Map(
+        "containerChildCount" -> container.childNodes.length,
+        "containerInnerHTML"  -> container.innerHTML,
+        "firstChildType"      -> Option(container.firstChild).map(_.nodeType).getOrElse("null"),
+        "textContent"         -> Option(container.firstChild).map(_.textContent).getOrElse("null"),
+      ),
+    )
+
+    container.textContent shouldBe "Just text"
   }
 }

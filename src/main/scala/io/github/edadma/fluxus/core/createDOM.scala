@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{ElementNode, FluxusNode, TextNode}
+import io.github.edadma.fluxus.{ElementNode, FluxusNode, TextNode, ComponentNode}
 import io.github.edadma.logger.LoggerFactory
 import org.scalajs.dom.{Element, Event, Node, document}
 
@@ -88,8 +88,23 @@ def createDOMNode(node: FluxusNode): Node = {
       }
 
       elem
+
+    case ComponentNode(component, props, _, _, _) =>
+      logger.debug(
+        "Creating component node",
+        category = "DOM",
+        opId = 1,
+        Map(
+          "props" -> props.toString,
+        ),
+      )
+      // Call component function to get rendered node
+      val rendered = component(props)
+      // Create DOM from rendered node
+      createDOMNode(rendered)
+
   // Store the created DOM node
-  node.domNode = Some(domNode.asInstanceOf[Node])
+  node.domNode = Some(domNode)
   logger.debug(
     "DOM node created",
     category = "DOM",
