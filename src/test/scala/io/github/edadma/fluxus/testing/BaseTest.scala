@@ -1,12 +1,12 @@
 package io.github.edadma.fluxus.testing
 
-import io.github.edadma.logger.{LogLevel, Logger, LoggerFactory}
+import io.github.edadma.logger.{FileHandler, LogLevel, Logger, LoggerFactory}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.BeforeAndAfterEach
 
 trait BaseTest extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
-  val logger: Logger = LoggerFactory.getLogger
+  val logger: Logger = LoggerFactory.newLogger
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -17,6 +17,7 @@ trait BaseTest extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
 
   def withDebugLogging(test: => Unit): Unit = {
     logger.setLogLevel(LogLevel.DEBUG)
+    logger.setHandler(new FileHandler("log"))
 
     try {
       test
