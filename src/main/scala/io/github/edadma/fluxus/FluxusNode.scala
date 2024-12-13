@@ -20,8 +20,8 @@ case class ElementNode(
 ) extends FluxusNode
 
 case class ComponentNode(
-    component: Any => FluxusNode,
-    props: Any,
+    component: Product => FluxusNode,
+    props: Product,
     key: Option[String],
     parent: Option[FluxusNode] = None,
     var domNode: Option[Node] = None,

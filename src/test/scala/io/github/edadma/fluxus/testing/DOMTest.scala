@@ -381,7 +381,7 @@ class DOMTest extends DOMSpec {
 
   case class NoProps()
 
-  "ComponentNode" should "render a simple functional component" in withDebugLogging {
+  "ComponentNode" should "render a simple functional component" in {
     val container = getContainer
 
     // Simple function that takes no props
@@ -444,5 +444,63 @@ class DOMTest extends DOMSpec {
     )
 
     container.textContent shouldBe "Just text"
+  }
+
+  "ComponentNode" should "handle multiple levels of component nesting" in {
+    val container = getContainer
+
+    // Inner component - returns just a span with text
+    val InnerComponent: () => FluxusNode = () =>
+      span("Inner content")
+
+    // Middle component - wraps inner component in a div
+    val MiddleComponent: () => FluxusNode = () =>
+      div(
+        cls := "middle",
+        p("Middle content"),
+        InnerComponent <> (),
+      )
+
+    // Outer component - uses middle component
+    val OuterComponent: () => FluxusNode = () =>
+      div(
+        cls := "outer",
+        h1("Outer content"),
+        MiddleComponent <> (),
+      )
+
+    // Create and render the outer component
+    val node = ComponentNode(
+      component = _ => OuterComponent(),
+      props = NoProps(),
+      key = None,
+    )
+
+    createDOM(node, container)
+
+    // Verify the complete structure
+    val outerDiv = container.firstChild.asInstanceOf[dom.Element]
+    outerDiv.tagName.toLowerCase shouldBe "div"
+    outerDiv.getAttribute("class") shouldBe "outer"
+
+    // First child should be h1 with "Outer content"
+    val h1Elem = outerDiv.firstChild.asInstanceOf[dom.Element]
+    h1Elem.tagName.toLowerCase shouldBe "h1"
+    h1Elem.textContent shouldBe "Outer content"
+
+    // Second child should be middle div
+    val middleDiv = h1Elem.nextSibling.asInstanceOf[dom.Element]
+    middleDiv.tagName.toLowerCase shouldBe "div"
+    middleDiv.getAttribute("class") shouldBe "middle"
+
+    // First child of middle should be p with "Middle content"
+    val pElem = middleDiv.firstChild.asInstanceOf[dom.Element]
+    pElem.tagName.toLowerCase shouldBe "p"
+    pElem.textContent shouldBe "Middle content"
+
+    // Second child should be span from inner component
+    val spanElem = pElem.nextSibling.asInstanceOf[dom.Element]
+    spanElem.tagName.toLowerCase shouldBe "span"
+    spanElem.textContent shouldBe "Inner content"
   }
 }

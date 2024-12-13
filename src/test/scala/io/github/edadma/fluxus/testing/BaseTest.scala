@@ -1,13 +1,12 @@
 package io.github.edadma.fluxus.testing
 
-import io.github.edadma.logger.{FileHandler, LogLevel, Logger, LoggerFactory}
+import io.github.edadma.logger.{FileHandler, LogLevel}
+import io.github.edadma.fluxus.logger
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.BeforeAndAfterEach
 
 trait BaseTest extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
-  val logger: Logger = LoggerFactory.newLogger
-
   override def beforeEach(): Unit = {
     super.beforeEach()
 

@@ -1,10 +1,7 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{ElementNode, FluxusNode, TextNode, ComponentNode}
-import io.github.edadma.logger.LoggerFactory
+import io.github.edadma.fluxus.{logger, ElementNode, FluxusNode, TextNode, ComponentNode}
 import org.scalajs.dom.{Element, Event, Node, document}
-
-val logger = LoggerFactory.getLogger
 
 def createDOMNode(node: FluxusNode): Node = {
   logger.debug(
@@ -22,7 +19,7 @@ def createDOMNode(node: FluxusNode): Node = {
       logger.debug("Creating text node", category = "DOM", opId = 1, Map("text" -> text))
       document.createTextNode(text)
 
-    case ElementNode(tag, attrs, events, _, _, _, _, namespace, _) =>
+    case ElementNode(tag, attrs, events, children, _, _, _, namespace, _) =>
       logger.debug(
         "Creating element node",
         category = "DOM",
@@ -87,6 +84,10 @@ def createDOMNode(node: FluxusNode): Node = {
         }
       }
 
+      children foreach { child =>
+        createDOM(child, elem)
+      }
+
       elem
 
     case ComponentNode(component, props, _, _, _) =>
@@ -129,22 +130,6 @@ def createDOM(root: FluxusNode, container: Element): Unit = {
   )
 
   val dom = createDOMNode(root)
-
-  root match
-    case ElementNode(_, _, _, children, _, _, _, _, _) =>
-      logger.debug(
-        "Processing children",
-        category = "DOM",
-        opId = 1,
-        Map(
-          "childCount" -> children.size,
-        ),
-      )
-      children foreach { child =>
-        createDOM(child, dom.asInstanceOf[Element])
-      }
-    case _ =>
-      logger.debug("Skipping children for non-element node", category = "DOM", opId = 1)
 
   logger.debug("Appending to container", category = "DOM", opId = 1)
   container.appendChild(dom)
