@@ -65,7 +65,7 @@ object DemoApp:
         figure(
           cls := "px-10 pt-10",
           // Using Hero Icons through DaisyUI
-          div(cls := s"hero-$icon-solid text-4xl"),
+          i("data-lucide" := icon),
         ),
         div(
           cls := "card-body items-center text-center",
@@ -86,17 +86,17 @@ object DemoApp:
         FeatureCardProps(
           "Components",
           "Build complex UIs from simple, reusable components",
-          "cube", // Hero Icon name
+          "box",
         ),
         FeatureCardProps(
           "Functional",
           "Pure functional approach to UI development",
-          "code-bracket", // Hero Icon name
+          "code",
         ),
         FeatureCardProps(
           "Type-Safe",
           "Leverage Scala's type system for reliable code",
-          "shield-check", // Hero Icon name
+          "shield",
         ),
       ).map(props => FeatureCard <> props),
     )

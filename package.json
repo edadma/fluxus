@@ -18,5 +18,7 @@
     "jsdom": "^25.0.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15"
+  },
+  "dependencies": {
   }
 }
