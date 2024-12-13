@@ -503,4 +503,33 @@ class DOMTest extends DOMSpec {
     spanElem.tagName.toLowerCase shouldBe "span"
     spanElem.textContent shouldBe "Inner content"
   }
+
+  "ElementNode" should "render a list of text items" in {
+    val container = getContainer
+
+    // Create an unordered list with array of list items
+    val items = Vector("First", "Second", "Third")
+    val node = ul(
+      items.map(text => li(text)), // Each item wrapped in li
+    )
+
+    createDOM(node, container)
+
+    // Get the ul element
+    val ulElement = container.firstChild.asInstanceOf[dom.Element]
+    ulElement.tagName.toLowerCase shouldBe "ul"
+
+    // Verify list items
+    val liElements = ulElement.childNodes
+    liElements.length shouldBe 3
+
+    // Check each li element
+    for {
+      i <- 0 until 3
+      li = liElements(i).asInstanceOf[dom.Element]
+    } {
+      li.tagName.toLowerCase shouldBe "li"
+      li.textContent shouldBe items(i)
+    }
+  }
 }

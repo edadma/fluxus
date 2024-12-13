@@ -1,10 +1,9 @@
 package io.github.edadma.fluxus
 
-case class Prop(name: String, value: Any)
+case class Attribute(name: String, value: Any)
 
-implicit class PropOps(name: String) {
-  def :=(value: Any): Prop = Prop(name, value)
-}
+implicit class AttributeOps(name: String):
+  def :=(value: Any): Attribute = Attribute(name, value)
 
 // HTML attribute helpers
 def cls: String          = "class"
@@ -86,14 +85,14 @@ private def processContent(content: Any): Vector[FluxusNode] = content match {
 
 private def processMixedContent(items: Seq[Any]): (Map[String, Any], Map[String, Any], Vector[FluxusNode]) = {
   val attrs = items.collect {
-    case p: Prop if !p.name.startsWith("on") => p.name -> p.value
+    case p: Attribute if !p.name.startsWith("on") => p.name -> p.value
   }.toMap
 
   val events = items.collect {
-    case p: Prop if p.name.startsWith("on") => p.name -> p.value
+    case p: Attribute if p.name.startsWith("on") => p.name -> p.value
   }.toMap
 
-  val children = items.filterNot(_.isInstanceOf[Prop]).flatMap(processContent).toVector
+  val children = items.filterNot(_.isInstanceOf[Attribute]).flatMap(processContent).toVector
 
   (attrs, events, children)
 }
@@ -168,3 +167,4 @@ def th(contents: Any*): ElementNode       = createElement("th", contents*)
 def thead(contents: Any*): ElementNode    = createElement("thead", contents*)
 def tr(contents: Any*): ElementNode       = createElement("tr", contents*)
 def ul(contents: Any*): ElementNode       = createElement("ul", contents*)
+def figure(contents: Any*): ElementNode   = createElement("figure", contents*)
