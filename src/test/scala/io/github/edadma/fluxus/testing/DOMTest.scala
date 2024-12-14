@@ -258,16 +258,13 @@ class DOMTest extends DOMSpec {
     val container = getContainer
 
     // Simple function that takes no props
-    val SimpleComponent: Any => FluxusNode = _ =>
+    val SimpleComponent = () =>
       div(
         cls := "test-component",
         "Hello from component",
       )
 
-    val node = ComponentNode(
-      component = SimpleComponent,
-      props = NoProps(),
-    )
+    val node = SimpleComponent <> ()
 
     createDOM(node, container)
 
@@ -293,12 +290,9 @@ class DOMTest extends DOMSpec {
   it should "render a component that returns text" in {
     val container = getContainer
 
-    val TextComponent: Any => FluxusNode = _ => TextNode("Just text", None, None)
+    val TextComponent = () => TextNode("Just text", None, None)
 
-    val node = ComponentNode(
-      component = TextComponent,
-      props = NoProps(),
-    )
+    val node = TextComponent <> ()
 
     createDOM(node, container)
 
@@ -341,10 +335,7 @@ class DOMTest extends DOMSpec {
       )
 
     // Create and render the outer component
-    val node = ComponentNode(
-      component = _ => OuterComponent(),
-      props = NoProps(),
-    )
+    val node = OuterComponent <> ()
 
     createDOM(node, container)
 

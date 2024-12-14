@@ -106,9 +106,10 @@ class ReconcilerTest extends DOMSpec {
 
     case class Props(value: String)
 
-    val component = ((props: Props) => TextNode(props.value, None, None)).asInstanceOf[Product => FluxusNode]
-    val oldNode   = ComponentNode(component, Props("old"), None)
-    val newNode   = ComponentNode(component, Props("new"), None)
+    def SimpleText(props: Props) = TextNode(props.value, None, None)
+
+    val oldNode = SimpleText <> Props("old")
+    val newNode = SimpleText <> Props("new")
 
     // Create initial DOM
     createDOM(oldNode, container)
@@ -130,9 +131,10 @@ class ReconcilerTest extends DOMSpec {
 
     case class Props(value: String)
 
-    val component = ((props: Props) => TextNode(props.value, None, None)).asInstanceOf[Product => FluxusNode]
-    val oldNode   = ComponentNode(component, Props("same"), None)
-    val newNode   = ComponentNode(component, Props("same"), None)
+    def SimpleText(props: Props) = TextNode(props.value, None, None)
+
+    val oldNode = SimpleText <> Props("same")
+    val newNode = SimpleText <> Props("same")
 
     // Create initial DOM
     createDOM(oldNode, container)
