@@ -188,8 +188,9 @@ private def diffChildren(
     oldChildren: Vector[FluxusNode],
     newChildren: Vector[FluxusNode],
 ): Seq[DOMOperation] = {
+  // Build map of keyed nodes from old children
   val oldKeyedNodes = oldChildren.flatMap { child =>
-    child.key.map(_ -> child)
+    getNodeKey(child).map(_ -> child)
   }.toMap
 
   logger.debug(
@@ -197,8 +198,8 @@ private def diffChildren(
     category = "Reconciler",
     opId = 1,
     Map(
-      "oldChildren" -> oldChildren.map(_.key).mkString(", "),
-      "newChildren" -> newChildren.map(_.key).mkString(", "),
+      "oldChildren" -> oldChildren.map(getNodeKey(_)).mkString(", "),
+      "newChildren" -> newChildren.map(getNodeKey(_)).mkString(", "),
       "keyedNodes"  -> oldKeyedNodes.keys.mkString(", "),
     ),
   )
@@ -207,7 +208,7 @@ private def diffChildren(
   val (operations, remainingOld) = newChildren.zipWithIndex.foldLeft(
     (Vector.empty[DOMOperation], oldChildren.toSet),
   ) { case ((ops, remaining), (newChild, newIndex)) =>
-    newChild.key match {
+    getNodeKey(newChild) match {
       case Some(key) =>
         oldKeyedNodes.get(key) match {
           case Some(oldChild) =>
@@ -220,12 +221,18 @@ private def diffChildren(
       case None =>
         // Non-keyed node - use index-based matching
         val oldChild = oldChildren.lift(newIndex)
-        (ops ++ diff(oldChild.filter(_.key.isEmpty), Some(newChild)), oldChild.map(remaining - _).getOrElse(remaining))
+        if (oldChild.exists(old => getNodeKey(old).isEmpty)) {
+          // Both nodes are non-keyed, do regular diff
+          (ops ++ diff(oldChild, Some(newChild)), oldChild.map(remaining - _).getOrElse(remaining))
+        } else {
+          // Old node was keyed or doesn't exist - insert new
+          (ops :+ InsertNode(newChild, Some(newIndex)), remaining)
+        }
     }
   }
 
   // Remove any remaining old nodes that weren't reused
-  val removals = remainingOld.toVector.map(RemoveNode)
+  val removals = remainingOld.toVector.map(RemoveNode.apply)
 
   logger.debug(
     "Diffing children complete",
@@ -241,20 +248,23 @@ private def diffChildren(
 }
 
 private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOperation] = {
+  val oldKey = getNodeKey(old)
+  val newKey = getNodeKey(next)
+
   logger.debug(
     "Diffing components",
     category = "Reconciler",
     opId = 1,
     Map(
-      "oldKey"   -> old.key.getOrElse("none"),
-      "newKey"   -> next.key.getOrElse("none"),
+      "oldKey"   -> oldKey.getOrElse("none"),
+      "newKey"   -> newKey.getOrElse("none"),
       "oldProps" -> old.props.toString,
       "newProps" -> next.props.toString,
     ),
   )
 
   // If keys match or both have no keys, update props if needed
-  if (old.key == next.key) {
+  if (oldKey == newKey) {
     if (old.props != next.props) {
       Seq(RerenderComponent(old, next))
     } else Nil
@@ -262,4 +272,13 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
     // Different keys means treat as different components
     Seq(Replace(old, next))
   }
+}
+
+private def getNodeKey(node: FluxusNode): Option[String] = node match {
+  case ElementNode(_, attrs, _, _, _, _, _, _) =>
+    attrs.get("key").map(_.toString)
+  case ComponentNode(_, props, _, _) =>
+    val fields = props.productElementNames.zip(props.productIterator).toMap
+    fields.get("key").map(_.toString)
+  case _ => None
 }

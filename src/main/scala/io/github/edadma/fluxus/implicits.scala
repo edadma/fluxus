@@ -9,7 +9,6 @@ implicit class FunctionComponent[P <: Product](f: P => FluxusNode):
     ComponentNode(
       component = f.asInstanceOf[Any => FluxusNode],
       props = props,
-      key = None,
     )
 
 implicit class ProplessComponent(f: () => FluxusNode):
@@ -17,5 +16,4 @@ implicit class ProplessComponent(f: () => FluxusNode):
     ComponentNode(
       component = _ => f(), // Ignore the Any parameter and just call f
       props = noProps,
-      key = None,
     )

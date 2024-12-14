@@ -121,7 +121,6 @@ def createElement(tag: String, contents: Any*): ElementNode = {
     children = children,
     parent = None,
     domNode = None,
-    key = None,
     namespace = None,
     ref = None,
   )

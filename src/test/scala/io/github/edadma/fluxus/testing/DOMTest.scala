@@ -26,7 +26,6 @@ class DOMTest extends DOMSpec {
       children = Vector(),
       parent = None,
       domNode = None,
-      key = None,
     )
     val domNode = createDOMNode(node)
 
@@ -57,7 +56,6 @@ class DOMTest extends DOMSpec {
       children = Vector(),
       parent = None,
       domNode = None,
-      key = None,
     )
 
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
@@ -78,7 +76,6 @@ class DOMTest extends DOMSpec {
       children = Vector(),
       parent = None,
       domNode = None,
-      key = None,
     )
 
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
@@ -98,7 +95,6 @@ class DOMTest extends DOMSpec {
       children = Vector(),
       parent = None,
       domNode = None,
-      key = None,
     )
 
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
@@ -117,7 +113,6 @@ class DOMTest extends DOMSpec {
       children = Vector(),
       parent = None,
       domNode = None,
-      key = None,
     )
 
     val domNode       = createDOMNode(node).asInstanceOf[dom.Element]
@@ -140,7 +135,6 @@ class DOMTest extends DOMSpec {
       children = Vector(),
       parent = None,
       domNode = None,
-      key = None,
     )
 
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
@@ -166,7 +160,6 @@ class DOMTest extends DOMSpec {
       children = Vector(),
       parent = None,
       domNode = None,
-      key = None,
     )
 
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
@@ -192,7 +185,6 @@ class DOMTest extends DOMSpec {
       children = Vector(),
       parent = None,
       domNode = None,
-      key = None,
     )
 
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
@@ -231,12 +223,10 @@ class DOMTest extends DOMSpec {
           children = Vector(),
           parent = None,
           domNode = None,
-          key = None,
         ),
       ),
       parent = None,
       domNode = None,
-      key = None,
     )
 
     createDOM(node, container)
@@ -318,13 +308,11 @@ class DOMTest extends DOMSpec {
           children = Vector(),
           parent = None,
           domNode = None,
-          key = None,
         ),
         TextNode("Last", None, None),
       ),
       parent = None,
       domNode = None,
-      key = None,
     )
 
     createDOM(node, container)
@@ -357,17 +345,14 @@ class DOMTest extends DOMSpec {
               ),
               parent = None,
               domNode = None,
-              key = None,
             ),
           ),
           parent = None,
           domNode = None,
-          key = None,
         ),
       ),
       parent = None,
       domNode = None,
-      key = None,
     )
 
     createDOM(node, container)
@@ -394,7 +379,6 @@ class DOMTest extends DOMSpec {
     val node = ComponentNode(
       component = SimpleComponent,
       props = NoProps(),
-      key = None,
     )
 
     createDOM(node, container)
@@ -426,7 +410,6 @@ class DOMTest extends DOMSpec {
     val node = ComponentNode(
       component = TextComponent,
       props = NoProps(),
-      key = None,
     )
 
     createDOM(node, container)
@@ -473,7 +456,6 @@ class DOMTest extends DOMSpec {
     val node = ComponentNode(
       component = _ => OuterComponent(),
       props = NoProps(),
-      key = None,
     )
 
     createDOM(node, container)
