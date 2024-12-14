@@ -19,14 +19,7 @@ class DOMTest extends DOMSpec {
   }
 
   it should "create an empty div element" in {
-    val node = ElementNode(
-      tag = "div",
-      attrs = Map(),
-      events = Map(),
-      children = Vector(),
-      parent = None,
-      domNode = None,
-    )
+    val node    = div()
     val domNode = createDOMNode(node)
 
     domNode.nodeType shouldBe dom.Node.ELEMENT_NODE
@@ -45,19 +38,7 @@ class DOMTest extends DOMSpec {
   }
 
   "createDOMNode" should "set string attributes on elements" in {
-    val node = ElementNode(
-      tag = "div",
-      attrs = Map(
-        "class"     -> "test-class",
-        "id"        -> "test-id",
-        "data-test" -> "test-value",
-      ),
-      events = Map(),
-      children = Vector(),
-      parent = None,
-      domNode = None,
-    )
-
+    val node    = div(cls := "test-class", id := "test-id", "data-test" := "test-value")
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
 
     domNode.getAttribute("class") shouldBe "test-class"
@@ -66,18 +47,10 @@ class DOMTest extends DOMSpec {
   }
 
   it should "handle boolean attributes correctly" in {
-    val node = ElementNode(
-      tag = "input",
-      attrs = Map(
-        "disabled" -> true,
-        "checked"  -> false,
-      ),
-      events = Map(),
-      children = Vector(),
-      parent = None,
-      domNode = None,
+    val node = input(
+      disabled := true,
+      checked  := false,
     )
-
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
 
     domNode.hasAttribute("disabled") shouldBe true
@@ -85,16 +58,9 @@ class DOMTest extends DOMSpec {
   }
 
   it should "handle numeric attributes" in {
-    val node = ElementNode(
-      tag = "input",
-      attrs = Map(
-        "maxLength" -> 50,
-        "tabIndex"  -> 1,
-      ),
-      events = Map(),
-      children = Vector(),
-      parent = None,
-      domNode = None,
+    val node = input(
+      maxLength := 50,
+      tabIndex  := 1,
     )
 
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
@@ -104,15 +70,8 @@ class DOMTest extends DOMSpec {
   }
 
   it should "handle style attributes correctly" in {
-    val node = ElementNode(
-      tag = "div",
-      attrs = Map(
-        "style" -> "color: red; font-size: 12px; margin-top: 10px",
-      ),
-      events = Map(),
-      children = Vector(),
-      parent = None,
-      domNode = None,
+    val node = div(
+      style := "color: red; font-size: 12px; margin-top: 10px",
     )
 
     val domNode       = createDOMNode(node).asInstanceOf[dom.Element]

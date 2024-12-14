@@ -75,8 +75,8 @@ class ReconcilerTest extends DOMSpec {
   "Element attribute reconciliation" should "generate correct update operations" in {
     val container = getContainer
 
-    val oldNode = ElementNode("div", Map("class" -> "old"), Map(), Vector(), None, None, None)
-    val newNode = ElementNode("div", Map("class" -> "new"), Map(), Vector(), None, None, None)
+    val oldNode = div(cls := "old")
+    val newNode = div(cls := "new")
 
     // Create initial DOM
     createDOM(oldNode, container)
