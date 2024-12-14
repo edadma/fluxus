@@ -43,6 +43,9 @@ def cols: String         = "cols"
 def rows: String         = "rows"
 def for_ : String        = "for" // underscore since 'for' is reserved
 
+def key: String   = "key"
+def key_ : String = "key"
+
 // Event helpers
 def onClick: String       = "onClick"
 def onChange: String      = "onChange"

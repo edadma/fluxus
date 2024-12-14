@@ -246,4 +246,93 @@ class ReconcilerTest extends DOMSpec {
     count1 shouldBe 1 // Old handler shouldn't fire
     count2 shouldBe 1 // New handler should fire
   }
+
+  "List reconciliation" should "reuse nodes with matching keys" in {
+    val container = getContainer
+
+    case class ItemProps(id: String, label: String)
+
+    var instanceCounts = Map[String, Int]()
+
+    val Item: ItemProps => FluxusNode = props => {
+      instanceCounts = instanceCounts.updated(
+        props.id,
+        instanceCounts.getOrElse(props.id, 0) + 1,
+      )
+
+      logger.debug(
+        s"Creating instance for item ${props.id}",
+        category = "Test",
+        opId = 1,
+        Map(
+          "id"            -> props.id,
+          "instanceCount" -> instanceCounts(props.id),
+        ),
+      )
+
+      div(
+        cls  := "item",
+        key_ := props.id, // Changed to key_
+        s"${props.label} (instance ${instanceCounts(props.id)})",
+      )
+    }
+
+    // Initial list
+    val initialItems = Vector(
+      ItemProps("1", "First"),
+      ItemProps("2", "Second"),
+    )
+
+    val oldNode = div(
+      cls := "list",
+      initialItems.map(props => Item <> props),
+    )
+    createDOM(oldNode, container)
+
+    logger.debug(
+      "After initial render",
+      category = "Test",
+      opId = 1,
+      Map(
+        "instanceCounts" -> instanceCounts.toString,
+        "domContent"     -> container.innerHTML,
+      ),
+    )
+
+    // Verify initial render created one instance of each
+    instanceCounts("1") shouldBe 1
+    instanceCounts("2") shouldBe 1
+
+    // Reorder and reconcile
+    val reorderedItems = Vector(
+      ItemProps("2", "Second"),
+      ItemProps("1", "First"),
+    )
+
+    val newNode = div(
+      cls := "list",
+      reorderedItems.map(props => Item <> props),
+    )
+
+    reconcile(Some(oldNode), Some(newNode), container)
+
+    logger.debug(
+      "After reconciliation",
+      category = "Test",
+      opId = 1,
+      Map(
+        "instanceCounts" -> instanceCounts.toString,
+        "domContent"     -> container.innerHTML,
+        "expected"       -> "Should reuse instances (count=1) despite reordering",
+        "actual"         -> "Created new instances (count=2) because using index-based diffing",
+      ),
+    )
+
+    instanceCounts("1") shouldBe 1 // Will be 2 with current index-based diffing
+    instanceCounts("2") shouldBe 1 // Will be 2 with current index-based diffing
+
+    val items = container.querySelectorAll(".item")
+    items(0).textContent shouldBe "Second (instance 1)" // Will show "instance 2"
+    items(1).textContent shouldBe "First (instance 1)"  // Will show "instance 2"
+  }
 }
