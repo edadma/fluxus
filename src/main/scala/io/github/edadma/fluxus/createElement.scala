@@ -95,19 +95,10 @@ private def processMixedContent(items: Seq[Any])
 
   val events = items.collect {
     case Attribute(name, f) if name.startsWith("on") =>
-//      println(p.value)
-//      val wrapper = p.value match {
-//        case f: (() => _) =>
-//          println("()")
-//          val jsf: js.Function1[dom.Event, Unit] = (_: dom.Event) => f()
-//          jsf
-//        case f =>
-//          val jsf: js.Function1[dom.Event, Unit] = f.asInstanceOf[dom.Event => Unit]
-//          jsf
-//      }
-//
-//      println(wrapper)
-      val wrapper: js.Function1[dom.Event, Unit] = (_: dom.Event) => f.asInstanceOf[() => Unit]()
+      val wrapper: js.Function1[dom.Event, Unit] = f match {
+        case f: (() => _) => (_: dom.Event) => f()
+        case f            => f.asInstanceOf[dom.Event => Unit]
+      }
 
       name -> wrapper
   }.toMap

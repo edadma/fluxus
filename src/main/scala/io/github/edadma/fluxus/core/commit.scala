@@ -61,15 +61,6 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
           )
 
           node.events.get(eventName).foreach { handler =>
-            logger.debug(
-              "Handler details",
-              category = "Reconciler",
-              opId = 1,
-              Map(
-                "handlerType"     -> handler.getClass.toString,
-                "handlerToString" -> handler.toString,
-              ),
-            )
             element.removeEventListener(domEventName, handler)
           }
         }
