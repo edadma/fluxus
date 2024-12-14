@@ -18,7 +18,7 @@ trait BaseTest extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
   def withDebugLogging(testName: String)(test: => Unit): Unit = {
     logger.setLogLevel(LogLevel.DEBUG)
     logger.setHandler(new FileHandler("log"))
-    logger.debug(s"=== Starting Test: $testName ===", category = "Test")
+    logger.debug(s"<<<< Starting Test: $testName >>>>", category = "Test")
 
     try {
       test

@@ -247,7 +247,7 @@ class ReconcilerTest extends DOMSpec {
     count2 shouldBe 1 // New handler should fire
   }
 
-  "List reconciliation" should "reuse nodes with matching keys" in {
+  "List reconciliation" should "reuse nodes with matching keys" in withDebugLogging("reuse nodes with matching keys") {
     val container = getContainer
 
     case class ItemProps(id: String, label: String)

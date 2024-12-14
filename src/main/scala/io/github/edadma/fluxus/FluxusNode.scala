@@ -6,6 +6,7 @@ import org.scalajs.dom.{Element, Node}
 import scala.scalajs.js
 
 sealed trait FluxusNode {
+  val key: Option[String]
   val parent: Option[FluxusNode]
   var domNode: Option[Node]
 }
@@ -34,4 +35,5 @@ case class TextNode(
     text: String,
     parent: Option[FluxusNode],
     var domNode: Option[Node],
-) extends FluxusNode
+) extends FluxusNode:
+  val key: Option[String] = None

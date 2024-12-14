@@ -55,11 +55,7 @@ private def diffSameType(oldNode: FluxusNode, newNode: FluxusNode): Seq[DOMOpera
       val childChanges = diffChildren(old.children, next.children)
       propChanges ++ childChanges
 
-    case (old: ComponentNode, next: ComponentNode) =>
-      if (old.props != next.props)
-        Seq(RerenderComponent(old, next))
-      else
-        Nil
+    case (old: ComponentNode, next: ComponentNode) => diffComponents(old, next)
     case _ =>
       logger.error(
         "Invalid node combination in diffSameType",
@@ -192,19 +188,78 @@ private def diffChildren(
     oldChildren: Vector[FluxusNode],
     newChildren: Vector[FluxusNode],
 ): Seq[DOMOperation] = {
-  // For now, simple index-based diffing
-  val maxLength = oldChildren.length max newChildren.length
+  val oldKeyedNodes = oldChildren.flatMap { child =>
+    child.key.map(_ -> child)
+  }.toMap
 
-  (0 until maxLength).flatMap { i =>
-    (oldChildren.lift(i), newChildren.lift(i)) match {
-      case (None, Some(newChild)) =>
-        Seq(InsertNode(newChild, Some(i)))
-      case (Some(oldChild), None) =>
-        Seq(RemoveNode(oldChild))
-      case (Some(oldChild), Some(newChild)) =>
-        diff(Some(oldChild), Some(newChild))
-      case (None, None) =>
-        Nil
+  logger.debug(
+    "Built old keyed nodes map",
+    category = "Reconciler",
+    opId = 1,
+    Map(
+      "oldChildren" -> oldChildren.map(_.key).mkString(", "),
+      "newChildren" -> newChildren.map(_.key).mkString(", "),
+      "keyedNodes"  -> oldKeyedNodes.keys.mkString(", "),
+    ),
+  )
+
+  // First handle removals and updates for keyed nodes
+  val (operations, remainingOld) = newChildren.zipWithIndex.foldLeft(
+    (Vector.empty[DOMOperation], oldChildren.toSet),
+  ) { case ((ops, remaining), (newChild, newIndex)) =>
+    newChild.key match {
+      case Some(key) =>
+        oldKeyedNodes.get(key) match {
+          case Some(oldChild) =>
+            // Found matching key - update node
+            (ops ++ diff(Some(oldChild), Some(newChild)), remaining - oldChild)
+          case None =>
+            // No matching key - insert new node
+            (ops :+ InsertNode(newChild, Some(newIndex)), remaining)
+        }
+      case None =>
+        // Non-keyed node - use index-based matching
+        val oldChild = oldChildren.lift(newIndex)
+        (ops ++ diff(oldChild.filter(_.key.isEmpty), Some(newChild)), oldChild.map(remaining - _).getOrElse(remaining))
     }
+  }
+
+  // Remove any remaining old nodes that weren't reused
+  val removals = remainingOld.toVector.map(RemoveNode)
+
+  logger.debug(
+    "Diffing children complete",
+    category = "Reconciler",
+    opId = 1,
+    Map(
+      "operations" -> operations.mkString(", "),
+      "removals"   -> removals.mkString(", "),
+    ),
+  )
+
+  operations ++ removals
+}
+
+private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOperation] = {
+  logger.debug(
+    "Diffing components",
+    category = "Reconciler",
+    opId = 1,
+    Map(
+      "oldKey"   -> old.key.getOrElse("none"),
+      "newKey"   -> next.key.getOrElse("none"),
+      "oldProps" -> old.props.toString,
+      "newProps" -> next.props.toString,
+    ),
+  )
+
+  // If keys match or both have no keys, update props if needed
+  if (old.key == next.key) {
+    if (old.props != next.props) {
+      Seq(RerenderComponent(old, next))
+    } else Nil
+  } else {
+    // Different keys means treat as different components
+    Seq(Replace(old, next))
   }
 }

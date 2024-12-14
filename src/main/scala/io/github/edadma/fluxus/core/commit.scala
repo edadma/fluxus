@@ -9,7 +9,7 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
     "Committing DOM operation",
     category = "Reconciler",
     opId = 1,
-    Map("operation" -> op.toString),
+    Map("operation" -> op.toString, "container" -> container.toString),
   )
 
   op match {
@@ -75,7 +75,28 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
       }
 
     case RemoveNode(node) =>
-      node.domNode.foreach(dom => dom.parentNode.removeChild(dom))
+      node.domNode.foreach { dom =>
+        if (dom.parentNode != null) {
+          logger.debug(
+            "Removing node",
+            category = "Reconciler",
+            opId = 1,
+            Map(
+              "node"    -> node.toString,
+              "domNode" -> dom.toString,
+              "parent"  -> dom.parentNode.toString,
+            ),
+          )
+          dom.parentNode.removeChild(dom)
+        } else {
+          logger.warn(
+            "Attempted to remove node with no parent",
+            category = "Reconciler",
+            opId = 1,
+            Map("node" -> node.toString),
+          )
+        }
+      }
 
     case InsertNode(node, position) =>
       val dom = createDOMNode(node)
