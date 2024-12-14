@@ -10,8 +10,11 @@ render.scala
 
 # core
 ./src/main/scala/io/github/edadma/fluxus/core
+commit.scala
 ComponentInstance.scala
 createDOM.scala
+diff.scala
+DOMOperation.scala
 IdGenerator.scala
 reconcile.scala
 
@@ -25,6 +28,7 @@ main.scala
 BaseTest.scala
 DOMSpec.scala
 DOMTest.scala
+ReconcilerTest.scala
 
 # build files
 ./

@@ -75,13 +75,7 @@ def createDOMNode(node: FluxusNode): Node = {
           case name                          => name
         }
 
-        // Attach event listener based on handler type
-        handler match {
-          case f: (() => _) =>
-            elem.addEventListener(domEventName, (e: Event) => f())
-          case f: ((_) => _) =>
-            elem.addEventListener(domEventName, (e: Event) => f.asInstanceOf[Event => ?](e))
-        }
+        elem.addEventListener(domEventName, handler)
       }
 
       children foreach { child =>

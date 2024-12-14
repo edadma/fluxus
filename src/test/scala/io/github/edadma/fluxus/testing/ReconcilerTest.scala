@@ -177,7 +177,7 @@ class ReconcilerTest extends DOMSpec {
     clicked shouldBe true
   }
 
-  it should "remove old event handlers" in {
+  it should "remove old event handlers" in withDebugLogging("remove old event handlers") {
     val container = getContainer
     var clicked   = false
 
@@ -201,6 +201,10 @@ class ReconcilerTest extends DOMSpec {
 
     // Get and verify operations
     val ops = diff(Some(oldNode), Some(newNode))
+
+    ops should matchPattern {
+      case Seq(UpdateProps(_, _, _, eventsToRemove, _)) if eventsToRemove == Set("onClick") =>
+    }
 
     // Commit changes
     ops.foreach(commit(_, container))

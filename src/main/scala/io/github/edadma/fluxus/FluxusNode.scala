@@ -3,6 +3,8 @@ package io.github.edadma.fluxus
 import org.scalajs.dom
 import org.scalajs.dom.{Element, Node}
 
+import scala.scalajs.js
+
 sealed trait FluxusNode {
   val parent: Option[FluxusNode]
   var domNode: Option[Node]
@@ -11,7 +13,7 @@ sealed trait FluxusNode {
 case class ElementNode(
     tag: String,
     attrs: Map[String, Any],
-    events: Map[String, dom.Event => Unit],
+    events: Map[String, js.Function1[dom.Event, Unit]],
     children: Vector[FluxusNode],
     parent: Option[FluxusNode],
     var domNode: Option[Node],

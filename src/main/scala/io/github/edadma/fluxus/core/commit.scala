@@ -32,13 +32,44 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
           element.setAttribute(name, value.toString)
         }
 
+        logger.debug(
+          "Removing events",
+          category = "Reconciler",
+          opId = 1,
+          Map(
+            "eventsToRemove" -> eventsToRemove.toString,
+            "nodeEvents"     -> node.events.toString,
+          ),
+        )
+
         // Update events - much simpler now with pre-wrapped handlers
         eventsToRemove.foreach { eventName =>
           val domEventName = eventName.toLowerCase match {
             case name if name.startsWith("on") => name.substring(2)
             case name                          => name
           }
+
+          logger.debug(
+            "Removing event listener",
+            category = "Reconciler",
+            opId = 1,
+            Map(
+              "eventName"    -> eventName,
+              "domEventName" -> domEventName,
+              "handlerFound" -> node.events.contains(eventName).toString,
+            ),
+          )
+
           node.events.get(eventName).foreach { handler =>
+            logger.debug(
+              "Handler details",
+              category = "Reconciler",
+              opId = 1,
+              Map(
+                "handlerType"     -> handler.getClass.toString,
+                "handlerToString" -> handler.toString,
+              ),
+            )
             element.removeEventListener(domEventName, handler)
           }
         }
