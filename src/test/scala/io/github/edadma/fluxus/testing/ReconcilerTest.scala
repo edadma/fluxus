@@ -1,9 +1,11 @@
 package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.*
-import io.github.edadma.fluxus.core.{createDOM, reconcile, diff, commit}
+import io.github.edadma.fluxus.core.{commit, createDOM, diff, reconcile}
 import io.github.edadma.fluxus.core.DOMOperation.*
 import org.scalajs.dom
+
+import scala.scalajs.js
 
 class ReconcilerTest extends DOMSpec {
   "TextNode reconciliation" should "generate correct operations and update DOM when text changes" in {
@@ -84,7 +86,15 @@ class ReconcilerTest extends DOMSpec {
 
     // Get and verify operations
     val ops = diff(Some(oldNode), Some(newNode))
-    ops shouldBe Seq(UpdateProps(oldNode, Set(), Map("class" -> "new")))
+    ops shouldBe Seq(
+      UpdateProps(
+        oldNode,
+        propsToRemove = Set(),
+        propsToAdd = Map("class" -> "new"),
+        eventsToRemove = Set(),
+        eventsToAdd = Map(),
+      ),
+    )
 
     // Commit operations and verify DOM
     ops.foreach(op => commit(op, container))
@@ -142,25 +152,18 @@ class ReconcilerTest extends DOMSpec {
     var clicked   = false
 
     // Create nodes with and without click handler
-    val oldNode = ElementNode("button", Map(), Map(), Vector(), None, None, None)
-    val newNode = ElementNode(
-      "button",
-      Map(),
-      Map("onClick" -> (_ => clicked = true)),
-      Vector(),
-      None,
-      None,
-      None,
-    )
+    val oldNode = button()
+    val newNode = button(onClick := (() => clicked = true))
 
     // Create initial DOM
     createDOM(oldNode, container)
-    val button = container.firstChild.asInstanceOf[dom.Element]
+    val buttonElem = container.firstChild.asInstanceOf[dom.Element]
 
     // Verify no handler initially
     val clickEvent = dom.document.createEvent("Event")
-    clickEvent.initEvent("click", true, true)
-    button.dispatchEvent(clickEvent)
+
+    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+    buttonElem.dispatchEvent(clickEvent)
     clicked shouldBe false
 
     // Get and verify operations
@@ -170,7 +173,7 @@ class ReconcilerTest extends DOMSpec {
     ops.foreach(commit(_, container))
 
     // Test new handler
-    button.dispatchEvent(clickEvent)
+    buttonElem.dispatchEvent(clickEvent)
     clicked shouldBe true
   }
 
@@ -179,25 +182,18 @@ class ReconcilerTest extends DOMSpec {
     var clicked   = false
 
     // Create nodes with and without click handler
-    val oldNode = ElementNode(
-      "button",
-      Map(),
-      Map("onClick" -> (_ => clicked = true)),
-      Vector(),
-      None,
-      None,
-      None,
-    )
-    val newNode = ElementNode("button", Map(), Map(), Vector(), None, None, None)
+    val oldNode = button(onClick := (() => clicked = true))
+    val newNode = button()
 
     // Create initial DOM
     createDOM(oldNode, container)
-    val button = container.firstChild.asInstanceOf[dom.Element]
+    val buttonElem = container.firstChild.asInstanceOf[dom.Element]
 
     // Verify initial handler works
     val clickEvent = dom.document.createEvent("Event")
-    clickEvent.initEvent("click", true, true)
-    button.dispatchEvent(clickEvent)
+
+    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+    buttonElem.dispatchEvent(clickEvent)
     clicked shouldBe true
 
     // Reset flag
@@ -210,7 +206,7 @@ class ReconcilerTest extends DOMSpec {
     ops.foreach(commit(_, container))
 
     // Verify handler was removed
-    button.dispatchEvent(clickEvent)
+    buttonElem.dispatchEvent(clickEvent)
     clicked shouldBe false
   }
 
@@ -220,33 +216,18 @@ class ReconcilerTest extends DOMSpec {
     var count2    = 0
 
     // Create nodes with different click handlers
-    val oldNode = ElementNode(
-      "button",
-      Map(),
-      Map("onClick" -> (_ => count1 += 1)),
-      Vector(),
-      None,
-      None,
-      None,
-    )
-    val newNode = ElementNode(
-      "button",
-      Map(),
-      Map("onClick" -> (_ => count2 += 1)),
-      Vector(),
-      None,
-      None,
-      None,
-    )
+    val oldNode = button(onClick := (() => count1 += 1))
+    val newNode = button(onClick := (() => count2 += 1))
 
     // Create initial DOM
     createDOM(oldNode, container)
-    val button = container.firstChild.asInstanceOf[dom.Element]
+    val buttonElem = container.firstChild.asInstanceOf[dom.Element]
 
     // Test initial handler
     val clickEvent = dom.document.createEvent("Event")
-    clickEvent.initEvent("click", true, true)
-    button.dispatchEvent(clickEvent)
+
+    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+    buttonElem.dispatchEvent(clickEvent)
     count1 shouldBe 1
     count2 shouldBe 0
 
@@ -257,7 +238,7 @@ class ReconcilerTest extends DOMSpec {
     ops.foreach(commit(_, container))
 
     // Test new handler
-    button.dispatchEvent(clickEvent)
+    buttonElem.dispatchEvent(clickEvent)
     count1 shouldBe 1 // Old handler shouldn't fire
     count2 shouldBe 1 // New handler should fire
   }
