@@ -90,17 +90,26 @@ private def processContent(content: Any): Vector[FluxusNode] = content match {
 private def processMixedContent(items: Seq[Any])
     : (Map[String, Any], Map[String, js.Function1[dom.Event, Unit]], Vector[FluxusNode]) = {
   val attrs = items.collect {
-    case p: Attribute if !p.name.startsWith("on") => p.name -> p.value
+    case Attribute(name, value) if !name.startsWith("on") => name -> value
   }.toMap
 
   val events = items.collect {
-    case p: Attribute if p.name.startsWith("on") =>
-      val wrapper: js.Function1[dom.Event, Unit] = p.value match {
-        case f: (() => _) => ((_: dom.Event) => f()).asInstanceOf[dom.Event => Unit]
-        case f            => f.asInstanceOf[dom.Event => Unit]
-      }
+    case Attribute(name, f) if name.startsWith("on") =>
+//      println(p.value)
+//      val wrapper = p.value match {
+//        case f: (() => _) =>
+//          println("()")
+//          val jsf: js.Function1[dom.Event, Unit] = (_: dom.Event) => f()
+//          jsf
+//        case f =>
+//          val jsf: js.Function1[dom.Event, Unit] = f.asInstanceOf[dom.Event => Unit]
+//          jsf
+//      }
+//
+//      println(wrapper)
+      val wrapper: js.Function1[dom.Event, Unit] = (_: dom.Event) => f.asInstanceOf[() => Unit]()
 
-      p.name -> wrapper
+      name -> wrapper
   }.toMap
 
   val children = items.filterNot(_.isInstanceOf[Attribute]).flatMap(processContent).toVector
