@@ -83,17 +83,10 @@ class DOMTest extends DOMSpec {
   }
 
   it should "handle data attributes with dashes" in {
-    val node = ElementNode(
-      tag = "div",
-      attrs = Map(
-        "data-test-id"   -> "123",
-        "data-user-role" -> "admin",
-        "aria-label"     -> "test label", // Also testing aria attributes while we're at it
-      ),
-      events = Map(),
-      children = Vector(),
-      parent = None,
-      domNode = None,
+    val node = div(
+      "data-test-id"   := "123",
+      "data-user-role" := "admin",
+      "aria-label"     := "test label",
     )
 
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
@@ -110,17 +103,7 @@ class DOMTest extends DOMSpec {
   "createDOMNode" should "attach click event handlers to elements" in {
     var clicked = false
 
-    val node = ElementNode(
-      tag = "button",
-      attrs = Map(),
-      events = Map(
-        "onClick" -> (_ => clicked = true),
-      ),
-      children = Vector(),
-      parent = None,
-      domNode = None,
-    )
-
+    val node    = button(onClick := (() => clicked = true))
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
 
     // Simulate a click event
