@@ -247,7 +247,9 @@ class ReconcilerTest extends DOMSpec {
     count2 shouldBe 1 // New handler should fire
   }
 
-  "List reconciliation" should "reuse nodes with matching keys" in withDebugLogging("reuse nodes with matching keys") {
+  "List reconciliation with keys" should "reuse nodes with matching keys" in withDebugLogging(
+    "reuse nodes with matching keys",
+  ) {
     val container = getContainer
 
     // Modified to include key in props
@@ -336,5 +338,184 @@ class ReconcilerTest extends DOMSpec {
     val items = container.querySelectorAll(".item")
     items(0).textContent shouldBe "Second (instance 1)"
     items(1).textContent shouldBe "First (instance 1)"
+  }
+
+  it should "handle adding new items" in withDebugLogging("adding new items") {
+    val container = getContainer
+    case class ItemProps(key: String, label: String)
+    var instanceCounts = Map[String, Int]()
+
+    val Item: ItemProps => FluxusNode = props => {
+      instanceCounts = instanceCounts.updated(
+        props.key,
+        instanceCounts.getOrElse(props.key, 0) + 1,
+      )
+
+      logger.debug(
+        s"Creating instance for item ${props.key}",
+        category = "Test",
+        opId = 1,
+        Map("key" -> props.key, "instanceCount" -> instanceCounts(props.key)),
+      )
+
+      div(
+        cls := "item",
+        s"${props.label} (instance ${instanceCounts(props.key)})",
+      )
+    }
+
+    // Initial list
+    val initialItems = Vector(
+      ItemProps("1", "First"),
+      ItemProps("2", "Second"),
+    )
+
+    val oldNode = div(
+      cls := "list",
+      initialItems.map(props => Item <> props),
+    )
+    createDOM(oldNode, container)
+
+    // Add new items
+    val newItems = Vector(
+      ItemProps("1", "First"),  // Existing
+      ItemProps("2", "Second"), // Existing
+      ItemProps("3", "Third"),  // New
+      ItemProps("4", "Fourth"), // New
+    )
+
+    val newNode = div(
+      cls := "list",
+      newItems.map(props => Item <> props),
+    )
+
+    reconcile(Some(oldNode), Some(newNode), container)
+
+    // Existing items should still have count 1
+    instanceCounts("1") shouldBe 1
+    instanceCounts("2") shouldBe 1
+    // New items should have count 1
+    instanceCounts("3") shouldBe 1
+    instanceCounts("4") shouldBe 1
+
+    val items = container.querySelectorAll(".item")
+    items.length shouldBe 4
+    items(2).textContent shouldBe "Third (instance 1)"
+    items(3).textContent shouldBe "Fourth (instance 1)"
+  }
+
+  it should "handle removing items" in withDebugLogging("removing items") {
+    val container = getContainer
+    case class ItemProps(key: String, label: String)
+    var instanceCounts = Map[String, Int]()
+
+    val Item: ItemProps => FluxusNode = props => {
+      instanceCounts = instanceCounts.updated(
+        props.key,
+        instanceCounts.getOrElse(props.key, 0) + 1,
+      )
+
+      div(
+        cls := "item",
+        s"${props.label} (instance ${instanceCounts(props.key)})",
+      )
+    }
+
+    // Initial list with 4 items
+    val initialItems = Vector(
+      ItemProps("1", "First"),
+      ItemProps("2", "Second"),
+      ItemProps("3", "Third"),
+      ItemProps("4", "Fourth"),
+    )
+
+    val oldNode = div(
+      cls := "list",
+      initialItems.map(props => Item <> props),
+    )
+    createDOM(oldNode, container)
+
+    // Remove middle items
+    val remainingItems = Vector(
+      ItemProps("1", "First"),
+      ItemProps("4", "Fourth"),
+    )
+
+    val newNode = div(
+      cls := "list",
+      remainingItems.map(props => Item <> props),
+    )
+
+    reconcile(Some(oldNode), Some(newNode), container)
+
+    // Remaining items should still have count 1
+    instanceCounts("1") shouldBe 1
+    instanceCounts("4") shouldBe 1
+
+    val items = container.querySelectorAll(".item")
+    items.length shouldBe 2
+    items(0).textContent shouldBe "First (instance 1)"
+    items(1).textContent shouldBe "Fourth (instance 1)"
+  }
+
+  it should "handle mixed operations (reorder + add + remove)" in withDebugLogging("mixed operations") {
+    val container = getContainer
+    case class ItemProps(key: String, label: String)
+    var instanceCounts = Map[String, Int]()
+
+    val Item: ItemProps => FluxusNode = props => {
+      instanceCounts = instanceCounts.updated(
+        props.key,
+        instanceCounts.getOrElse(props.key, 0) + 1,
+      )
+
+      div(
+        cls := "item",
+        s"${props.label} (instance ${instanceCounts(props.key)})",
+      )
+    }
+
+    // Initial list
+    val initialItems = Vector(
+      ItemProps("1", "First"),
+      ItemProps("2", "Second"),
+      ItemProps("3", "Third"),
+    )
+
+    val oldNode = div(
+      cls := "list",
+      initialItems.map(props => Item <> props),
+    )
+    createDOM(oldNode, container)
+
+    // Mixed operations:
+    // - Keep "First" (no change)
+    // - Remove "Second"
+    // - Move "Third" to second position
+    // - Add "Fourth" at end
+    val updatedItems = Vector(
+      ItemProps("1", "First"), // Same
+      ItemProps("3", "Third"), // Moved
+      ItemProps("4", "Fourth"), // Added
+    )
+
+    val newNode = div(
+      cls := "list",
+      updatedItems.map(props => Item <> props),
+    )
+
+    reconcile(Some(oldNode), Some(newNode), container)
+
+    // Unchanged and moved items should have count 1
+    instanceCounts("1") shouldBe 1
+    instanceCounts("3") shouldBe 1
+    // New item should have count 1
+    instanceCounts("4") shouldBe 1
+
+    val items = container.querySelectorAll(".item")
+    items.length shouldBe 3
+    items(0).textContent shouldBe "First (instance 1)"
+    items(1).textContent shouldBe "Third (instance 1)"
+    items(2).textContent shouldBe "Fourth (instance 1)"
   }
 }
