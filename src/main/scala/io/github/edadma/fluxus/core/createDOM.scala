@@ -84,7 +84,7 @@ def createDOMNode(node: FluxusNode): Node = {
 
       elem
 
-    case ComponentNode(component, props, _, _, _) =>
+    case comp @ ComponentNode(component, props, _, _, _, _) =>
       logger.debug(
         "Creating component node",
         category = "DOM",
@@ -93,8 +93,22 @@ def createDOMNode(node: FluxusNode): Node = {
           "props" -> props.toString,
         ),
       )
+
+      // Create instance for component
+      val instance = ComponentInstance(
+        componentType = props.getClass.getSimpleName,
+      )
+
+      // Store instance in node
+      comp.instance = Some(instance)
+
       // Call component function to get rendered node
-      val rendered = component(props)
+      val rendered = ComponentInstance.withInstance(instance) {
+        component(props)
+      }
+
+      instance.rendered = Some(rendered)
+
       // Create DOM from rendered node
       createDOMNode(rendered)
 
