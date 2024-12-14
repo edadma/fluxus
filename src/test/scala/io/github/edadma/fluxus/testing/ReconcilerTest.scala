@@ -250,34 +250,35 @@ class ReconcilerTest extends DOMSpec {
   "List reconciliation" should "reuse nodes with matching keys" in withDebugLogging("reuse nodes with matching keys") {
     val container = getContainer
 
-    case class ItemProps(id: String, label: String)
+    // Modified to include key in props
+    case class ItemProps(key: String, label: String)
 
     var instanceCounts = Map[String, Int]()
 
     val Item: ItemProps => FluxusNode = props => {
       instanceCounts = instanceCounts.updated(
-        props.id,
-        instanceCounts.getOrElse(props.id, 0) + 1,
+        props.key, // Use key instead of id
+        instanceCounts.getOrElse(props.key, 0) + 1,
       )
 
       logger.debug(
-        s"Creating instance for item ${props.id}",
+        s"Creating instance for item ${props.key}",
         category = "Test",
         opId = 1,
         Map(
-          "id"            -> props.id,
-          "instanceCount" -> instanceCounts(props.id),
+          "key"           -> props.key,
+          "instanceCount" -> instanceCounts(props.key),
         ),
       )
 
       div(
-        cls  := "item",
-        key_ := props.id, // Changed to key_
-        s"${props.label} (instance ${instanceCounts(props.id)})",
+        cls := "item",
+        // Remove key attribute since it's in props
+        s"${props.label} (instance ${instanceCounts(props.key)})",
       )
     }
 
-    // Initial list
+    // Initial list with keys in props
     val initialItems = Vector(
       ItemProps("1", "First"),
       ItemProps("2", "Second"),
@@ -323,16 +324,17 @@ class ReconcilerTest extends DOMSpec {
       Map(
         "instanceCounts" -> instanceCounts.toString,
         "domContent"     -> container.innerHTML,
-        "expected"       -> "Should reuse instances (count=1) despite reordering",
-        "actual"         -> "Created new instances (count=2) because using index-based diffing",
+        "expected"       -> "Should reuse instances (count=1) for items with same key",
+        "actual"         -> "Current state of instance counts",
       ),
     )
 
-    instanceCounts("1") shouldBe 1 // Will be 2 with current index-based diffing
-    instanceCounts("2") shouldBe 1 // Will be 2 with current index-based diffing
+    // Each key should still only have one instance despite reordering
+    instanceCounts("1") shouldBe 1
+    instanceCounts("2") shouldBe 1
 
     val items = container.querySelectorAll(".item")
-    items(0).textContent shouldBe "Second (instance 1)" // Will show "instance 2"
-    items(1).textContent shouldBe "First (instance 1)"  // Will show "instance 2"
+    items(0).textContent shouldBe "Second (instance 1)"
+    items(1).textContent shouldBe "First (instance 1)"
   }
 }

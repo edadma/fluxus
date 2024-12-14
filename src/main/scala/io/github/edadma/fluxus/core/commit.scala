@@ -114,5 +114,15 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
         val newDom = createDOMNode(newRendered)
         parent.replaceChild(newDom, n)
       }
+
+    case MoveNode(node, toIndex) =>
+      node.domNode.foreach { dom =>
+        val parent = dom.parentNode
+        if (toIndex >= parent.childNodes.length) {
+          parent.appendChild(dom)
+        } else {
+          parent.insertBefore(dom, parent.childNodes(toIndex))
+        }
+      }
   }
 }

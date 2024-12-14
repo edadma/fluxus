@@ -20,4 +20,5 @@ object DOMOperation {
   case class RemoveNode(node: FluxusNode)                                   extends DOMOperation
   case class InsertNode(node: FluxusNode, position: Option[Int] = None)     extends DOMOperation
   case class RerenderComponent(old: ComponentNode, newProps: ComponentNode) extends DOMOperation
+  case class MoveNode(node: FluxusNode, toIndex: Int)                       extends DOMOperation
 }

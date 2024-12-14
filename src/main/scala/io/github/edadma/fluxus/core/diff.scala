@@ -188,9 +188,9 @@ private def diffChildren(
     oldChildren: Vector[FluxusNode],
     newChildren: Vector[FluxusNode],
 ): Seq[DOMOperation] = {
-  // Build map of keyed nodes from old children
-  val oldKeyedNodes = oldChildren.flatMap { child =>
-    getNodeKey(child).map(_ -> child)
+  // Build map of keyed nodes and their current positions
+  val oldKeyedNodes = oldChildren.zipWithIndex.flatMap { case (child, index) =>
+    getNodeKey(child).map(key => key -> (child, index))
   }.toMap
 
   logger.debug(
@@ -198,8 +198,8 @@ private def diffChildren(
     category = "Reconciler",
     opId = 1,
     Map(
-      "oldChildren" -> oldChildren.map(getNodeKey(_)).mkString(", "),
-      "newChildren" -> newChildren.map(getNodeKey(_)).mkString(", "),
+      "oldChildren" -> oldChildren.map(getNodeKey).mkString(", "),
+      "newChildren" -> newChildren.map(getNodeKey).mkString(", "),
       "keyedNodes"  -> oldKeyedNodes.keys.mkString(", "),
     ),
   )
@@ -211,9 +211,15 @@ private def diffChildren(
     getNodeKey(newChild) match {
       case Some(key) =>
         oldKeyedNodes.get(key) match {
-          case Some(oldChild) =>
-            // Found matching key - update node
-            (ops ++ diff(Some(oldChild), Some(newChild)), remaining - oldChild)
+          case Some((oldChild, oldIndex)) =>
+            // Found matching key - update if needed and move to new position if different
+            val updateOps = diff(Some(oldChild), Some(newChild))
+            val moveOps =
+              if (oldIndex != newIndex)
+                Seq(MoveNode(oldChild, newIndex))
+              else
+                Nil
+            (ops ++ updateOps ++ moveOps, remaining - oldChild)
           case None =>
             // No matching key - insert new node
             (ops :+ InsertNode(newChild, Some(newIndex)), remaining)
@@ -274,11 +280,26 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
   }
 }
 
-private def getNodeKey(node: FluxusNode): Option[String] = node match {
-  case ElementNode(_, attrs, _, _, _, _, _, _) =>
-    attrs.get("key").map(_.toString)
-  case ComponentNode(_, props, _, _) =>
-    val fields = props.productElementNames.zip(props.productIterator).toMap
-    fields.get("key").map(_.toString)
-  case _ => None
+private def getNodeKey(node: FluxusNode): Option[String] = {
+  val key = node match {
+    case ElementNode(_, attrs, _, _, _, _, _, _) =>
+      attrs.get("key").map(_.toString)
+    case ComponentNode(_, props, _, _) =>
+      val fields = props.productElementNames.zip(props.productIterator).toMap
+      fields.get("key").map(_.toString)
+    case _ => None
+  }
+
+  logger.debug(
+    "Getting node key",
+    category = "Reconciler",
+    opId = 1,
+    Map(
+      "nodeType" -> node.getClass.getSimpleName,
+      "key"      -> key.getOrElse("none"),
+      "props"    -> node.toString,
+    ),
+  )
+
+  key
 }
