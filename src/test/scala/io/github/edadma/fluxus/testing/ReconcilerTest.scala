@@ -177,7 +177,7 @@ class ReconcilerTest extends DOMSpec {
     clicked shouldBe true
   }
 
-  it should "remove old event handlers" in withDebugLogging("remove old event handlers") {
+  it should "remove old event handlers" in {
     val container = getContainer
     var clicked   = false
 
@@ -214,7 +214,7 @@ class ReconcilerTest extends DOMSpec {
     clicked shouldBe false
   }
 
-  it should "update existing event handlers" in {
+  it should "update existing event handlers" in withDebugLogging("update existing event handlers") {
     val container = getContainer
     var count1    = 0
     var count2    = 0
