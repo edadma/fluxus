@@ -81,11 +81,19 @@ private def diffSameType(oldNode: FluxusNode, newNode: FluxusNode): Seq[DOMOpera
 private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperation] = {
   val propsToRemove = oldNode.attrs.keySet -- newNode.attrs.keySet
   val propsToAdd = newNode.attrs.filter { case (k, v) =>
-    oldNode.attrs.get(k) != Some(v)
+    !oldNode.attrs.get(k).contains(v)
   }
 
-  if (propsToRemove.nonEmpty || propsToAdd.nonEmpty)
-    Seq(UpdateProps(oldNode, propsToRemove, propsToAdd))
+  val eventsToRemove = oldNode.events.keySet -- newNode.events.keySet
+  val eventsToAdd = newNode.events.filter { case (k, v) =>
+    !oldNode.events.get(k).contains(v)
+  }
+
+  if (
+    propsToRemove.nonEmpty || propsToAdd.nonEmpty ||
+    eventsToRemove.nonEmpty || eventsToAdd.nonEmpty
+  )
+    Seq(UpdateProps(oldNode, propsToRemove, propsToAdd, eventsToRemove, eventsToAdd))
   else
     Nil
 }

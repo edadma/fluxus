@@ -1,5 +1,6 @@
 package io.github.edadma.fluxus
 
+import org.scalajs.dom
 import org.scalajs.dom.{Element, Node}
 
 sealed trait FluxusNode {
@@ -10,7 +11,7 @@ sealed trait FluxusNode {
 case class ElementNode(
     tag: String,
     attrs: Map[String, Any],
-    events: Map[String, Any],
+    events: Map[String, dom.Event => Unit],
     children: Vector[FluxusNode],
     parent: Option[FluxusNode],
     var domNode: Option[Node],

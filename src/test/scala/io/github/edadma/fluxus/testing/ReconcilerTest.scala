@@ -136,4 +136,129 @@ class ReconcilerTest extends DOMSpec {
     // Verify DOM remains unchanged
     container.textContent shouldBe "same"
   }
+
+  "Event handler reconciliation" should "add new event handlers" in {
+    val container = getContainer
+    var clicked   = false
+
+    // Create nodes with and without click handler
+    val oldNode = ElementNode("button", Map(), Map(), Vector(), None, None, None)
+    val newNode = ElementNode(
+      "button",
+      Map(),
+      Map("onClick" -> (() => clicked = true)),
+      Vector(),
+      None,
+      None,
+      None,
+    )
+
+    // Create initial DOM
+    createDOM(oldNode, container)
+    val button = container.firstChild.asInstanceOf[dom.Element]
+
+    // Verify no handler initially
+    val clickEvent = dom.document.createEvent("Event")
+    clickEvent.initEvent("click", true, true)
+    button.dispatchEvent(clickEvent)
+    clicked shouldBe false
+
+    // Get and verify operations
+    val ops = diff(Some(oldNode), Some(newNode))
+
+    // Commit changes
+    ops.foreach(commit(_, container))
+
+    // Test new handler
+    button.dispatchEvent(clickEvent)
+    clicked shouldBe true
+  }
+
+  it should "remove old event handlers" in {
+    val container = getContainer
+    var clicked   = false
+
+    // Create nodes with and without click handler
+    val oldNode = ElementNode(
+      "button",
+      Map(),
+      Map("onClick" -> (() => clicked = true)),
+      Vector(),
+      None,
+      None,
+      None,
+    )
+    val newNode = ElementNode("button", Map(), Map(), Vector(), None, None, None)
+
+    // Create initial DOM
+    createDOM(oldNode, container)
+    val button = container.firstChild.asInstanceOf[dom.Element]
+
+    // Verify initial handler works
+    val clickEvent = dom.document.createEvent("Event")
+    clickEvent.initEvent("click", true, true)
+    button.dispatchEvent(clickEvent)
+    clicked shouldBe true
+
+    // Reset flag
+    clicked = false
+
+    // Get and verify operations
+    val ops = diff(Some(oldNode), Some(newNode))
+
+    // Commit changes
+    ops.foreach(commit(_, container))
+
+    // Verify handler was removed
+    button.dispatchEvent(clickEvent)
+    clicked shouldBe false
+  }
+
+  it should "update existing event handlers" in {
+    val container = getContainer
+    var count1    = 0
+    var count2    = 0
+
+    // Create nodes with different click handlers
+    val oldNode = ElementNode(
+      "button",
+      Map(),
+      Map("onClick" -> (() => count1 += 1)),
+      Vector(),
+      None,
+      None,
+      None,
+    )
+    val newNode = ElementNode(
+      "button",
+      Map(),
+      Map("onClick" -> (() => count2 += 1)),
+      Vector(),
+      None,
+      None,
+      None,
+    )
+
+    // Create initial DOM
+    createDOM(oldNode, container)
+    val button = container.firstChild.asInstanceOf[dom.Element]
+
+    // Test initial handler
+    val clickEvent = dom.document.createEvent("Event")
+    clickEvent.initEvent("click", true, true)
+    button.dispatchEvent(clickEvent)
+    count1 shouldBe 1
+    count2 shouldBe 0
+
+    // Get and verify operations
+    val ops = diff(Some(oldNode), Some(newNode))
+
+    // Commit changes
+    ops.foreach(commit(_, container))
+
+    // Test new handler
+    button.dispatchEvent(clickEvent)
+    count1 shouldBe 1 // Old handler shouldn't fire
+    count2 shouldBe 1 // New handler should fire
+  }
 }

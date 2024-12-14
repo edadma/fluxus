@@ -1,5 +1,7 @@
 package io.github.edadma.fluxus
 
+import org.scalajs.dom
+
 case class Attribute(name: String, value: Any)
 
 implicit class AttributeOps(name: String):
@@ -83,13 +85,20 @@ private def processContent(content: Any): Vector[FluxusNode] = content match {
   case other            => Vector(TextNode(other.toString, None, None))
 }
 
-private def processMixedContent(items: Seq[Any]): (Map[String, Any], Map[String, Any], Vector[FluxusNode]) = {
+private def processMixedContent(items: Seq[Any])
+    : (Map[String, Any], Map[String, dom.Event => Unit], Vector[FluxusNode]) = {
   val attrs = items.collect {
     case p: Attribute if !p.name.startsWith("on") => p.name -> p.value
   }.toMap
 
   val events = items.collect {
-    case p: Attribute if p.name.startsWith("on") => p.name -> p.value
+    case p: Attribute if p.name.startsWith("on") =>
+      val wrapper = p.value match {
+        case f: (() => _) => ((_: dom.Event) => f()).asInstanceOf[dom.Event => Unit]
+        case f            => f.asInstanceOf[dom.Event => Unit]
+      }
+
+      p.name -> wrapper
   }.toMap
 
   val children = items.filterNot(_.isInstanceOf[Attribute]).flatMap(processContent).toVector

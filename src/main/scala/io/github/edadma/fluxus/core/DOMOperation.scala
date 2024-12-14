@@ -1,6 +1,7 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{ElementNode, FluxusNode, TextNode, ComponentNode}
+import io.github.edadma.fluxus.{ComponentNode, ElementNode, FluxusNode, TextNode}
+import org.scalajs.dom
 
 sealed trait DOMOperation
 
@@ -11,6 +12,8 @@ object DOMOperation {
       node: ElementNode,
       propsToRemove: Set[String],
       propsToAdd: Map[String, Any],
+      eventsToRemove: Set[String],
+      eventsToAdd: Map[String, dom.Event => Unit],
   ) extends DOMOperation
   case class RemoveNode(node: FluxusNode)                                   extends DOMOperation
   case class InsertNode(node: FluxusNode, position: Option[Int] = None)     extends DOMOperation

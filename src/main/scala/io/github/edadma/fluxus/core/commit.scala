@@ -22,13 +22,33 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
     case UpdateText(node, newText) =>
       node.domNode.foreach(_.textContent = newText)
 
-    case UpdateProps(node, propsToRemove, propsToAdd) =>
+    case UpdateProps(node, propsToRemove, propsToAdd, eventsToRemove, eventsToAdd) =>
       node.domNode.foreach { n =>
         val element = n.asInstanceOf[dom.Element]
 
+        // Update regular props
         propsToRemove.foreach(element.removeAttribute)
         propsToAdd.foreach { case (name, value) =>
           element.setAttribute(name, value.toString)
+        }
+
+        // Update events - much simpler now with pre-wrapped handlers
+        eventsToRemove.foreach { eventName =>
+          val domEventName = eventName.toLowerCase match {
+            case name if name.startsWith("on") => name.substring(2)
+            case name                          => name
+          }
+          node.events.get(eventName).foreach { handler =>
+            element.removeEventListener(domEventName, handler)
+          }
+        }
+
+        eventsToAdd.foreach { case (eventName, handler) =>
+          val domEventName = eventName.toLowerCase match {
+            case name if name.startsWith("on") => name.substring(2)
+            case name                          => name
+          }
+          element.addEventListener(domEventName, handler)
         }
       }
 
