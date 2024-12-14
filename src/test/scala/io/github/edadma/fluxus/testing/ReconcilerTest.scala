@@ -146,7 +146,7 @@ class ReconcilerTest extends DOMSpec {
     val newNode = ElementNode(
       "button",
       Map(),
-      Map("onClick" -> (() => clicked = true)),
+      Map("onClick" -> (_ => clicked = true)),
       Vector(),
       None,
       None,
@@ -182,7 +182,7 @@ class ReconcilerTest extends DOMSpec {
     val oldNode = ElementNode(
       "button",
       Map(),
-      Map("onClick" -> (() => clicked = true)),
+      Map("onClick" -> (_ => clicked = true)),
       Vector(),
       None,
       None,
@@ -223,7 +223,7 @@ class ReconcilerTest extends DOMSpec {
     val oldNode = ElementNode(
       "button",
       Map(),
-      Map("onClick" -> (() => count1 += 1)),
+      Map("onClick" -> (_ => count1 += 1)),
       Vector(),
       None,
       None,
@@ -232,7 +232,7 @@ class ReconcilerTest extends DOMSpec {
     val newNode = ElementNode(
       "button",
       Map(),
-      Map("onClick" -> (() => count2 += 1)),
+      Map("onClick" -> (_ => count2 += 1)),
       Vector(),
       None,
       None,

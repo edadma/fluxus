@@ -161,7 +161,7 @@ class DOMTest extends DOMSpec {
       tag = "button",
       attrs = Map(),
       events = Map(
-        "onClick" -> (() => clicked = true),
+        "onClick" -> (_ => clicked = true),
       ),
       children = Vector(),
       parent = None,
