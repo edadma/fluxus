@@ -9,6 +9,9 @@ implicit class FunctionComponent[P <: Product](f: P => FluxusNode):
     ComponentNode(
       component = f.asInstanceOf[Any => FluxusNode],
       props = props,
+      key = props.productElementNames.zip(props.productIterator)
+        .find(_._1 == "key")
+        .map(_._2.toString),
     )
 
 implicit class ProplessComponent(f: () => FluxusNode):

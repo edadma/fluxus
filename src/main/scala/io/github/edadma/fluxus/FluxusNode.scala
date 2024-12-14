@@ -29,7 +29,8 @@ case class ComponentNode(
     parent: Option[FluxusNode] = None,
     var domNode: Option[Node] = None,
     key: Option[String] = None,
-) extends FluxusNode
+) extends FluxusNode:
+  def withKey(k: String): ComponentNode = copy(key = Some(k))
 
 case class TextNode(
     text: String,

@@ -114,6 +114,10 @@ private def processMixedContent(items: Seq[Any])
 def createElement(tag: String, contents: Any*): ElementNode = {
   val (attrs, events, children) = processMixedContent(contents)
 
+  // Extract key from attrs and remove it
+  val key             = attrs.get("key").map(_.toString)
+  val attrsWithoutKey = attrs - "key"
+
   ElementNode(
     tag = tag,
     attrs = attrs,

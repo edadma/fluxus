@@ -19,7 +19,7 @@ def createDOMNode(node: FluxusNode): Node = {
       logger.debug("Creating text node", category = "DOM", opId = 1, Map("text" -> text))
       document.createTextNode(text)
 
-    case ElementNode(tag, attrs, events, children, _, _, namespace, _) =>
+    case ElementNode(tag, attrs, events, children, _, _, namespace, _, _) =>
       logger.debug(
         "Creating element node",
         category = "DOM",
@@ -84,7 +84,7 @@ def createDOMNode(node: FluxusNode): Node = {
 
       elem
 
-    case ComponentNode(component, props, _, _) =>
+    case ComponentNode(component, props, _, _, _) =>
       logger.debug(
         "Creating component node",
         category = "DOM",

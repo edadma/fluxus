@@ -190,7 +190,7 @@ private def diffChildren(
 ): Seq[DOMOperation] = {
   // Build map of keyed nodes and their current positions
   val oldKeyedNodes = oldChildren.zipWithIndex.flatMap { case (child, index) =>
-    getNodeKey(child).map(key => key -> (child, index))
+    child.key.map(key => key -> (child, index))
   }.toMap
 
   logger.debug(
@@ -198,8 +198,8 @@ private def diffChildren(
     category = "Reconciler",
     opId = 1,
     Map(
-      "oldChildren" -> oldChildren.map(getNodeKey).mkString(", "),
-      "newChildren" -> newChildren.map(getNodeKey).mkString(", "),
+      "oldChildren" -> oldChildren.map(_.key).mkString(", "),
+      "newChildren" -> newChildren.map(_.key).mkString(", "),
       "keyedNodes"  -> oldKeyedNodes.keys.mkString(", "),
     ),
   )
@@ -208,7 +208,7 @@ private def diffChildren(
   val (operations, remainingOld) = newChildren.zipWithIndex.foldLeft(
     (Vector.empty[DOMOperation], oldChildren.toSet),
   ) { case ((ops, remaining), (newChild, newIndex)) =>
-    getNodeKey(newChild) match {
+    newChild.key match {
       case Some(key) =>
         oldKeyedNodes.get(key) match {
           case Some((oldChild, oldIndex)) =>
@@ -227,7 +227,7 @@ private def diffChildren(
       case None =>
         // Non-keyed node - use index-based matching
         val oldChild = oldChildren.lift(newIndex)
-        if (oldChild.exists(old => getNodeKey(old).isEmpty)) {
+        if (oldChild.exists(old => old.key.isEmpty)) {
           // Both nodes are non-keyed, do regular diff
           (ops ++ diff(oldChild, Some(newChild)), oldChild.map(remaining - _).getOrElse(remaining))
         } else {
@@ -254,8 +254,8 @@ private def diffChildren(
 }
 
 private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOperation] = {
-  val oldKey = getNodeKey(old)
-  val newKey = getNodeKey(next)
+  val oldKey = old.key
+  val newKey = next.key
 
   logger.debug(
     "Diffing components",
@@ -278,28 +278,4 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
     // Different keys means treat as different components
     Seq(Replace(old, next))
   }
-}
-
-private def getNodeKey(node: FluxusNode): Option[String] = {
-  val key = node match {
-    case ElementNode(_, attrs, _, _, _, _, _, _) =>
-      attrs.get("key").map(_.toString)
-    case ComponentNode(_, props, _, _) =>
-      val fields = props.productElementNames.zip(props.productIterator).toMap
-      fields.get("key").map(_.toString)
-    case _ => None
-  }
-
-  logger.debug(
-    "Getting node key",
-    category = "Reconciler",
-    opId = 1,
-    Map(
-      "nodeType" -> node.getClass.getSimpleName,
-      "key"      -> key.getOrElse("none"),
-      "props"    -> node.toString,
-    ),
-  )
-
-  key
 }
