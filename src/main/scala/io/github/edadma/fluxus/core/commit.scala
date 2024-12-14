@@ -108,10 +108,14 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
       }
 
     case RerenderComponent(old, newProps) =>
-      val newRendered = newProps.component(newProps.props)
+      val rendered = ComponentInstance.withInstance(old.instance.get) {
+        newProps.component(newProps.props)
+      }
+
+      old.instance.foreach(_.rendered = Some(rendered))
       old.domNode.foreach { n =>
         val parent = n.parentNode.asInstanceOf[dom.Element]
-        val newDom = createDOMNode(newRendered)
+        val newDom = createDOMNode(rendered)
         parent.replaceChild(newDom, n)
       }
 

@@ -272,6 +272,7 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
   // If keys match or both have no keys, update props if needed
   if (oldKey == newKey) {
     if (old.props != next.props) {
+      next.instance = old.instance
       Seq(RerenderComponent(old, next))
     } else Nil
   } else {
