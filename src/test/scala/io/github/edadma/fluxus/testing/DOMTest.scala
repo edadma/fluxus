@@ -117,19 +117,8 @@ class DOMTest extends DOMSpec {
 
   it should "pass the event object to event handlers" in {
     var receivedEvent: dom.Event = null
-
-    val node = ElementNode(
-      tag = "button",
-      attrs = Map(),
-      events = Map(
-        "onClick" -> ((e: dom.Event) => receivedEvent = e),
-      ),
-      children = Vector(),
-      parent = None,
-      domNode = None,
-    )
-
-    val domNode = createDOMNode(node).asInstanceOf[dom.Element]
+    val node                     = button(onClick := ((e: dom.Event) => receivedEvent = e))
+    val domNode                  = createDOMNode(node).asInstanceOf[dom.Element]
 
     // Simulate a click event
     val clickEvent = dom.document.createEvent("Event")
@@ -153,22 +142,11 @@ class DOMTest extends DOMSpec {
       ),
     )
 
-    val node = ElementNode(
-      tag = "div",
-      attrs = Map("class" -> "parent"),
-      events = Map(),
-      children = Vector(
-        ElementNode(
-          tag = "span",
-          attrs = Map("class" -> "child"),
-          events = Map(),
-          children = Vector(),
-          parent = None,
-          domNode = None,
-        ),
+    val node = div(
+      cls := "parent",
+      span(
+        cls := "child",
       ),
-      parent = None,
-      domNode = None,
     )
 
     createDOM(node, container)
@@ -237,24 +215,10 @@ class DOMTest extends DOMSpec {
 
   it should "handle multiple children" in {
     val container = getContainer
-    val node = ElementNode(
-      tag = "div",
-      attrs = Map(),
-      events = Map(),
-      children = Vector(
-        TextNode("First", None, None),
-        ElementNode(
-          tag = "span",
-          attrs = Map(),
-          events = Map(),
-          children = Vector(),
-          parent = None,
-          domNode = None,
-        ),
-        TextNode("Last", None, None),
-      ),
-      parent = None,
-      domNode = None,
+    val node = div(
+      "First",
+      span(),
+      "Last",
     )
 
     createDOM(node, container)
@@ -268,33 +232,15 @@ class DOMTest extends DOMSpec {
 
   it should "handle deeply nested structures" in {
     val container = getContainer
-    val node = ElementNode(
-      tag = "div",
-      attrs = Map("class" -> "level1"),
-      events = Map(),
-      children = Vector(
-        ElementNode(
-          tag = "div",
-          attrs = Map("class" -> "level2"),
-          events = Map(),
-          children = Vector(
-            ElementNode(
-              tag = "div",
-              attrs = Map("class" -> "level3"),
-              events = Map(),
-              children = Vector(
-                TextNode("Deeply nested", None, None),
-              ),
-              parent = None,
-              domNode = None,
-            ),
-          ),
-          parent = None,
-          domNode = None,
+    val node = div(
+      cls := "level1",
+      div(
+        cls := "level2",
+        div(
+          cls := "level3",
+          "Deeply nested",
         ),
       ),
-      parent = None,
-      domNode = None,
     )
 
     createDOM(node, container)
