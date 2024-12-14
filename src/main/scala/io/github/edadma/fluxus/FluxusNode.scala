@@ -8,6 +8,7 @@ import scala.scalajs.js
 sealed trait FluxusNode {
   val parent: Option[FluxusNode]
   var domNode: Option[Node]
+  val key: Option[String]
 }
 
 case class ElementNode(
@@ -19,6 +20,7 @@ case class ElementNode(
     var domNode: Option[Node],
     namespace: Option[String] = None,
     ref: Option[Element => Unit] = None,
+    key: Option[String] = None,
 ) extends FluxusNode
 
 case class ComponentNode(
@@ -26,10 +28,12 @@ case class ComponentNode(
     props: Product,
     parent: Option[FluxusNode] = None,
     var domNode: Option[Node] = None,
+    key: Option[String] = None,
 ) extends FluxusNode
 
 case class TextNode(
     text: String,
     parent: Option[FluxusNode],
     var domNode: Option[Node],
-) extends FluxusNode
+) extends FluxusNode:
+  val key: Option[String] = None
