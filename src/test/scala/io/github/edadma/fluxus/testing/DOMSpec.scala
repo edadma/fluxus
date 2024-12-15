@@ -11,6 +11,7 @@ import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 
 import scala.scalajs.js
 import js.annotation.JSImport
+import scala.concurrent.Future
 
 @JSImport("jsdom", "JSDOM")
 @js.native
@@ -40,18 +41,6 @@ trait DOMSpec extends Matchers with BeforeAndAfterEach { this: Suite =>
     }
   }
 
-  def withDebugLogging(testName: String)(test: => Unit): Unit = {
-    logger.setLogLevel(LogLevel.DEBUG)
-    logger.setHandler(new FileHandler("log"))
-    logger.debug(s"<<<< Starting Test: $testName >>>>", category = "Test")
-
-    try {
-      test
-    } finally {
-      logger.setLogLevel(LogLevel.OFF)
-    }
-  }
-
   def click(element: dom.Element): dom.Event = {
     val event = dom.document.createEvent("MouseEvents")
 
@@ -68,6 +57,28 @@ class AsyncDOMSpec extends AsyncFlatSpec with Eventually with DOMSpec {
     timeout = scaled(1.second),
     interval = scaled(100.millis),
   )
+
+  def withDebugLogging[T](testName: String)(test: => Future[T]): Future[T] = {
+    logger.setLogLevel(LogLevel.DEBUG)
+    logger.setHandler(new FileHandler("log"))
+    logger.debug(s"<<<< Starting Test: $testName >>>>", category = "Test")
+
+    test.transform { result =>
+      logger.setLogLevel(LogLevel.OFF)
+      result
+    }
+  }
 }
 
-class AnyDOMSpec extends AnyFlatSpec with DOMSpec
+class AnyDOMSpec extends AnyFlatSpec with DOMSpec:
+  def withDebugLogging(testName: String)(test: => Unit): Unit = {
+    logger.setLogLevel(LogLevel.DEBUG)
+    logger.setHandler(new FileHandler("log"))
+    logger.debug(s"<<<< Starting Test: $testName >>>>", category = "Test")
+
+    try {
+      test
+    } finally {
+      logger.setLogLevel(LogLevel.OFF)
+    }
+  }

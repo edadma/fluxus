@@ -1,20 +1,36 @@
 package io.github.edadma.fluxus.core
 
 import io.github.edadma.fluxus.{StateHook, logger}
+import org.scalajs.dom
 
-import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.scalajs.js
 
+/** Handles batching of state updates to prevent unnecessary re-renders and ensure consistent state updates.
+  */
 object BatchScheduler {
+  // Tracks if we're currently processing a batch
   private var isProcessing = false
-  private val updates      = mutable.Queue[StateUpdate]()
 
+  // Queue of pending updates
+  private val updates = mutable.Queue[StateUpdate]()
+
+  /** Represents a single state update operation
+    * @param instance
+    *   The component instance being updated
+    * @param hook
+    *   The state hook being updated
+    * @param updateFn
+    *   Function to compute the new state value
+    */
   case class StateUpdate(
       instance: ComponentInstance,
       hook: StateHook[?],
       updateFn: Any => Any,
   )
 
+  /** Schedules a direct state update
+    */
   def scheduleUpdate[T](
       instance: ComponentInstance,
       hook: StateHook[T],
@@ -33,17 +49,38 @@ object BatchScheduler {
     scheduleBatchProcessing()
   }
 
+  /** Schedules a functional state update
+    */
+  def scheduleFunctionalUpdate[T](
+      instance: ComponentInstance,
+      hook: StateHook[T],
+      fn: T => T,
+  ): Unit = {
+    logger.debug(
+      "Scheduling functional update",
+      category = "BatchScheduler",
+      Map(
+        "instance" -> instance.id,
+      ),
+    )
+
+    updates.enqueue(StateUpdate(instance, hook, fn.asInstanceOf[Any => Any]))
+    scheduleBatchProcessing()
+  }
+
+  /** Schedules the processing of the current batch if not already processing
+    */
   private def scheduleBatchProcessing(): Unit = {
     if (!isProcessing) {
       isProcessing = true
 
-      scala.scalajs.js.Promise.resolve(()).`then`(_ => {
-        processBatch()
-      })
+      // Use Promise to schedule in next microtask
+      js.Promise.resolve(()).`then`(_ => processBatch())
     }
   }
 
-  @tailrec
+  /** Processes all updates in the current batch
+    */
   private def processBatch(): Unit = {
     logger.debug(
       "Processing batch - start",
@@ -54,7 +91,7 @@ object BatchScheduler {
       ),
     )
 
-    // Process all updates in current batch
+    // Get all updates in current batch
     val batch = updates.toSeq
     updates.clear()
 
@@ -87,7 +124,7 @@ object BatchScheduler {
       ),
     )
 
-    // Render each component once
+    // Render each affected component once
     componentsToUpdate.foreach { instance =>
       logger.debug(
         "Re-rendering component",
@@ -103,7 +140,7 @@ object BatchScheduler {
 
     isProcessing = false
 
-    // Handle any updates that came in during processing
+    // If more updates came in during processing, process them
     if (updates.nonEmpty) {
       processBatch()
     }
