@@ -3,9 +3,11 @@ package io.github.edadma.fluxus.testing
 import io.github.edadma.logger.{FileHandler, LogLevel}
 import io.github.edadma.fluxus.logger
 import org.scalajs.dom
+import org.scalatest.concurrent.Eventually
 import org.scalatest.{BeforeAndAfterEach, Suite}
-import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.flatspec.{AnyFlatSpec, AsyncFlatSpec}
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 
 import scala.scalajs.js
 import js.annotation.JSImport
@@ -58,3 +60,14 @@ trait DOMSpec extends Matchers with BeforeAndAfterEach { this: Suite =>
     event
   }
 }
+
+// Base class for async DOM tests
+class AsyncDOMSpec extends AsyncFlatSpec with Eventually with DOMSpec {
+  // Configure eventually timeout
+  implicit override val patienceConfig: PatienceConfig = PatienceConfig(
+    timeout = scaled(1.second),
+    interval = scaled(100.millis),
+  )
+}
+
+class AnyDOMSpec extends AnyFlatSpec with DOMSpec

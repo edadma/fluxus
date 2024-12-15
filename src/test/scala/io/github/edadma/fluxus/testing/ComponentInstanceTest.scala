@@ -2,9 +2,8 @@ package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, reconcile}
-import org.scalatest.flatspec.AnyFlatSpec
 
-class ComponentInstanceTest extends AnyFlatSpec with DOMSpec {
+class ComponentInstanceTest extends AnyDOMSpec {
   "ComponentInstance" should "maintain stable identity through re-renders" in {
     val container                                   = getContainer
     var capturedInstance: Option[ComponentInstance] = None
