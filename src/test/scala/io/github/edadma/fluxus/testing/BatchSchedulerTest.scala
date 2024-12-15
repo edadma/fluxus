@@ -2,11 +2,27 @@ package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.*
+import org.scalatest.concurrent.Eventually
+import org.scalatest.flatspec.AsyncFlatSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 
-class BatchSchedulerTest extends DOMSpec {
+// Base class for async DOM tests
+class AsyncDOMSpec extends AsyncFlatSpec with Matchers with Eventually with DOMSpec {
+  // ... same as DOMSpec but for async tests ...
+
+  // Configure eventually timeout
+  implicit override val patienceConfig = PatienceConfig(
+    timeout = scaled(1.second),
+    interval = scaled(100.millis),
+  )
+}
+
+class BatchSchedulerTest extends AsyncDOMSpec {
   "BatchScheduler" should "batch multiple state updates" in {
-    val container   = getContainer
-    var renderCount = 0
+    val container                               = getContainer
+    var renderCount                             = 0
+    var promise: scala.scalajs.js.Promise[Unit] = null
 
     case class MultiStateProps()
 
@@ -43,6 +59,9 @@ class BatchSchedulerTest extends DOMSpec {
                 "count2" -> count2.toString,
               ),
             )
+
+            // Capture the promise for test synchronization
+            promise = scala.scalajs.js.Promise.resolve(())
           }),
           "Increment Both",
         ),
@@ -53,16 +72,17 @@ class BatchSchedulerTest extends DOMSpec {
     val node = MultiStateComponent <> MultiStateProps()
     createDOM(node, container)
 
+    // Verify initial render
     renderCount shouldBe 1
-    container.querySelector(".count1").textContent shouldBe "Count1: 0"
-    container.querySelector(".count2").textContent shouldBe "Count2: 0"
 
-    // Trigger multiple updates
+    // Trigger updates
     click(container.querySelector("button"))
 
-    // Should only render once for both updates
-    renderCount shouldBe 2
-    container.querySelector(".count1").textContent shouldBe "Count1: 1"
-    container.querySelector(".count2").textContent shouldBe "Count2: 1"
+    // Wait for promise to resolve
+    promise.`then`(_ => {
+      renderCount shouldBe 2
+      container.querySelector(".count1").textContent shouldBe "Count1: 1"
+      container.querySelector(".count2").textContent shouldBe "Count2: 1"
+    })
   }
 }

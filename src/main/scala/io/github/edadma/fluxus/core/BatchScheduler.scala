@@ -2,6 +2,7 @@ package io.github.edadma.fluxus.core
 
 import io.github.edadma.fluxus.{StateHook, logger}
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 object BatchScheduler {
@@ -35,10 +36,14 @@ object BatchScheduler {
   private def scheduleBatchProcessing(): Unit = {
     if (!isProcessing) {
       isProcessing = true
-      processBatch()
+
+      scala.scalajs.js.Promise.resolve(()).`then`(_ => {
+        processBatch()
+      })
     }
   }
 
+  @tailrec
   private def processBatch(): Unit = {
     logger.debug(
       "Processing batch - start",
