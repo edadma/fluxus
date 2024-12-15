@@ -59,9 +59,11 @@ def useState[T](initial: T): (T, T => Unit) = {
     "useState called",
     category = "Hooks",
     Map(
-      "instance"     -> instance.id,
-      "hookIndex"    -> instance.hookIndex.toString,
-      "initialValue" -> initial.toString,
+      "instance"      -> instance.id,
+      "hookIndex"     -> instance.hookIndex.toString,
+      "initialValue"  -> initial.toString,
+      "existingHooks" -> instance.hooks.length,
+      "hooks"         -> instance.hooks.toString,
     ),
   )
 
