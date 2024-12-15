@@ -118,16 +118,23 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
         ),
       )
 
-      val rendered = ComponentInstance.withInstance(old.instance.get) {
-        newProps.component(newProps.props)
-      }
+//      val rendered = ComponentInstance.withInstance(old.instance.get) {
+//        newProps.component(newProps.props)
+//      }
+//
+//      old.instance.foreach(_.rendered = Some(rendered))
+//      old.domNode.foreach { n =>
+//        val parent = n.parentNode.asInstanceOf[dom.Element]
+//        val newDom = createDOMNode(rendered)
+//        parent.replaceChild(newDom, n)
+//      }
 
-      old.instance.foreach(_.rendered = Some(rendered))
-      old.domNode.foreach { n =>
-        val parent = n.parentNode.asInstanceOf[dom.Element]
-        val newDom = createDOMNode(rendered)
-        parent.replaceChild(newDom, n)
-      }
+      // Let the instance handle its own rerendering - it will take care of:
+      // 1. Resetting hookIndex
+      // 2. Creating new rendered tree
+      // 3. Reconciling with old tree
+      // 4. Updating DOM through reconciliation
+      old.instance.foreach(_.rerender())
 
     case MoveNode(node, toIndex) =>
       node.domNode.foreach { dom =>

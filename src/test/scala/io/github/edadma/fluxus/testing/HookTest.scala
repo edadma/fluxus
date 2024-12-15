@@ -80,6 +80,64 @@ class HookTest extends AnyDOMSpec {
     renderCount shouldBe 2
   }
 
+  it should "maintain referential equality of setter functions" in withDebugLogging(
+    "setter function stability",
+  ) {
+    val container            = getContainer
+    var firstSetter: AnyRef  = null
+    var secondSetter: AnyRef = null
+
+    case class StabilityTestProps(value: Int)
+
+    def StabilityTestComponent(props: StabilityTestProps): FluxusNode = {
+      logger.debug(
+        "Rendering StabilityTestComponent",
+        category = "Test",
+        Map("value" -> props.value.toString),
+      )
+
+      val (_, setter) = useState(0)
+
+      // Store setter references to compare
+      if (firstSetter == null) {
+        firstSetter = setter.asInstanceOf[AnyRef]
+        logger.debug(
+          "Storing first setter reference",
+          category = "Test",
+          Map("setter" -> firstSetter.toString),
+        )
+      } else {
+        secondSetter = setter.asInstanceOf[AnyRef]
+        logger.debug(
+          "Storing second setter reference",
+          category = "Test",
+          Map(
+            "firstSetter"  -> firstSetter.toString,
+            "secondSetter" -> secondSetter.toString,
+            "areEqual"     -> (firstSetter eq setter.asInstanceOf[AnyRef]).toString,
+          ),
+        )
+      }
+
+      div()
+    }
+
+    // Initial render
+    val firstNode = StabilityTestComponent <> StabilityTestProps(1)
+    createDOM(firstNode, container)
+
+    // Force a re-render with new props
+    val secondNode = StabilityTestComponent <> StabilityTestProps(2)
+    reconcile(Some(firstNode), Some(secondNode), container)
+
+    // Check setter stability using reference equality
+    withClue("Setter function reference should be identical across renders") {
+      firstSetter should not be null
+      secondSetter should not be null
+      assert(firstSetter eq secondSetter, "Setter functions are not referentially equal")
+    }
+  }
+
   "useState hook" should "handle click events and state updates correctly" in /*withDebugLogging(
     "handle click events and state updates correctly",
   )*/ {

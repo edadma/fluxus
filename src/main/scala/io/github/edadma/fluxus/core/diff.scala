@@ -254,8 +254,9 @@ private def diffChildren(
 }
 
 private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOperation] = {
-  val oldKey = old.key
-  val newKey = next.key
+  val oldKey   = old.key
+  val newKey   = next.key
+  val sameType = old.component.getClass == next.component.getClass
 
   logger.debug(
     "Diffing components",
@@ -268,12 +269,18 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
       "newProps"                  -> next.props.toString,
       "oldInstanceId"             -> old.instance.map(_.id).getOrElse("none"),
       "newInstanceBeforeTransfer" -> next.instance.map(_.id).getOrElse("none"),
+      "sameType"                  -> sameType.toString,
     ),
   )
 
-  // If keys match or both have no keys, update props if needed
-  if (oldKey == newKey) {
-    next.instance = old.instance
+  // Reuse instance if keys match (or both have no key) and component types match
+  if (oldKey == newKey && sameType) {
+    // Transfer the instance and maintain all its state
+    old.instance.foreach { instance =>
+      next.instance = Some(instance)
+      // Update the node reference in the instance
+      instance.node = next
+    }
 
     logger.debug(
       "After instance transfer",
@@ -289,7 +296,7 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
       Seq(RerenderComponent(old, next))
     } else Nil
   } else {
-    // Different keys means treat as different components
+    // Different keys or component types means treat as different components
     Seq(Replace(old, next))
   }
 }

@@ -25,7 +25,7 @@ case class ComponentInstance(
     var hookIndex: Int = 0,
     var parent: Option[ComponentInstance] = None,
     var rendered: Option[FluxusNode] = None,
-    node: ComponentNode,
+    var node: ComponentNode,
 ):
   def rerender(): Unit =
     logger.debug(
