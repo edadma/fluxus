@@ -38,4 +38,55 @@ object BatchScheduler {
       processBatch()
     }
   }
+
+  private def processBatch(): Unit = {
+    logger.debug(
+      "Processing batch",
+      category = "BatchScheduler",
+      Map("queueSize" -> updates.size.toString),
+    )
+
+    // Process all updates in current batch
+    val batch = updates.toSeq
+    updates.clear()
+
+    // Apply all state updates
+    batch.foreach { update =>
+      val oldValue = update.hook.currentValue
+      val newValue = update.updateFn(oldValue)
+
+      logger.debug(
+        "Applying update",
+        category = "BatchScheduler",
+        Map(
+          "instance" -> update.instance.id,
+          "oldValue" -> oldValue.toString,
+          "newValue" -> newValue.toString,
+        ),
+      )
+
+      update.hook.asInstanceOf[StateHook[Any]].currentValue = newValue
+    }
+
+    // Get unique set of components that need re-rendering
+    val componentsToUpdate = batch.map(_.instance).toSet
+
+    // Render each component once
+    componentsToUpdate.foreach { instance =>
+      logger.debug(
+        "Re-rendering component",
+        category = "BatchScheduler",
+        Map("instance" -> instance.id),
+      )
+
+      instance.rerender()
+    }
+
+    isProcessing = false
+
+    // Handle any updates that came in during processing
+    if (updates.nonEmpty) {
+      processBatch()
+    }
+  }
 }
