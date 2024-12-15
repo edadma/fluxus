@@ -59,3 +59,5 @@ case class ComponentInstance(
       reconcile(rendered, Some(newNode), parent.asInstanceOf[org.scalajs.dom.Element])
 
       rendered = Some(newNode)
+
+  override def toString: String = s"ComponentInstance($id, type=$componentType)"

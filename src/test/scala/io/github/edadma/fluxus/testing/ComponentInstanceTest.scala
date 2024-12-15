@@ -4,16 +4,15 @@ import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, reconcile}
 
 class ComponentInstanceTest extends DOMSpec {
-
   "ComponentInstance" should "maintain stable identity through re-renders" in {
-    val container          = getContainer
-    var instanceId: String = ""
+    val container                                   = getContainer
+    var capturedInstance: Option[ComponentInstance] = None
 
     case class Props(value: String)
 
     def TestComponent(props: Props) = {
-      // Capture instance ID during render
-      instanceId = ComponentInstance.current.map(_.id).getOrElse("none")
+      // Capture the actual instance
+      capturedInstance = ComponentInstance.current
 
       div(props.value)
     }
@@ -21,14 +20,18 @@ class ComponentInstanceTest extends DOMSpec {
     // Initial render
     val oldNode = TestComponent <> Props("first")
     createDOM(oldNode, container)
-    val firstId = instanceId
 
-    // Re-render
+    val firstInstance = oldNode.instance.get
+    capturedInstance shouldBe Some(firstInstance)
+
+    // Re-render with new props
     val newNode = TestComponent <> Props("second")
     reconcile(Some(oldNode), Some(newNode), container)
 
-    // Instance should be reused
-    instanceId shouldBe firstId
+    // The new node should have been given the original instance
+    newNode.instance shouldBe Some(firstInstance)
+    // And the captured instance during render should match
+    capturedInstance shouldBe Some(firstInstance)
   }
 
   it should "handle nested component instances correctly" in {
@@ -64,33 +67,39 @@ class ComponentInstanceTest extends DOMSpec {
     childId should not be "none"
   }
 
-  it should "properly scope instance context" in {
-    var outerInstance: Option[ComponentInstance] = None
-    var innerInstance: Option[ComponentInstance] = None
-    var afterInstance: Option[ComponentInstance] = None
+  "ComponentInstance" should "properly scope instance context during nested renders" in {
+    val container                               = getContainer
+    var outerCapture: Option[ComponentInstance] = None
+    var innerCapture: Option[ComponentInstance] = None
 
-    val instance1 = ComponentInstance(componentType = "Test1")
-    val instance2 = ComponentInstance(componentType = "Test2")
+    case class InnerProps(onRender: ComponentInstance => Unit)
+    case class OuterProps(onRender: ComponentInstance => Unit)
 
-    outerInstance = ComponentInstance.current
-
-    ComponentInstance.withInstance(instance1) {
-      innerInstance = ComponentInstance.current
-
-      ComponentInstance.withInstance(instance2) {
-        // Nested instance should be instance2
-        ComponentInstance.current shouldBe Some(instance2)
-      }
-
-      // Should restore to instance1
-      ComponentInstance.current shouldBe Some(instance1)
+    def Inner(props: InnerProps) = {
+      // Capture current instance during render
+      props.onRender(ComponentInstance.current.get)
+      div("inner")
     }
 
-    afterInstance = ComponentInstance.current
+    def Outer(props: OuterProps) = {
+      // Capture current instance during render
+      props.onRender(ComponentInstance.current.get)
+      div(
+        Inner <> InnerProps(instance => innerCapture = Some(instance)),
+      )
+    }
 
-    // Verify context restoration
-    outerInstance shouldBe None
-    innerInstance shouldBe Some(instance1)
-    afterInstance shouldBe None
+    // Initial render
+    val node = Outer <> OuterProps(instance => outerCapture = Some(instance))
+    createDOM(node, container)
+
+    // Verify correct instance scoping
+    innerCapture.isDefined shouldBe true
+    outerCapture.isDefined shouldBe true
+    innerCapture should not be outerCapture
+
+    // Each instance should be associated with its component node
+    innerCapture.get.node.component should be theSameInstanceAs Inner
+    outerCapture.get.node.component should be theSameInstanceAs Outer
   }
 }

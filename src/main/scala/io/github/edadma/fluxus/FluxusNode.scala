@@ -10,6 +10,15 @@ sealed trait FluxusNode {
   val parent: Option[FluxusNode]
   var domNode: Option[Node]
   val key: Option[String]
+
+  override def toString: String = this match {
+    case ElementNode(tag, attrs, _, children, _, _, _, _, _) =>
+      s"ElementNode($tag, attrs=$attrs, children=${children.length})"
+    case TextNode(text, _, _) =>
+      s"TextNode($text)"
+    case ComponentNode(component, props, _, _, key, _) =>
+      s"ComponentNode(${props.getClass.getSimpleName}, key=$key)"
+  }
 }
 
 case class ElementNode(
