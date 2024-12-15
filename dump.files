@@ -4,6 +4,7 @@
 ./src/main/scala/io/github/edadma/fluxus
 createElement.scala
 FluxusNode.scala
+Hook.scala
 implicits.scala
 package.scala
 render.scala
