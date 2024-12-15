@@ -8,7 +8,7 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.scalajs.js
 import scala.util.Try
 
-implicit def executionContext: ExecutionContextExecutor = scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+//implicit def executionContext: ExecutionContextExecutor = scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
 class BatchSchedulerTest extends AnyDOMSpec {
 

@@ -80,9 +80,9 @@ class HookTest extends AnyDOMSpec {
     renderCount shouldBe 2
   }
 
-  it should "maintain referential equality of setter functions" in withDebugLogging(
+  it should "maintain referential equality of setter functions" in /*withDebugLogging(
     "setter function stability",
-  ) {
+  )*/ {
     val container            = getContainer
     var firstSetter: AnyRef  = null
     var secondSetter: AnyRef = null
@@ -192,6 +192,108 @@ class HookTest extends AnyDOMSpec {
     js.timers.setTimeout(0) {
       renderCount shouldBe 2
       container.querySelector(".count").textContent shouldBe "Count: 1"
+    }
+  }
+
+  "useState hook" should "maintain multiple independent states in one component" in withDebugLogging(
+    "multiple hooks stability",
+  ) {
+    val container   = getContainer
+    var renderCount = 0
+
+    case class MultiCounterProps()
+
+    def MultiCounterComponent(props: MultiCounterProps): FluxusNode = {
+      renderCount += 1
+      logger.debug(
+        "Rendering MultiCounterComponent",
+        category = "Test",
+        Map("renderCount" -> renderCount.toString),
+      )
+
+      val (count1, setCount1) = useState(0)
+      val (count2, setCount2) = useState(10)      // Different initial value
+      val (text, setText)     = useState("hello") // Different type
+
+      div(
+        cls := "multi-counter",
+        div(cls := "count1", s"Count1: $count1"),
+        div(cls := "count2", s"Count2: $count2"),
+        div(cls := "text", s"Text: $text"),
+        button(
+          cls := "inc1",
+          onClick := (() => {
+            logger.debug(
+              "Incrementing count1",
+              category = "Test",
+              Map("currentValue" -> count1.toString),
+            )
+            setCount1(count1 + 1)
+          }),
+          "Increment First",
+        ),
+        button(
+          cls := "inc2",
+          onClick := (() => {
+            logger.debug(
+              "Incrementing count2",
+              category = "Test",
+              Map("currentValue" -> count2.toString),
+            )
+            setCount2(count2 + 1)
+          }),
+          "Increment Second",
+        ),
+        button(
+          cls := "setText",
+          onClick := (() => {
+            logger.debug(
+              "Updating text",
+              category = "Test",
+              Map("currentText" -> text),
+            )
+            setText(text + "!")
+          }),
+          "Add Exclamation",
+        ),
+      )
+    }
+
+    // Initial render
+    val node = MultiCounterComponent <> MultiCounterProps()
+    createDOM(node, container)
+
+    // Initial state
+    renderCount shouldBe 1
+    container.querySelector(".count1").textContent shouldBe "Count1: 0"
+    container.querySelector(".count2").textContent shouldBe "Count2: 10"
+    container.querySelector(".text").textContent shouldBe "Text: hello"
+
+    // Click first counter
+    click(container.querySelector(".inc1"))
+    js.timers.setTimeout(0) {
+      renderCount shouldBe 2
+      container.querySelector(".count1").textContent shouldBe "Count1: 1"
+      container.querySelector(".count2").textContent shouldBe "Count2: 10" // Unchanged
+      container.querySelector(".text").textContent shouldBe "Text: hello"  // Unchanged
+    }
+
+    // Click second counter
+    click(container.querySelector(".inc2"))
+    js.timers.setTimeout(0) {
+      renderCount shouldBe 3
+      container.querySelector(".count1").textContent shouldBe "Count1: 1" // Unchanged
+      container.querySelector(".count2").textContent shouldBe "Count2: 11"
+      container.querySelector(".text").textContent shouldBe "Text: hello" // Unchanged
+    }
+
+    // Update text
+    click(container.querySelector(".setText"))
+    js.timers.setTimeout(0) {
+      renderCount shouldBe 4
+      container.querySelector(".count1").textContent shouldBe "Count1: 1"  // Unchanged
+      container.querySelector(".count2").textContent shouldBe "Count2: 11" // Unchanged
+      container.querySelector(".text").textContent shouldBe "Text: hello!"
     }
   }
 }

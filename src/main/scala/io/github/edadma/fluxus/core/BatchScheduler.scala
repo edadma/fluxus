@@ -3,6 +3,7 @@ package io.github.edadma.fluxus.core
 import io.github.edadma.fluxus.{StateHook, logger}
 import org.scalajs.dom
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.scalajs.js
 
@@ -10,7 +11,12 @@ import scala.scalajs.js
   */
 object BatchScheduler {
   // Tracks if we're currently processing a batch
-  private var isProcessing = false
+//  private var isProcessing = false
+  private class BatchState {
+    var isProcessing = false
+  }
+
+  private val state = new BatchState()
 
   // Queue of pending updates
   private val updates = mutable.Queue[StateUpdate]()
@@ -40,12 +46,23 @@ object BatchScheduler {
       "Scheduling update",
       category = "BatchScheduler",
       Map(
-        "instance" -> instance.id,
-        "value"    -> value.toString,
+        "instance id" -> instance.id,
+        "instance"    -> instance.toString,
+        "hook"        -> hook.toString,
+        "value"       -> value.toString,
       ),
     )
 
     updates.enqueue(StateUpdate(instance, hook, _ => value))
+
+    logger.debug(
+      "Update enqueued",
+      category = "BatchScheduler",
+      Map(
+        "queueSize" -> updates.size.toString,
+      ),
+    )
+
     scheduleBatchProcessing()
   }
 
@@ -71,16 +88,126 @@ object BatchScheduler {
   /** Schedules the processing of the current batch if not already processing
     */
   private def scheduleBatchProcessing(): Unit = {
-    if (!isProcessing) {
-      isProcessing = true
+    logger.debug(
+      "Schedule batch processing",
+      category = "BatchScheduler",
+      Map(
+        "isProcessing" -> state.isProcessing.toString,
+        "queueSize"    -> updates.size.toString,
+      ),
+    )
 
-      // Use Promise to schedule in next microtask
-      js.Promise.resolve(()).`then`(_ => processBatch())
+//    if (!isProcessing) {
+//      logger.debug(
+//        "Starting batch processing",
+//        category = "BatchScheduler",
+//        Map(
+//          "updates" -> updates.map(u => s"${u.instance.id}: ${u.hook.value}").mkString(", "),
+//        ),
+//      )
+//
+//      isProcessing = true
+//
+//      // Use Promise to schedule in next microtask
+//      js.Promise.resolve(()).`then`(_ => {
+//        logger.debug(
+//          "Promise resolved - about to process batch",
+//          category = "BatchScheduler",
+//        )
+//
+//        processBatch()
+//      })
+//    }
+
+//    if (!isProcessing) {
+//      isProcessing = true
+//
+//      js.timers.setTimeout(0) {
+//        try {
+//          logger.debug(
+//            "Processing batch in promise",
+//            category = "BatchScheduler",
+//            Map(
+//              "updates"   -> updates.map(u => s"${u.instance.id}: ${u.hook.value}").mkString(", "),
+//              "queueSize" -> updates.size.toString,
+//            ),
+//          )
+//          processBatch()
+//        } finally {
+//          // Always reset isProcessing so subsequent updates can be processed
+//          isProcessing = false
+//          // Check if more updates came in while we were processing
+//          if (updates.nonEmpty) {
+//            scheduleBatchProcessing()
+//          }
+//        }
+//      }
+//    } else {
+//      // If already processing, ensure we have a new batch scheduled after current one finishes
+//      logger.debug(
+//        "Already processing, will schedule new batch after current",
+//        category = "BatchScheduler",
+//        Map("queueSize" -> updates.size.toString),
+//      )
+//    }
+
+    if (!state.isProcessing) {
+      state.isProcessing = true
+
+      // Create the callback function separately so we can log it
+      val processingCallback = () => {
+        logger.debug(
+          "Timer callback starting",
+          category = "BatchScheduler",
+          Map("queueSize" -> updates.size.toString),
+        )
+
+        try {
+          processBatch()
+        } catch {
+          case e: Throwable =>
+            logger.error(
+              "Error in batch processing",
+              category = "BatchScheduler",
+              Map("error" -> e.toString),
+            )
+            throw e
+        } finally {
+          logger.debug(
+            "Timer callback ending",
+            category = "BatchScheduler",
+            Map(
+              "isProcessing" -> state.isProcessing.toString,
+              "queueSize"    -> updates.size.toString,
+            ),
+          )
+          state.isProcessing = false
+          if (updates.nonEmpty) {
+            scheduleBatchProcessing()
+          }
+        }
+      }
+
+      logger.debug(
+        "Setting up timer",
+        category = "BatchScheduler",
+        Map("callback" -> processingCallback.toString),
+      )
+
+      js.timers.setTimeout(0)(processingCallback)
+    } else {
+      logger.debug(
+        "Already processing, will schedule new batch after current",
+        category = "BatchScheduler",
+        Map("queueSize" -> updates.size.toString),
+      )
     }
+
   }
 
   /** Processes all updates in the current batch
     */
+  @tailrec
   private def processBatch(): Unit = {
     logger.debug(
       "Processing batch - start",
@@ -95,8 +222,29 @@ object BatchScheduler {
     val batch = updates.toSeq
     updates.clear()
 
+    logger.debug(
+      "Processing batch - got batch",
+      category = "BatchScheduler",
+      Map(
+        "batchSize" -> batch.size.toString,
+        "instances" -> batch.map(u => s"instance: ${u.instance}").mkString(", "),
+        "hooks"     -> batch.map(u => s"hook: ${u.hook}").mkString(", "),
+        "fns"       -> batch.map(u => s"fn: ${u.updateFn}").mkString(", "),
+      ),
+    )
+
     // Apply all state updates
     batch.foreach { update =>
+      logger.debug(
+        "Processing update - before access",
+        category = "BatchScheduler",
+        Map(
+          "instance" -> update.instance.toString,
+          "hook"     -> update.hook.toString,
+          "fn"       -> update.updateFn.toString,
+        ),
+      )
+
       val oldValue = update.hook.value
       val newValue = update.updateFn(oldValue)
 
@@ -138,7 +286,7 @@ object BatchScheduler {
       instance.rerender()
     }
 
-    isProcessing = false
+    state.isProcessing = false
 
     // If more updates came in during processing, process them
     if (updates.nonEmpty) {
