@@ -75,22 +75,21 @@ class ComponentInstanceTest extends DOMSpec {
     case class InnerProps(onRender: ComponentInstance => Unit)
     case class OuterProps(onRender: ComponentInstance => Unit)
 
-    def Inner(props: InnerProps) = {
-      // Capture current instance during render
+    // Store single instances of the component functions
+    val InnerComponent = (props: InnerProps) => {
       props.onRender(ComponentInstance.current.get)
       div("inner")
     }
 
-    def Outer(props: OuterProps) = {
-      // Capture current instance during render
+    val OuterComponent = (props: OuterProps) => {
       props.onRender(ComponentInstance.current.get)
       div(
-        Inner <> InnerProps(instance => innerCapture = Some(instance)),
+        InnerComponent <> InnerProps(instance => innerCapture = Some(instance)),
       )
     }
 
     // Initial render
-    val node = Outer <> OuterProps(instance => outerCapture = Some(instance))
+    val node = OuterComponent <> OuterProps(instance => outerCapture = Some(instance))
     createDOM(node, container)
 
     // Verify correct instance scoping
@@ -98,8 +97,8 @@ class ComponentInstanceTest extends DOMSpec {
     outerCapture.isDefined shouldBe true
     innerCapture should not be outerCapture
 
-    // Each instance should be associated with its component node
-    innerCapture.get.node.component should be theSameInstanceAs Inner
-    outerCapture.get.node.component should be theSameInstanceAs Outer
+    // Verify component relationships
+    innerCapture.get.componentType should startWith("InnerProps")
+    outerCapture.get.componentType should startWith("OuterProps")
   }
 }

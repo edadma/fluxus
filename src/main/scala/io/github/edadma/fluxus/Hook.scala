@@ -1,30 +1,48 @@
 package io.github.edadma.fluxus
 
-import io.github.edadma.fluxus.core.ComponentInstance
+import io.github.edadma.fluxus.core.{BatchScheduler, ComponentInstance}
 
 sealed trait Hook
 case class StateHook[T](
     var value: T,
-    setter: T => Unit,
-) extends Hook
+    var setter: T => Unit,
+) extends Hook:
+  override def toString: String = s"StateHook($value)"
 
-// Minimal useState to get tests compiling
 def useState[T](initial: T): (T, T => Unit) = {
   val instance = ComponentInstance.current.getOrElse(
     throw new Error("Hooks must be called within component render"),
   )
 
-  // Get existing or create new hook at current index
+  logger.debug(
+    "useState called",
+    category = "Hooks",
+    Map(
+      "instance"     -> instance.id,
+      "hookIndex"    -> instance.hookIndex.toString,
+      "initialValue" -> initial.toString,
+    ),
+  )
+
+  def createHook(): StateHook[T] = {
+    val hook = StateHook[T](
+      value = initial,
+      setter = _ => (), // Temporary setter
+    )
+
+    // Update the setter after hook creation
+    hook.setter = value => BatchScheduler.scheduleUpdate(instance, hook, value)
+
+    instance.hooks = instance.hooks :+ hook
+    hook
+  }
+
   val hook = instance.hooks.lift(instance.hookIndex) match {
-    case Some(h: StateHook[T] @unchecked) => h
-    case None                             =>
-      // For now, setter does nothing - we'll implement BatchScheduler next
-      val hook = StateHook(
-        value = initial,
-        setter = _ => (), // No-op setter for now
-      )
-      instance.hooks = instance.hooks :+ hook
-      hook
+    case Some(h: StateHook[_]) =>
+      h.asInstanceOf[StateHook[T]]
+    case None => createHook()
+    case Some(_) =>
+      throw new Error(s"Hook mismatch at index ${instance.hookIndex}")
   }
 
   instance.hookIndex += 1

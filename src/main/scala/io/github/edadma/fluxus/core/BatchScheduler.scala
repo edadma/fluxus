@@ -41,9 +41,12 @@ object BatchScheduler {
 
   private def processBatch(): Unit = {
     logger.debug(
-      "Processing batch",
+      "Processing batch - start",
       category = "BatchScheduler",
-      Map("queueSize" -> updates.size.toString),
+      Map(
+        "queueSize" -> updates.size.toString,
+        "updates"   -> updates.map(u => s"${u.instance.id}: ${u.hook.value}").mkString(", "),
+      ),
     )
 
     // Process all updates in current batch
@@ -71,12 +74,23 @@ object BatchScheduler {
     // Get unique set of components that need re-rendering
     val componentsToUpdate = batch.map(_.instance).toSet
 
+    logger.debug(
+      "Processing batch - components to update",
+      category = "BatchScheduler",
+      Map(
+        "components" -> componentsToUpdate.map(_.id).mkString(", "),
+      ),
+    )
+
     // Render each component once
     componentsToUpdate.foreach { instance =>
       logger.debug(
         "Re-rendering component",
         category = "BatchScheduler",
-        Map("instance" -> instance.id),
+        Map(
+          "instance" -> instance.id,
+          "hooks"    -> instance.hooks.map(_.toString).mkString(", "),
+        ),
       )
 
       instance.rerender()

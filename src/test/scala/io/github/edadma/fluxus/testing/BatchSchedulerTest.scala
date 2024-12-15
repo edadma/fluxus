@@ -11,6 +11,11 @@ class BatchSchedulerTest extends DOMSpec {
     case class MultiStateProps()
 
     def MultiStateComponent(props: MultiStateProps): FluxusNode = {
+      logger.debug(
+        "Rendering MultiStateComponent",
+        category = "Test",
+        Map("renderCount" -> renderCount.toString),
+      )
       renderCount += 1
       val (count1, setCount1) = useState(0)
       val (count2, setCount2) = useState(0)
@@ -20,9 +25,24 @@ class BatchSchedulerTest extends DOMSpec {
         p(cls := "count2", s"Count2: $count2"),
         button(
           onClick := (() => {
-            // These should be batched into a single update
+            logger.debug(
+              "Button clicked - before updates",
+              category = "Test",
+              Map(
+                "count1" -> count1.toString,
+                "count2" -> count2.toString,
+              ),
+            )
             setCount1(count1 + 1)
             setCount2(count2 + 1)
+            logger.debug(
+              "Button clicked - after updates",
+              category = "Test",
+              Map(
+                "count1" -> count1.toString,
+                "count2" -> count2.toString,
+              ),
+            )
           }),
           "Increment Both",
         ),
