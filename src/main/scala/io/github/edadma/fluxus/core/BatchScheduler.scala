@@ -10,7 +10,7 @@ object BatchScheduler {
 
   case class StateUpdate(
       instance: ComponentInstance,
-      hook: StateHook[_],
+      hook: StateHook[?],
       updateFn: Any => Any,
   )
 
@@ -52,7 +52,7 @@ object BatchScheduler {
 
     // Apply all state updates
     batch.foreach { update =>
-      val oldValue = update.hook.currentValue
+      val oldValue = update.hook.value
       val newValue = update.updateFn(oldValue)
 
       logger.debug(
@@ -65,7 +65,7 @@ object BatchScheduler {
         ),
       )
 
-      update.hook.asInstanceOf[StateHook[Any]].currentValue = newValue
+      update.hook.asInstanceOf[StateHook[Any]].value = newValue
     }
 
     // Get unique set of components that need re-rendering

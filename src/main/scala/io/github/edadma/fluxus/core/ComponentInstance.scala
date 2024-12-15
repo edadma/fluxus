@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{FluxusNode, Hook}
+import io.github.edadma.fluxus.{ComponentNode, FluxusNode, Hook, logger}
 
 object ComponentInstance:
   private var currentInstance: Option[ComponentInstance] = None
@@ -18,6 +18,8 @@ object ComponentInstance:
     instanceCounter += 1
     s"comp-$instanceCounter"
 
+  def rerender(instance: ComponentInstance): Unit = {}
+
 case class ComponentInstance(
     id: String = ComponentInstance.nextId,
     componentType: String, // For debugging/logging
@@ -25,4 +27,35 @@ case class ComponentInstance(
     var hookIndex: Int = 0,
     var parent: Option[ComponentInstance] = None,
     var rendered: Option[FluxusNode] = None,
-)
+    node: ComponentNode,
+):
+  def rerender(): Unit =
+    def rerender(): Unit =
+      logger.debug(
+        "Re-rendering component instance",
+        category = "ComponentInstance",
+        Map("instanceId" -> id),
+      )
+
+      hookIndex = 0 // Reset hook index for new render
+
+      val parent = rendered.get.domNode.get.parentNode
+
+      // Get new tree from component
+      val newNode = ComponentInstance.withInstance(this) {
+        node.component(node.props)
+      }
+
+      logger.debug(
+        "Reconciling component",
+        category = "ComponentInstance",
+        Map(
+          "oldNode" -> rendered.toString,
+          "newNode" -> newNode.toString,
+        ),
+      )
+
+      // Use existing reconciliation
+      reconcile(rendered, Some(newNode), parent.asInstanceOf[org.scalajs.dom.Element])
+
+      rendered = Some(newNode)

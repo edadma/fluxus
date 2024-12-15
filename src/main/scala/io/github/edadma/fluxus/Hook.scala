@@ -16,8 +16,8 @@ def useState[T](initial: T): (T, T => Unit) = {
 
   // Get existing or create new hook at current index
   val hook = instance.hooks.lift(instance.hookIndex) match {
-    case Some(h: StateHook[T]) => h
-    case None                  =>
+    case Some(h: StateHook[T] @unchecked) => h
+    case None                             =>
       // For now, setter does nothing - we'll implement BatchScheduler next
       val hook = StateHook(
         value = initial,

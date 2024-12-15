@@ -97,6 +97,7 @@ def createDOMNode(node: FluxusNode): Node = {
       // Create instance for component
       val instance = ComponentInstance(
         componentType = props.getClass.getSimpleName,
+        node = comp,
       )
 
       // Store instance in node
