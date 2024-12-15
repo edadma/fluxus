@@ -162,10 +162,8 @@ class ReconcilerTest extends DOMSpec {
     val buttonElem = container.firstChild.asInstanceOf[dom.Element]
 
     // Verify no handler initially
-    val clickEvent = dom.document.createEvent("Event")
+    val clickEvent = click(buttonElem)
 
-    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
-    buttonElem.dispatchEvent(clickEvent)
     clicked shouldBe false
 
     // Get and verify operations
@@ -192,10 +190,8 @@ class ReconcilerTest extends DOMSpec {
     val buttonElem = container.firstChild.asInstanceOf[dom.Element]
 
     // Verify initial handler works
-    val clickEvent = dom.document.createEvent("Event")
+    val clickEvent = click(buttonElem)
 
-    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
-    buttonElem.dispatchEvent(clickEvent)
     clicked shouldBe true
 
     // Reset flag
@@ -230,10 +226,8 @@ class ReconcilerTest extends DOMSpec {
     val buttonElem = container.firstChild.asInstanceOf[dom.Element]
 
     // Test initial handler
-    val clickEvent = dom.document.createEvent("Event")
+    val clickEvent = click(buttonElem)
 
-    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
-    buttonElem.dispatchEvent(clickEvent)
     count1 shouldBe 1
     count2 shouldBe 0
 

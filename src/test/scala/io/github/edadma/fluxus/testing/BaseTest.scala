@@ -2,10 +2,13 @@ package io.github.edadma.fluxus.testing
 
 import io.github.edadma.logger.{FileHandler, LogLevel}
 import io.github.edadma.fluxus.logger
+import org.scalajs.dom
 import org.scalatest
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.BeforeAndAfterEach
+
+import scala.scalajs.js
 
 trait BaseTest extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
   override def beforeEach(): Unit = {
@@ -25,5 +28,13 @@ trait BaseTest extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
     } finally {
       logger.setLogLevel(LogLevel.OFF)
     }
+  }
+
+  def click(element: dom.Element): dom.Event = {
+    val event = dom.document.createEvent("MouseEvents")
+
+    event.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+    element.dispatchEvent(event)
+    event
   }
 }

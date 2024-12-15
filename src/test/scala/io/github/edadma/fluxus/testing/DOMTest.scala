@@ -107,10 +107,7 @@ class DOMTest extends DOMSpec {
     val domNode = createDOMNode(node).asInstanceOf[dom.Element]
 
     // Simulate a click event
-    val clickEvent = dom.document.createEvent("Event")
-
-    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
-    domNode.dispatchEvent(clickEvent)
+    click(domNode)
 
     clicked shouldBe true
   }
@@ -121,10 +118,7 @@ class DOMTest extends DOMSpec {
     val domNode                  = createDOMNode(node).asInstanceOf[dom.Element]
 
     // Simulate a click event
-    val clickEvent = dom.document.createEvent("Event")
-
-    clickEvent.asInstanceOf[js.Dynamic].initEvent("click", true, true)
-    domNode.dispatchEvent(clickEvent)
+    val clickEvent = click(domNode)
 
     receivedEvent should not be null
     receivedEvent shouldBe clickEvent
