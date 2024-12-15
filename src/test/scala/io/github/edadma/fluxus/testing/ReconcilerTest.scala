@@ -4,10 +4,11 @@ import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{commit, createDOM, diff, reconcile}
 import io.github.edadma.fluxus.core.DOMOperation.*
 import org.scalajs.dom
+import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.scalajs.js
 
-class ReconcilerTest extends DOMSpec {
+class ReconcilerTest extends AnyFlatSpec with DOMSpec {
   "TextNode reconciliation" should "generate correct operations and update DOM when text changes" in {
     val container = getContainer
 

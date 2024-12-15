@@ -1,8 +1,11 @@
 package io.github.edadma.fluxus.testing
 
-import io.github.edadma.logger.{Logger, LoggerFactory}
+import io.github.edadma.logger.{FileHandler, LogLevel}
+import io.github.edadma.fluxus.logger
 import org.scalajs.dom
+import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.scalajs.js
 import js.annotation.JSImport
@@ -13,7 +16,7 @@ class JSDOM(html: String) extends js.Object {
   val window: dom.Window = js.native
 }
 
-trait DOMSpec extends BaseTest {
+trait DOMSpec extends Matchers with BeforeAndAfterEach { this: Suite =>
   val jsdom = new JSDOM("""<!doctype html><html><body><div id="app"></div></body></html>""")
 
   js.Dynamic.global.global.window = jsdom.window
@@ -25,10 +28,33 @@ trait DOMSpec extends BaseTest {
   override def beforeEach(): Unit = {
     super.beforeEach()
 
+    logger.setLogLevel(LogLevel.OFF)
+    logger.resetOpId()
+
     // Clear container before each test
     val container = getContainer
     while (container.firstChild != null) {
       container.removeChild(container.firstChild)
     }
+  }
+
+  def withDebugLogging(testName: String)(test: => Unit): Unit = {
+    logger.setLogLevel(LogLevel.DEBUG)
+    logger.setHandler(new FileHandler("log"))
+    logger.debug(s"<<<< Starting Test: $testName >>>>", category = "Test")
+
+    try {
+      test
+    } finally {
+      logger.setLogLevel(LogLevel.OFF)
+    }
+  }
+
+  def click(element: dom.Element): dom.Event = {
+    val event = dom.document.createEvent("MouseEvents")
+
+    event.asInstanceOf[js.Dynamic].initEvent("click", true, true)
+    element.dispatchEvent(event)
+    event
   }
 }

@@ -4,10 +4,11 @@ import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{createDOM, createDOMNode}
 import org.scalajs.dom
 import org.scalajs.dom.Node
+import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.scalajs.js
 
-class DOMTest extends DOMSpec {
+class DOMTest extends AnyFlatSpec with DOMSpec {
 
   "createDOMNode" should "create a DOM text node with correct content" in {
     val node    = TextNode("Hello world", None, None)
