@@ -12,6 +12,7 @@ import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 import scala.scalajs.js
 import js.annotation.JSImport
 import scala.concurrent.Future
+import scala.scalajs.js.timers.SetTimeoutHandle
 
 @JSImport("jsdom", "JSDOM")
 @js.native
