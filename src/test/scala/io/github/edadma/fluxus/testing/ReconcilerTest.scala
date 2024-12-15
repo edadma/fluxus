@@ -243,9 +243,7 @@ class ReconcilerTest extends DOMSpec {
     count2 shouldBe 1 // New handler should fire
   }
 
-  "List reconciliation with keys" should "reuse nodes with matching keys" in withDebugLogging(
-    "reuse nodes with matching keys",
-  ) {
+  "List reconciliation with keys" should "reuse nodes with matching keys" in {
     val container = getContainer
 
     // Modified to include key in props
@@ -336,7 +334,7 @@ class ReconcilerTest extends DOMSpec {
     items(1).textContent shouldBe "First (instance 1)"
   }
 
-  it should "handle adding new items" in withDebugLogging("adding new items") {
+  it should "handle adding new items" in {
     val container = getContainer
     case class ItemProps(key: String, label: String)
     var instanceCounts = Map[String, Int]()
@@ -400,7 +398,7 @@ class ReconcilerTest extends DOMSpec {
     items(3).textContent shouldBe "Fourth (instance 1)"
   }
 
-  it should "handle removing items" in withDebugLogging("removing items") {
+  it should "handle removing items" in {
     val container = getContainer
     case class ItemProps(key: String, label: String)
     var instanceCounts = Map[String, Int]()
@@ -454,7 +452,7 @@ class ReconcilerTest extends DOMSpec {
     items(1).textContent shouldBe "Fourth (instance 1)"
   }
 
-  it should "handle mixed operations (reorder + add + remove)" in withDebugLogging("mixed operations") {
+  it should "handle mixed operations (reorder + add + remove)" in {
     val container = getContainer
     case class ItemProps(key: String, label: String)
     var instanceCounts = Map[String, Int]()
