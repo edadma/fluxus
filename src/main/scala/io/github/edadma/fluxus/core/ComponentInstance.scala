@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{FluxusNode, logger}
+import io.github.edadma.fluxus.{FluxusNode, Hook}
 
 object ComponentInstance:
   private var currentInstance: Option[ComponentInstance] = None
@@ -21,6 +21,8 @@ object ComponentInstance:
 case class ComponentInstance(
     id: String = ComponentInstance.nextId,
     componentType: String, // For debugging/logging
+    var hooks: Vector[Hook] = Vector.empty,
+    var hookIndex: Int = 0,
     var parent: Option[ComponentInstance] = None,
     var rendered: Option[FluxusNode] = None,
 )
