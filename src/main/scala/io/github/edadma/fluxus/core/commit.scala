@@ -108,6 +108,16 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
       }
 
     case RerenderComponent(old, newProps) =>
+      logger.debug(
+        "Handling RerenderComponent",
+        category = "Reconciler",
+        Map(
+          "oldInstanceId" -> old.instance.map(_.id).getOrElse("none"),
+          "newInstanceId" -> newProps.instance.map(_.id).getOrElse("none"),
+          "sameInstance"  -> old.instance.zip(newProps.instance).map(_._1 eq _._2).getOrElse(false).toString,
+        ),
+      )
+
       val rendered = ComponentInstance.withInstance(old.instance.get) {
         newProps.component(newProps.props)
       }

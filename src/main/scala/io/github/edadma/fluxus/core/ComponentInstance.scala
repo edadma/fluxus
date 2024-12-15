@@ -18,8 +18,6 @@ object ComponentInstance:
     instanceCounter += 1
     s"comp-$instanceCounter"
 
-  def rerender(instance: ComponentInstance): Unit = {}
-
 case class ComponentInstance(
     id: String = ComponentInstance.nextId,
     componentType: String, // For debugging/logging
@@ -30,34 +28,33 @@ case class ComponentInstance(
     node: ComponentNode,
 ):
   def rerender(): Unit =
-    def rerender(): Unit =
-      logger.debug(
-        "Re-rendering component instance",
-        category = "ComponentInstance",
-        Map("instanceId" -> id),
-      )
+    logger.debug(
+      "Re-rendering component instance",
+      category = "ComponentInstance",
+      Map("instanceId" -> id),
+    )
 
-      hookIndex = 0 // Reset hook index for new render
+    hookIndex = 0 // Reset hook index for new render
 
-      val parent = rendered.get.domNode.get.parentNode
+    val parent = rendered.get.domNode.get.parentNode
 
-      // Get new tree from component
-      val newNode = ComponentInstance.withInstance(this) {
-        node.component(node.props)
-      }
+    // Get new tree from component
+    val newNode = ComponentInstance.withInstance(this) {
+      node.component(node.props)
+    }
 
-      logger.debug(
-        "Reconciling component",
-        category = "ComponentInstance",
-        Map(
-          "oldNode" -> rendered.toString,
-          "newNode" -> newNode.toString,
-        ),
-      )
+    logger.debug(
+      "Reconciling component",
+      category = "ComponentInstance",
+      Map(
+        "oldNode" -> rendered.toString,
+        "newNode" -> newNode.toString,
+      ),
+    )
 
-      // Use existing reconciliation
-      reconcile(rendered, Some(newNode), parent.asInstanceOf[org.scalajs.dom.Element])
+    // Use existing reconciliation
+    reconcile(rendered, Some(newNode), parent.asInstanceOf[org.scalajs.dom.Element])
 
-      rendered = Some(newNode)
+    rendered = Some(newNode)
 
   override def toString: String = s"ComponentInstance($id, type=$componentType)"

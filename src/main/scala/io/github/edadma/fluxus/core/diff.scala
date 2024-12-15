@@ -262,17 +262,30 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
     category = "Reconciler",
     opId = 1,
     Map(
-      "oldKey"   -> oldKey.getOrElse("none"),
-      "newKey"   -> newKey.getOrElse("none"),
-      "oldProps" -> old.props.toString,
-      "newProps" -> next.props.toString,
+      "oldKey"                    -> oldKey.getOrElse("none"),
+      "newKey"                    -> newKey.getOrElse("none"),
+      "oldProps"                  -> old.props.toString,
+      "newProps"                  -> next.props.toString,
+      "oldInstanceId"             -> old.instance.map(_.id).getOrElse("none"),
+      "newInstanceBeforeTransfer" -> next.instance.map(_.id).getOrElse("none"),
     ),
   )
 
   // If keys match or both have no keys, update props if needed
   if (oldKey == newKey) {
+    next.instance = old.instance
+
+    logger.debug(
+      "After instance transfer",
+      category = "Reconciler",
+      Map(
+        "oldInstanceId" -> old.instance.map(_.id).getOrElse("none"),
+        "newInstanceId" -> next.instance.map(_.id).getOrElse("none"),
+        "sameInstance"  -> old.instance.zip(next.instance).map(_._1 eq _._2).getOrElse(false).toString,
+      ),
+    )
+
     if (old.props != next.props) {
-      next.instance = old.instance
       Seq(RerenderComponent(old, next))
     } else Nil
   } else {
