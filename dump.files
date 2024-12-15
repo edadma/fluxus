@@ -1,5 +1,16 @@
 ; Fluxus project sources
 
+# core
+./src/main/scala/io/github/edadma/fluxus/core
+BatchScheduler.scala
+commit.scala
+ComponentInstance.scala
+createDOM.scala
+diff.scala
+DOMOperation.scala
+IdGenerator.scala
+reconcile.scala
+
 # ergonomic api
 ./src/main/scala/io/github/edadma/fluxus
 createElement.scala
@@ -9,16 +20,6 @@ implicits.scala
 package.scala
 render.scala
 
-# core
-./src/main/scala/io/github/edadma/fluxus/core
-commit.scala
-ComponentInstance.scala
-createDOM.scala
-diff.scala
-DOMOperation.scala
-IdGenerator.scala
-reconcile.scala
-
 # example apps
 ./src/main/scala/io/github/edadma/fluxus/examples
 DemoApp.scala
@@ -26,6 +27,7 @@ main.scala
 
 # unit testing
 ./src/test/scala/io/github/edadma/fluxus/testing
+BatchSchedulerTest.scala
 ComponentInstanceTest.scala
 DOMSpec.scala
 DOMTest.scala
