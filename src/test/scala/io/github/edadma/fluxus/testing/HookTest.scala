@@ -48,24 +48,24 @@ class HookTest extends AnyDOMSpec {
       lastInstance = currentInstance
 
       val (_, setter) = useState(0)
-//      if (setterRef.isEmpty) {
-//        setterRef = Some(setter)
-//        logger.debug("Stored initial setter", category = "Test")
-//      } else {
-//        logger.debug(
-//          "Comparing setters",
-//          category = "Test",
-//          Map(
-//            "setterRef"     -> setterRef.get.toString,
-//            "currentSetter" -> setter.toString,
-//            "equal"         -> (setter.asInstanceOf[AnyRef] eq setterRef.get.asInstanceOf[AnyRef]).toString,
-//          ),
-//        )
-//        assert(
-//          setter.asInstanceOf[AnyRef] eq setterRef.get.asInstanceOf[AnyRef],
-//          "Setter function reference changed between renders",
-//        )
-//      }
+      if (setterRef.isEmpty) {
+        setterRef = Some(setter)
+        logger.debug("Stored initial setter", category = "Test")
+      } else {
+        logger.debug(
+          "Comparing setters",
+          category = "Test",
+          Map(
+            "setterRef"     -> setterRef.get.toString,
+            "currentSetter" -> setter.toString,
+            "equal"         -> (setter.asInstanceOf[AnyRef] eq setterRef.get.asInstanceOf[AnyRef]).toString,
+          ),
+        )
+        assert(
+          setter.asInstanceOf[AnyRef] eq setterRef.get.asInstanceOf[AnyRef],
+          "Setter function reference changed between renders",
+        )
+      }
       div()
     }
 
