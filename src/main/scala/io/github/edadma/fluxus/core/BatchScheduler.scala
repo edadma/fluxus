@@ -194,7 +194,7 @@ object BatchScheduler {
         Map("callback" -> processingCallback.toString),
       )
 
-      js.timers.setTimeout(0)(processingCallback)
+      js.timers.setTimeout(0)(processingCallback())
     } else {
       logger.debug(
         "Already processing, will schedule new batch after current",
