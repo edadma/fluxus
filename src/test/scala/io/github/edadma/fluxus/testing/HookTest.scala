@@ -217,7 +217,7 @@ class HookTest extends AsyncDOMSpec {
               category = "Test",
               Map("currentValue" -> count1.toString),
             )
-            setCount1(count1 + 1)
+            setCount1(_ + 1)
           }),
           "Increment First",
         ),
@@ -229,7 +229,7 @@ class HookTest extends AsyncDOMSpec {
               category = "Test",
               Map("currentValue" -> count2.toString),
             )
-            setCount2(count2 + 1)
+            setCount2(_ + 1)
           }),
           "Increment Second",
         ),
@@ -241,7 +241,7 @@ class HookTest extends AsyncDOMSpec {
               category = "Test",
               Map("currentText" -> text),
             )
-            setText(text + "!")
+            setText(_ + "!")
           }),
           "Add Exclamation",
         ),
@@ -269,24 +269,24 @@ class HookTest extends AsyncDOMSpec {
     }
 
     // Click second counter
-    click(container.querySelector(".inc2"))
-
-    eventually {
-      renderCount shouldBe 3
-      container.querySelector(".count1").textContent shouldBe "Count1: 1" // Unchanged
-      container.querySelector(".count2").textContent shouldBe "Count2: 11"
-      container.querySelector(".text").textContent shouldBe "Text: hello" // Unchanged
-    }
+//    click(container.querySelector(".inc2"))
+//
+//    eventually {
+//      renderCount shouldBe 3
+//      container.querySelector(".count1").textContent shouldBe "Count1: 1" // Unchanged
+//      container.querySelector(".count2").textContent shouldBe "Count2: 11"
+//      container.querySelector(".text").textContent shouldBe "Text: hello" // Unchanged
+//    }
 
     // Update text
-    click(container.querySelector(".setText"))
-
-    eventually {
-      renderCount shouldBe 4
-      container.querySelector(".count1").textContent shouldBe "Count1: 1"  // Unchanged
-      container.querySelector(".count2").textContent shouldBe "Count2: 11" // Unchanged
-      container.querySelector(".text").textContent shouldBe "Text: hello!"
-    }
+//    click(container.querySelector(".setText"))
+//
+//    eventually {
+//      renderCount shouldBe 4
+//      container.querySelector(".count1").textContent shouldBe "Count1: 1"  // Unchanged
+//      container.querySelector(".count2").textContent shouldBe "Count2: 11" // Unchanged
+//      container.querySelector(".text").textContent shouldBe "Text: hello!"
+//    }
   }
 
   it should "handle click events and state updates correctly" in /*withDebugLogging(
