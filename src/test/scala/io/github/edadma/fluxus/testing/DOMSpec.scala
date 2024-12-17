@@ -4,6 +4,7 @@ import io.github.edadma.logger.{FileHandler, LogLevel}
 import io.github.edadma.fluxus.logger
 import org.scalajs.dom
 import org.scalatest.concurrent.Eventually
+import org.scalatest.exceptions.TestFailedException
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatest.flatspec.{AnyFlatSpec, AsyncFlatSpec}
 import org.scalatest.matchers.should.Matchers
@@ -11,8 +12,9 @@ import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 
 import scala.scalajs.js
 import js.annotation.JSImport
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.scalajs.js.timers.SetTimeoutHandle
+import scala.util.Try
 
 @JSImport("jsdom", "JSDOM")
 @js.native
@@ -51,12 +53,60 @@ trait DOMSpec extends Matchers with BeforeAndAfterEach { this: Suite =>
   }
 }
 
+import org.scalatest.concurrent.PatienceConfiguration
+import org.scalatest.time.{Span, Seconds, Millis}
+
+trait JSEventually extends PatienceConfiguration {
+  def eventually[T](block: => T)(implicit config: PatienceConfig): Future[T] = {
+    val promise               = Promise[T]()
+    val startTime             = System.currentTimeMillis
+    val timeoutMillis         = config.timeout.toMillis
+    val initialIntervalMillis = config.interval.toMillis
+
+    def nextInterval(currentInterval: Double): Double = {
+      val nextDouble = currentInterval * 1.5
+
+      math.min(nextDouble, initialIntervalMillis.toDouble)
+    }
+
+    def attempt(currentInterval: Double): Unit = {
+      try {
+        val result = block
+        promise.success(result)
+      } catch {
+        case e: Throwable =>
+          val elapsedTime = System.currentTimeMillis - startTime
+
+          if (elapsedTime >= timeoutMillis) {
+            promise.failure(new TestFailedException(
+              s"Eventually block timed out after ${timeoutMillis}ms. Last error: ${e.getMessage}",
+              e,
+              10,
+            ))
+          } else {
+            js.timers.setTimeout(currentInterval) {
+              attempt(nextInterval(currentInterval / 10))
+            }
+          }
+      }
+    }
+
+    attempt(initialIntervalMillis.toDouble)
+    promise.future
+  }
+}
+
 // Base class for async DOM tests
-class AsyncDOMSpec extends AsyncFlatSpec with Eventually with DOMSpec {
-  // Configure eventually timeout
+class AsyncDOMSpec extends AsyncFlatSpec with DOMSpec with JSEventually {
+
+  // Use JS execution context for all async operations
+  import scala.scalajs.concurrent.JSExecutionContext
+  implicit override def executionContext: ExecutionContext = JSExecutionContext.queue
+
+  // Provide reasonable default patience config
   implicit override val patienceConfig: PatienceConfig = PatienceConfig(
-    timeout = scaled(1.second),
-    interval = scaled(100.millis),
+    timeout = Span(1, Seconds),
+    interval = Span(50, Millis),
   )
 
   def withDebugLogging[T](testName: String)(test: => Future[T]): Future[T] = {
@@ -64,7 +114,7 @@ class AsyncDOMSpec extends AsyncFlatSpec with Eventually with DOMSpec {
     logger.setHandler(new FileHandler("log"))
     logger.debug(s"<<<< Starting Test: $testName >>>>", category = "Test")
 
-    test.transform { result =>
+    test transform { result =>
       logger.setLogLevel(LogLevel.OFF)
       result
     }
