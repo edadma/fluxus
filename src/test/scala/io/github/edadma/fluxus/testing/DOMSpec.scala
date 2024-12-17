@@ -85,13 +85,13 @@ trait JSEventually extends PatienceConfiguration {
             ))
           } else {
             js.timers.setTimeout(currentInterval) {
-              attempt(nextInterval(currentInterval / 10))
+              attempt(nextInterval(currentInterval))
             }
           }
       }
     }
 
-    attempt(initialIntervalMillis.toDouble)
+    attempt((initialIntervalMillis / 10).toDouble)
     promise.future
   }
 }

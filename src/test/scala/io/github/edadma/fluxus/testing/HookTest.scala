@@ -269,14 +269,14 @@ class HookTest extends AsyncDOMSpec {
     }
 
     // Click second counter
-//    click(container.querySelector(".inc2"))
-//
-//    eventually {
-//      renderCount shouldBe 3
-//      container.querySelector(".count1").textContent shouldBe "Count1: 1" // Unchanged
-//      container.querySelector(".count2").textContent shouldBe "Count2: 11"
-//      container.querySelector(".text").textContent shouldBe "Text: hello" // Unchanged
-//    }
+    click(container.querySelector(".inc2"))
+
+    eventually {
+      renderCount shouldBe 3
+      container.querySelector(".count1").textContent shouldBe "Count1: 1" // Unchanged
+      container.querySelector(".count2").textContent shouldBe "Count2: 11"
+      container.querySelector(".text").textContent shouldBe "Text: hello" // Unchanged
+    }
 
     // Update text
 //    click(container.querySelector(".setText"))
