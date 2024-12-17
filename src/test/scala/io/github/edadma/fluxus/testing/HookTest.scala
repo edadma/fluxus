@@ -260,6 +260,7 @@ class HookTest extends AsyncDOMSpec {
 
     // Click first counter
     click(container.querySelector(".inc1"))
+
     eventually {
       renderCount shouldBe 2
       container.querySelector(".count1").textContent shouldBe "Count1: 1"
@@ -269,6 +270,7 @@ class HookTest extends AsyncDOMSpec {
 
     // Click second counter
     click(container.querySelector(".inc2"))
+
     eventually {
       renderCount shouldBe 3
       container.querySelector(".count1").textContent shouldBe "Count1: 1" // Unchanged
