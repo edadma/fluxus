@@ -154,8 +154,12 @@ object BatchScheduler {
     if (!state.isProcessing) {
       state.isProcessing = true
 
-      // Create the callback function separately so we can log it
-      val processingCallback = () => {
+      logger.debug(
+        "Setting up timer",
+        category = "BatchScheduler",
+      )
+
+      js.timers.setTimeout(0) {
         logger.debug(
           "Timer callback starting",
           category = "BatchScheduler",
@@ -187,14 +191,6 @@ object BatchScheduler {
           }
         }
       }
-
-      logger.debug(
-        "Setting up timer",
-        category = "BatchScheduler",
-        Map("callback" -> processingCallback.toString),
-      )
-
-      js.timers.setTimeout(0)(processingCallback())
     } else {
       logger.debug(
         "Already processing, will schedule new batch after current",

@@ -2,15 +2,10 @@ package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.*
-import org.scalatest.Assertion
 
-import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.scalajs.js
-import scala.util.Try
 
-//implicit def executionContext: ExecutionContextExecutor = scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
-
-class BatchSchedulerTest extends AnyDOMSpec {
+class BatchSchedulerTest extends AsyncDOMSpec {
 
   "BatchScheduler" should "batch multiple state updates" in /*withDebugLogging("batch multiple state updates")*/ {
     val container   = getContainer
@@ -68,7 +63,7 @@ class BatchSchedulerTest extends AnyDOMSpec {
     click(container.querySelector("button"))
 
     // Create a "Future" that will complete after the next event loop
-    js.timers.setTimeout(0) {
+    eventually {
       renderCount shouldBe 2
       container.querySelector(".count1").textContent shouldBe "Count1: 1"
       container.querySelector(".count2").textContent shouldBe "Count2: 1"
