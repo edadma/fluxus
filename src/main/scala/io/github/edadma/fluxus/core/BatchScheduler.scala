@@ -167,7 +167,10 @@ object BatchScheduler {
         )
 
         try {
-          processBatch()
+          val currentBatch = updates.toSeq // Get current updates
+          updates.clear() // Clear queue
+
+          processBatch(currentBatch) // Process only current batch
         } catch {
           case e: Throwable =>
             logger.error(
@@ -203,8 +206,7 @@ object BatchScheduler {
 
   /** Processes all updates in the current batch
     */
-  @tailrec
-  private def processBatch(): Unit = {
+  private def processBatch(batch: Seq[StateUpdate]): Unit = {
     logger.debug(
       "Processing batch - start",
       category = "BatchScheduler",
@@ -213,10 +215,6 @@ object BatchScheduler {
         "updates"   -> updates.map(u => s"${u.instance.id}: ${u.hook.value}").mkString(", "),
       ),
     )
-
-    // Get all updates in current batch
-    val batch = updates.toSeq
-    updates.clear()
 
     logger.debug(
       "Processing batch - got batch",
@@ -280,13 +278,6 @@ object BatchScheduler {
       )
 
       instance.rerender()
-    }
-
-    state.isProcessing = false
-
-    // If more updates came in during processing, process them
-    if (updates.nonEmpty) {
-      processBatch()
     }
   }
 }
