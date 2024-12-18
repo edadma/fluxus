@@ -1,8 +1,10 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{ElementNode, FluxusNode, TextNode, ComponentNode, logger}
+import io.github.edadma.fluxus.{ComponentNode, ElementNode, FluxusNode, TextNode, logger}
 import org.scalajs.dom
-import DOMOperation._
+import DOMOperation.*
+
+import scala.collection.mutable
 
 def diff(oldNode: Option[FluxusNode], newNode: Option[FluxusNode]): Seq[DOMOperation] = {
   logger.debug(
@@ -126,23 +128,23 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
   }
 
   // 1. Events that exist in old but not in new should be removed
-  val removedEvents = oldNode.events.keySet -- newNode.events.keySet
+  val eventsToRemove = oldNode.events.keySet -- newNode.events.keySet
 
   logger.debug(
     "Identified removed events",
     category = "Reconciler",
     opId = 1,
-    Map("removedEvents" -> removedEvents.toString),
+    Map("eventsToRemove" -> eventsToRemove.toString),
   )
 
   // 2. New events that didn't exist before should be added
-  val addedEvents = newNode.events.keySet -- oldNode.events.keySet
+  val eventsToAdd = newNode.events.keySet -- oldNode.events.keySet
 
   logger.debug(
     "Identified added events",
     category = "Reconciler",
     opId = 1,
-    Map("addedEvents" -> addedEvents.toString),
+    Map("addedEvents" -> eventsToAdd.toString),
   )
 
   // 3. For events that exist in both, we need to update if they've changed
@@ -165,15 +167,10 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
       "Updating event handlers",
       category = "Reconciler",
       Map(
-        "events" -> eventsToUpdate.toString,
-        "domNode" -> oldNode.domNode.isDefined.toString
-      )
+        "events"  -> eventsToUpdate.toString,
+        "domNode" -> oldNode.domNode.isDefined.toString,
+      ),
     )
-  }
-
-  val eventsToRemove = removedEvents ++ eventsToUpdate
-  val eventsToAdd = newNode.events.filter { case (name, _) =>
-    addedEvents.contains(name) || eventsToUpdate.contains(name)
   }
 
   // Keep the original DOM node reference
@@ -189,13 +186,26 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
     ),
   )
 
-  if (
-    propsToRemove.nonEmpty || propsToAdd.nonEmpty ||
-    eventsToRemove.nonEmpty || eventsToAdd.nonEmpty
-  )
-    Seq(UpdateProps(oldNode, propsToRemove, propsToAdd, eventsToRemove, eventsToAdd))
-  else
-    Nil
+  val ops = mutable.ArrayBuffer[DOMOperation]()
+
+  if (propsToRemove.nonEmpty) ops += RemoveProps(oldNode, propsToRemove)
+  if (propsToAdd.nonEmpty) ops += AddProps(oldNode, propsToAdd)
+
+  // Remove old event handlers
+  eventsToRemove.foreach(name => ops += RemoveEvent(oldNode, name))
+
+  // Add new event handlers
+  eventsToAdd.foreach { name =>
+    ops += AddEvent(oldNode, name, newNode.events(name))
+  }
+
+  // Update changed handlers (remove old + add new)
+  eventsToUpdate.foreach { name =>
+    ops += RemoveEvent(oldNode, name)
+    ops += AddEvent(oldNode, name, newNode.events(name))
+  }
+
+  ops.toSeq
 }
 
 private def diffChildren(
