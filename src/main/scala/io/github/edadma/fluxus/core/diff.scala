@@ -150,16 +150,13 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
   // 3. For events that exist in both, we need to update if they've changed
   val commonEvents = oldNode.events.keySet.intersect(newNode.events.keySet)
 
-  // Track which common events need updating by comparing the function references
-  val eventsToUpdate = commonEvents.filter { eventName =>
-    val needsUpdate = oldNode.events(eventName) ne newNode.events(eventName)
-    logger.debug(
-      s"Checking event $eventName for updates",
-      category = "Reconciler",
-      opId = 1,
-      Map("needsUpdate" -> needsUpdate.toString),
-    )
-    needsUpdate
+  // Remove handler updates if attrs haven't changed and it's the same event type
+  val eventsToUpdate = if (oldNode.attrs == newNode.attrs) {
+    Set.empty[String] // Skip handler updates if props are unchanged
+  } else {
+    commonEvents.filter { eventName =>
+      oldNode.events(eventName) ne newNode.events(eventName)
+    }
   }
 
   if (eventsToUpdate.nonEmpty) {

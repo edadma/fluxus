@@ -243,9 +243,10 @@ object BatchScheduler {
       val newValue = update.updateFn(oldValue)
 
       logger.debug(
-        "Applying update",
+        "After value update",
         category = "BatchScheduler",
         Map(
+          "hook"     -> update.hook.toString,
           "instance" -> update.instance.id,
           "oldValue" -> oldValue.toString,
           "newValue" -> newValue.toString,

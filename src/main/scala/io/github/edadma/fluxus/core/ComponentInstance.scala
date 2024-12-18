@@ -29,9 +29,10 @@ case class ComponentInstance(
 ):
   def rerender(): Unit = {
     logger.debug(
-      "Re-rendering component instance",
+      "Before re-rendering component instance",
       category = "ComponentInstance",
       Map(
+        "hooks"       -> hooks.map(_.toString).mkString(", "),
         "instanceId"  -> id,
         "hasRendered" -> rendered.isDefined,
         "hasDomNode"  -> rendered.flatMap(_.domNode).isDefined,
@@ -81,6 +82,14 @@ case class ComponentInstance(
           Map("instanceId" -> id),
         )
     }
+
+    logger.debug(
+      "After render",
+      category = "ComponentInstance",
+      Map(
+        "hooks" -> hooks.map(_.toString).mkString(", "),
+      ),
+    )
   }
 
   override def toString: String = s"ComponentInstance($id, type=$componentType)"

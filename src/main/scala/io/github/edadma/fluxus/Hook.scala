@@ -71,6 +71,14 @@ def useState[T](initial: T): (T, (T | (T => T)) => Unit) = {
 
   instance.hookIndex += 1
 
-  // Return the current value and the setter
+  logger.debug(
+    "Returning hook value",
+    category = "Hooks",
+    Map(
+      "hookIndex" -> instance.hookIndex.toString,
+      "value"     -> hook.value.toString,
+    ),
+  )
+
   (hook.value, hook.setter)
 }
