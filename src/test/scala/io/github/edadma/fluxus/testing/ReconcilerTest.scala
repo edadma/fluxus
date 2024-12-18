@@ -84,15 +84,7 @@ class ReconcilerTest extends AnyDOMSpec {
 
     // Get and verify operations
     val ops = diff(Some(oldNode), Some(newNode))
-    ops shouldBe Seq(
-      UpdateProps(
-        oldNode,
-        propsToRemove = Set(),
-        propsToAdd = Map("class" -> "new"),
-        eventsToRemove = Set(),
-        eventsToAdd = Map(),
-      ),
-    )
+    ops shouldBe Seq(AddProps(oldNode, Map("class" -> "new")))
 
     // Commit operations and verify DOM
     ops.foreach(op => commit(op, container))
@@ -199,7 +191,7 @@ class ReconcilerTest extends AnyDOMSpec {
     val ops = diff(Some(oldNode), Some(newNode))
 
     ops should matchPattern {
-      case Seq(UpdateProps(_, _, _, eventsToRemove, _)) if eventsToRemove == Set("onClick") =>
+      case Seq(RemoveEvent(_, "onClick")) =>
     }
 
     // Commit changes
