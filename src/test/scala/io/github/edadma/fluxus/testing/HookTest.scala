@@ -262,14 +262,12 @@ class HookTest extends AsyncDOMSpec {
     click(container.querySelector(".inc1"))
 
     eventually {
-      println(222)
       renderCount shouldBe 2
       container.querySelector(".count1").textContent shouldBe "Count1: 1"
       container.querySelector(".count2").textContent shouldBe "Count2: 10"
       container.querySelector(".text").textContent shouldBe "Text: hello"
     }
       .flatMap { _ =>
-        println(333)
         // Click second counter
         click(container.querySelector(".inc2"))
 
@@ -281,7 +279,6 @@ class HookTest extends AsyncDOMSpec {
         }
       }
       .flatMap { _ =>
-        println(444)
         // Update text
         click(container.querySelector(".setText"))
 
