@@ -160,10 +160,24 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
     needsUpdate
   }
 
+  if (eventsToUpdate.nonEmpty) {
+    logger.debug(
+      "Updating event handlers",
+      category = "Reconciler",
+      Map(
+        "events" -> eventsToUpdate.toString,
+        "domNode" -> oldNode.domNode.isDefined.toString
+      )
+    )
+  }
+
   val eventsToRemove = removedEvents ++ eventsToUpdate
   val eventsToAdd = newNode.events.filter { case (name, _) =>
     addedEvents.contains(name) || eventsToUpdate.contains(name)
   }
+
+  // Keep the original DOM node reference
+  newNode.domNode = oldNode.domNode
 
   logger.debug(
     "Final event changes",
@@ -280,6 +294,8 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
       next.instance = Some(instance)
       // Update the node reference in the instance
       instance.node = next
+      // Transfer DOM node reference
+      next.domNode = old.domNode
     }
 
     logger.debug(

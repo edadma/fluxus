@@ -24,7 +24,7 @@ sealed trait FluxusNode {
 case class ElementNode(
     tag: String,
     attrs: Map[String, Any],
-    events: Map[String, js.Function1[dom.Event, Unit]],
+    var events: Map[String, js.Function1[dom.Event, Unit]],
     children: Vector[FluxusNode],
     parent: Option[FluxusNode],
     var domNode: Option[Node],

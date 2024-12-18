@@ -74,6 +74,9 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
         }
       }
 
+      // Maintain events map
+      node.events = node.events -- eventsToRemove ++ eventsToAdd
+
     case RemoveNode(node) =>
       node.domNode.foreach { dom =>
         if (dom.parentNode != null) {

@@ -258,40 +258,40 @@ class HookTest extends AsyncDOMSpec {
     container.querySelector(".count2").textContent shouldBe "Count2: 10"
     container.querySelector(".text").textContent shouldBe "Text: hello"
 
-//    // Click first counter
-//    click(container.querySelector(".inc1"))
-//
-//    // Click second counter
-//    click(container.querySelector(".inc2"))
-//
-//    // Update text
-//    click(container.querySelector(".setText"))
-//
-//    eventually {
-//      renderCount shouldBe 2
-//      container.querySelector(".count1").textContent shouldBe "Count1: 1"  // Unchanged
-//      container.querySelector(".count2").textContent shouldBe "Count2: 11" // Unchanged
-//      container.querySelector(".text").textContent shouldBe "Text: hello!"
-//    }
-
-    js.timers.setTimeout(0) {
-      click(container.querySelector(".inc1"))
-
-      js.timers.setTimeout(0) {
-        click(container.querySelector(".inc2"))
-
-        js.timers.setTimeout(0) {
-          click(container.querySelector(".setText"))
-        }
-      }
-    }
+    // Click first counter
+    click(container.querySelector(".inc1"))
 
     eventually {
-      renderCount shouldBe 4
+      println(222)
+      renderCount shouldBe 2
       container.querySelector(".count1").textContent shouldBe "Count1: 1"
-      container.querySelector(".count2").textContent shouldBe "Count2: 11"
-      container.querySelector(".text").textContent shouldBe "Text: hello!"
+      container.querySelector(".count2").textContent shouldBe "Count2: 10"
+      container.querySelector(".text").textContent shouldBe "Text: hello"
     }
+      .flatMap { _ =>
+        println(333)
+        // Click second counter
+        click(container.querySelector(".inc2"))
+
+        eventually {
+          renderCount shouldBe 3
+          container.querySelector(".count1").textContent shouldBe "Count1: 1"
+          container.querySelector(".count2").textContent shouldBe "Count2: 11"
+          container.querySelector(".text").textContent shouldBe "Text: hello"
+        }
+      }
+      .flatMap { _ =>
+        println(444)
+        // Update text
+        click(container.querySelector(".setText"))
+
+        eventually {
+          renderCount shouldBe 4
+          container.querySelector(".count1").textContent shouldBe "Count1: 1"
+          container.querySelector(".count2").textContent shouldBe "Count2: 11"
+          container.querySelector(".text").textContent shouldBe "Text: hello!"
+        }
+      }
   }
 
   it should "handle click events and state updates correctly" in /*withDebugLogging(

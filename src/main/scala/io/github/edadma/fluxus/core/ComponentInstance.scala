@@ -55,8 +55,9 @@ case class ComponentInstance(
               "Reconciling component",
               category = "ComponentInstance",
               Map(
-                "oldNode" -> oldNode.toString,
-                "newNode" -> newNode.toString,
+                "oldNode"   -> oldNode.toString,
+                "newNode"   -> newNode.toString,
+                "hasParent" -> (parent != null).toString,
               ),
             )
 
