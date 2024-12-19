@@ -27,12 +27,12 @@ object CountersApp:
           cls := "space-x-2",
           button(
             cls     := "btn btn-primary",
-            onClick := (() => setCounters(counters :+ 0)),
+            onClick := (() => setCounters(_ :+ 0)),
             "Add Counter",
           ),
           button(
             cls     := "btn btn-secondary",
-            onClick := (() => setShowStats(!showStats)),
+            onClick := (() => setShowStats(!_)),
             if showStats then "Hide Stats" else "Show Stats",
           ),
         ),
@@ -64,16 +64,13 @@ object CountersApp:
           Counter <> CounterProps(
             count = count,
             onIncrement = () => {
-              val updated = counters.updated(idx, count + 1)
-              setCounters(updated)
+              setCounters(counters => counters.updated(idx, counters(idx) + 1))
             },
             onDecrement = () => {
-              val updated = counters.updated(idx, count - 1)
-              setCounters(updated)
+              setCounters(counters => counters.updated(idx, counters(idx) - 1))
             },
             onRemove = () => {
-              val updated = counters.patch(idx, Nil, 1)
-              setCounters(updated)
+              setCounters(_.patch(idx, Nil, 1))
             },
           )
         },
