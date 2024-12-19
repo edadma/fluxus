@@ -48,6 +48,7 @@ def key_ : String = "key"
 
 // Event helpers
 def onClick: String       = "onClick"
+def onDblClick: String    = "onDblClick"
 def onChange: String      = "onChange"
 def onSubmit: String      = "onSubmit"
 def onFocus: String       = "onFocus"
