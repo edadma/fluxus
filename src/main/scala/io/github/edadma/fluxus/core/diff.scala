@@ -47,6 +47,9 @@ private def sameNodeType(a: FluxusNode, b: FluxusNode): Boolean =
 private def diffSameType(oldNode: FluxusNode, newNode: FluxusNode): Seq[DOMOperation] = {
   (oldNode, newNode) match {
     case (old: TextNode, next: TextNode) =>
+      // Transfer DOM reference to new node
+      next.domNode = old.domNode
+
       if (old.text != next.text)
         Seq(UpdateText(old, next.text))
       else

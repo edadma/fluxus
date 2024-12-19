@@ -6,10 +6,16 @@ import DOMOperation._
 
 def commit(op: DOMOperation, container: dom.Element): Unit = {
   logger.debug(
-    "Committing DOM operation",
-    category = "Reconciler",
-    opId = 1,
-    Map("operation" -> op.toString, "container" -> container.toString),
+    "Committing operation",
+    category = "DOM",
+    Map(
+      "operation"     -> op.toString,
+      "operationType" -> op.getClass.getSimpleName,
+      "hasNode" -> (op match {
+        case UpdateText(node, _) => s"domNode: ${node.domNode.isDefined}"
+        case _                   => "not text update"
+      }),
+    ),
   )
 
   op match {
