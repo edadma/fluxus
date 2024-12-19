@@ -171,9 +171,9 @@ class HookTest extends AsyncDOMSpec {
     }
   }
 
-  it should "maintain multiple independent states in one component" in withDebugLogging(
+  it should "maintain multiple independent states in one component" in /*withDebugLogging(
     "multiple hooks stability",
-  ) {
+  )*/ {
     val container   = getContainer
     var renderCount = 0
 

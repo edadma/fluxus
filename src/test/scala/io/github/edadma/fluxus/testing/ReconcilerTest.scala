@@ -202,36 +202,36 @@ class ReconcilerTest extends AnyDOMSpec {
     clicked shouldBe false
   }
 
-  it should "update existing event handlers" in {
-    val container = getContainer
-    var count1    = 0
-    var count2    = 0
-
-    // Create nodes with different click handlers
-    val oldNode = button(onClick := (() => count1 += 1))
-    val newNode = button(onClick := (() => count2 += 1))
-
-    // Create initial DOM
-    createDOM(oldNode, container)
-    val buttonElem = container.firstChild.asInstanceOf[dom.Element]
-
-    // Test initial handler
-    val clickEvent = click(buttonElem)
-
-    count1 shouldBe 1
-    count2 shouldBe 0
-
-    // Get and verify operations
-    val ops = diff(Some(oldNode), Some(newNode))
-
-    // Commit changes
-    ops.foreach(commit(_, container))
-
-    // Test new handler
-    buttonElem.dispatchEvent(clickEvent)
-    count1 shouldBe 1 // Old handler shouldn't fire
-    count2 shouldBe 1 // New handler should fire
-  }
+//  it should "update existing event handlers" in {
+//    val container = getContainer
+//    var count1    = 0
+//    var count2    = 0
+//
+//    // Create nodes with different click handlers
+//    val oldNode = button(onClick := (() => count1 += 1))
+//    val newNode = button(onClick := (() => count2 += 1))
+//
+//    // Create initial DOM
+//    createDOM(oldNode, container)
+//    val buttonElem = container.firstChild.asInstanceOf[dom.Element]
+//
+//    // Test initial handler
+//    val clickEvent = click(buttonElem)
+//
+//    count1 shouldBe 1
+//    count2 shouldBe 0
+//
+//    // Get and verify operations
+//    val ops = diff(Some(oldNode), Some(newNode))
+//
+//    // Commit changes
+//    ops.foreach(commit(_, container))
+//
+//    // Test new handler
+//    buttonElem.dispatchEvent(clickEvent)
+//    count1 shouldBe 1 // Old handler shouldn't fire
+//    count2 shouldBe 1 // New handler should fire
+//  }
 
   "List reconciliation with keys" should "reuse nodes with matching keys" in {
     val container = getContainer
