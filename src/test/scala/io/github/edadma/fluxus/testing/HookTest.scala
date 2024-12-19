@@ -347,4 +347,122 @@ class HookTest extends AsyncDOMSpec {
       container.querySelector(".count").textContent shouldBe "Count: 1"
     }
   }
+
+  "useState hook rules" should "throw error when called outside component render" in {
+    val container = getContainer
+
+    // Should throw when trying to use hooks outside component context
+    val error = intercept[Error] {
+      val (_, _) = useState(0)
+    }
+    error.getMessage should include("within component render")
+  }
+
+//  "hook order" should "throw error when conditional hooks change order" in {
+//    val container = getContainer
+//    var condition = true
+//
+//    case class ConditionalHookProps(toggle: Boolean)
+//
+//    def ConditionalComponent(props: ConditionalHookProps) = {
+//      // First hook always exists
+//      val (count1, _) = useState(0)
+//
+//      // Second hook only sometimes exists - this should error
+//      if (props.toggle) {
+//        val (count2, _) = useState(0)
+//      }
+//
+//      div(count1.toString)
+//    }
+//
+//    // First render with hook
+//    createDOM(ConditionalComponent <> ConditionalHookProps(true), container)
+//
+//    // Should throw when hook order changes
+//    val error = intercept[Error] {
+//      reconcile(
+//        Some(ConditionalComponent <> ConditionalHookProps(true)),
+//        Some(ConditionalComponent <> ConditionalHookProps(false)),
+//        container,
+//      )
+//    }
+//    error.getMessage should include("Hook mismatch")
+//  }
+
+  "useState" should "handle multiple interleaved updates correctly" in {
+    val container = getContainer
+    var results   = Vector[Int]()
+
+    case class ComplexUpdateProps()
+
+    def ComplexUpdateComponent(props: ComplexUpdateProps) = {
+      val (count1, setCount1) = useState(0)
+      val (count2, setCount2) = useState(10)
+
+      div(
+        button(
+          onClick := (() => {
+            // Interleaved updates to test ordering
+            setCount1(c => {
+              results = results :+ c
+              c + 1
+            })
+            setCount2(c => {
+              results = results :+ c
+              c + 1
+            })
+            setCount1(c => {
+              results = results :+ c
+              c + 1
+            })
+          }),
+          "Update",
+        ),
+      )
+    }
+
+    createDOM(ComplexUpdateComponent <> ComplexUpdateProps(), container)
+    click(container.querySelector("button"))
+
+    eventually {
+      // Verify update order was maintained
+      results shouldBe Vector(0, 10, 1)
+    }
+  }
+
+  "hooks" should "be cleaned up when component unmounts" in {
+    val container = getContainer
+    var hookCount = 0
+
+    case class TrackedHookProps(visible: Boolean)
+
+    val ChildWithHooks = () => {
+      hookCount += 1
+      val (_, _) = useState(0)
+      div()
+    }
+
+    def ParentComponent(props: TrackedHookProps) = {
+      if (props.visible) {
+        ChildWithHooks <> ()
+      } else {
+        div("hidden")
+      }
+    }
+
+    // Mount
+    createDOM(ParentComponent <> TrackedHookProps(true), container)
+    hookCount shouldBe 1
+
+    // Unmount
+    reconcile(
+      Some(ParentComponent <> TrackedHookProps(true)),
+      Some(ParentComponent <> TrackedHookProps(false)),
+      container,
+    )
+
+    // Verify hooks were cleaned up
+    hookCount shouldBe 1 // Should not increase since component was unmounted
+  }
 }

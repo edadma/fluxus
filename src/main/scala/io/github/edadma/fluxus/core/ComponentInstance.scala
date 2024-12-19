@@ -39,6 +39,8 @@ case class ComponentInstance(
       ),
     )
 
+    val previousHookCount = hooks.length
+
     hookIndex = 0 // Reset hook index for new render
 
     rendered match {
@@ -56,11 +58,22 @@ case class ComponentInstance(
               "Reconciling component",
               category = "ComponentInstance",
               Map(
-                "oldNode"   -> oldNode.toString,
-                "newNode"   -> newNode.toString,
-                "hasParent" -> (parent != null).toString,
+                "oldNode"           -> oldNode.toString,
+                "newNode"           -> newNode.toString,
+                "hasParent"         -> (parent != null).toString,
+                "previousHookCount" -> previousHookCount.toString,
+                "currentHookIndex"  -> hookIndex.toString,
               ),
             )
+
+            // Validate that we used the same number of hooks
+            if (hookIndex != previousHookCount) {
+              throw new Error(
+                s"Invalid number of hooks. Previous render had $previousHookCount hooks " +
+                  s"but current render has $hookIndex hooks. " +
+                  "Hooks must be called in the exact same order on every render.",
+              )
+            }
 
             // Use existing reconciliation
             reconcile(rendered, Some(newNode), parent.asInstanceOf[org.scalajs.dom.Element])

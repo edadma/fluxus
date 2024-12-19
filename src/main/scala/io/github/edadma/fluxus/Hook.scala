@@ -21,10 +21,19 @@ def useState[T](initial: T): (T, (T | (T => T)) => Unit) = {
       "instance"      -> instance.id,
       "hookIndex"     -> instance.hookIndex.toString,
       "initialValue"  -> initial.toString,
-      "existingHooks" -> instance.hooks.length,
       "hooks"         -> instance.hooks.toString,
+      "totalHooks"    -> instance.hooks.length.toString,
+      "isFirstRender" -> (instance.hooks.isEmpty).toString,
     ),
   )
+
+  // During render, we should never try to access a hook index
+  // that's beyond what we had in the previous render
+  if (instance.hooks.nonEmpty && instance.hookIndex > instance.hooks.length) {
+    throw new Error(
+      "Hook called conditionally. Hooks must be called in the exact same order on every render.",
+    )
+  }
 
   def createHook(): StateHook[T] = {
     val hook = new StateHook[T](
@@ -66,6 +75,7 @@ def useState[T](initial: T): (T, (T | (T => T)) => Unit) = {
       h.asInstanceOf[StateHook[T]]
     case None =>
       logger.debug("Creating new hook", category = "Hooks")
+
       createHook()
   }
 
