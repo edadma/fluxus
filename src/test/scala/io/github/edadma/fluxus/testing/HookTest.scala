@@ -274,6 +274,14 @@ class HookTest extends AsyncDOMSpec {
         eventually {
           renderCount shouldBe 3
           container.querySelector(".count1").textContent shouldBe "Count1: 1"
+          logger.debug(
+            "Test assertion",
+            category = "Test",
+            Map(
+              "count2Text" -> container.querySelector(".count2").textContent,
+              "rawBytes"   -> container.querySelector(".count2").textContent.getBytes.mkString(","),
+            ),
+          )
           container.querySelector(".count2").textContent shouldBe "Count2: 11"
           container.querySelector(".text").textContent shouldBe "Text: hello"
         }

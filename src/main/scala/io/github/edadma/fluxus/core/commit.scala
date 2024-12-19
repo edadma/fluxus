@@ -20,7 +20,24 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
       }
 
     case UpdateText(node, newText) =>
-      node.domNode.foreach(_.textContent = newText)
+      node.domNode.foreach { old =>
+        logger.debug(
+          "Updating text node",
+          category = "Reconciler",
+          Map(
+            "oldText"  -> old.textContent,
+            "newText"  -> newText,
+            "nodeType" -> old.nodeType.toString,
+            "domNode"  -> old.toString,
+          ),
+        )
+        old.textContent = newText
+        logger.debug(
+          "After text update",
+          category = "Reconciler",
+          Map("currentText" -> old.textContent),
+        )
+      }
 
 //    case UpdateProps(node, propsToRemove, propsToAdd, eventsToRemove, eventsToAdd) =>
 //      node.domNode.foreach { n =>
