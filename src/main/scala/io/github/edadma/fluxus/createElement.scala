@@ -84,12 +84,11 @@ def onDragStart: String   = "onDragStart"
 def onDrop: String        = "onDrop"
 
 private def processContent(content: Any): Vector[FluxusNode] = content match {
-  case node: FluxusNode => Vector(node)
-  case s: String        => Vector(TextNode(s, None, None))
-  case s: Seq[_]        => s.flatMap(processContent).toVector
-  case null | None      => Vector.empty
-  case Some(c)          => processContent(c)
-  case other            => Vector(TextNode(other.toString, None, None))
+  case node: FluxusNode                => Vector(node)
+  case s: Seq[_]                       => s.flatMap(processContent).toVector
+  case null | true | false | () | None => Vector.empty
+  case Some(c)                         => processContent(c)
+  case other                           => Vector(TextNode(other.toString, None, None))
 }
 
 private def processMixedContent(items: Seq[Any])
