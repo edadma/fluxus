@@ -64,7 +64,7 @@ trait JSEventually extends PatienceConfiguration {
     val initialIntervalMillis = config.interval.toMillis
 
     def nextInterval(currentInterval: Double): Double = {
-      val nextDouble = currentInterval * 1.5
+      val nextDouble = currentInterval * 2
 
       math.min(nextDouble, initialIntervalMillis.toDouble)
     }
@@ -105,7 +105,7 @@ class AsyncDOMSpec extends AsyncFlatSpec with DOMSpec with JSEventually {
 
   // Provide reasonable default patience config
   implicit override val patienceConfig: PatienceConfig = PatienceConfig(
-    timeout = Span(1, Seconds),
+    timeout = Span(200, Millis),
     interval = Span(50, Millis),
   )
 

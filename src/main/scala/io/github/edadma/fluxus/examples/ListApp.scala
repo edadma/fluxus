@@ -16,11 +16,11 @@ object ListApp:
       setItems(prev => prev :+ ListItem(prev.length, s"Item ${prev.length + 1}"))
 
     div(
-      // Add button
-      button(
-        onClick := (() => handleAdd()),
-        "Add Item",
-      ),
+//      // Add button
+//      button(
+//        onClick := (() => handleAdd()),
+//        "Add Item",
+//      ),
 
       // Stats toggle
       button(
@@ -34,15 +34,15 @@ object ListApp:
           s"Total items: ${items.length}",
         ),
       ),
-
-      // List display
-      div(
-        items.map(item =>
-          div(
-            key := item.id.toString,
-            item.text,
-          ),
-        ),
-      ),
+      div(),
+//      // List display
+//      div(
+//        items.map(item =>
+//          div(
+//            key := item.id.toString,
+//            item.text,
+//          ),
+//        ),
+//      ),
     )
   }
