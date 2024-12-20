@@ -208,19 +208,87 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
   ops.toSeq
 }
 
+//private def diffChildren(
+//    oldChildren: Vector[FluxusNode],
+//    newChildren: Vector[FluxusNode],
+//): Seq[DOMOperation] = {
+//  // Build map of keyed nodes and their current positions
+//  val oldKeyedNodes = oldChildren.zipWithIndex.flatMap { case (child, index) =>
+//    child.key.map(key => key -> (child, index))
+//  }.toMap
+//
+//  logger.debug(
+//    "Built old keyed nodes map",
+//    category = "Reconciler",
+//    opId = 1,
+//    Map(
+//      "oldChildren" -> oldChildren.map(_.key).mkString(", "),
+//      "newChildren" -> newChildren.map(_.key).mkString(", "),
+//      "keyedNodes"  -> oldKeyedNodes.keys.mkString(", "),
+//    ),
+//  )
+//
+//  // First handle removals and updates for keyed nodes
+//  val (operations, remainingOld) = newChildren.zipWithIndex.foldLeft(
+//    (Vector.empty[DOMOperation], oldChildren.toSet),
+//  ) { case ((ops, remaining), (newChild, newIndex)) =>
+//    newChild.key match {
+//      case Some(key) =>
+//        oldKeyedNodes.get(key) match {
+//          case Some((oldChild, oldIndex)) =>
+//            // Found matching key - update if needed and move to new position if different
+//            val updateOps = diff(Some(oldChild), Some(newChild))
+//            val moveOps =
+//              if (oldIndex != newIndex)
+//                Seq(MoveNode(oldChild, newIndex))
+//              else
+//                Nil
+//            (ops ++ updateOps ++ moveOps, remaining - oldChild)
+//          case None =>
+//            // No matching key - insert new node
+//            (ops :+ InsertNode(newChild, Some(newIndex)), remaining)
+//        }
+//      case None =>
+//        // Non-keyed node - use index-based matching
+//        val oldChild = oldChildren.lift(newIndex)
+//        if (oldChild.exists(old => old.key.isEmpty)) {
+//          // Both nodes are non-keyed, do regular diff
+//          (ops ++ diff(oldChild, Some(newChild)), oldChild.map(remaining - _).getOrElse(remaining))
+//        } else {
+//          // Old node was keyed or doesn't exist - insert new
+//          (ops :+ InsertNode(newChild, Some(newIndex)), remaining)
+//        }
+//    }
+//  }
+//
+//  // Remove any remaining old nodes that weren't reused
+//  val removals = remainingOld.toVector.map(RemoveNode.apply)
+//
+//  logger.debug(
+//    "Diffing children complete",
+//    category = "Reconciler",
+//    opId = 1,
+//    Map(
+//      "operations" -> operations.mkString(", "),
+//      "removals"   -> removals.mkString(", "),
+//    ),
+//  )
+//
+//  operations ++ removals
+//}
+
 private def diffChildren(
     oldChildren: Vector[FluxusNode],
     newChildren: Vector[FluxusNode],
 ): Seq[DOMOperation] = {
-  // Build map of keyed nodes and their current positions
+  // First, build map of keyed nodes and their positions from old children
   val oldKeyedNodes = oldChildren.zipWithIndex.flatMap { case (child, index) =>
     child.key.map(key => key -> (child, index))
   }.toMap
 
   logger.debug(
-    "Built old keyed nodes map",
+    "Starting child reconciliation",
     category = "Reconciler",
-    opId = 1,
     Map(
       "oldChildren" -> oldChildren.map(_.key).mkString(", "),
       "newChildren" -> newChildren.map(_.key).mkString(", "),
@@ -228,12 +296,23 @@ private def diffChildren(
     ),
   )
 
-  // First handle removals and updates for keyed nodes
+  // Process new children and track remaining old nodes for removal
   val (operations, remainingOld) = newChildren.zipWithIndex.foldLeft(
     (Vector.empty[DOMOperation], oldChildren.toSet),
   ) { case ((ops, remaining), (newChild, newIndex)) =>
+    logger.debug(
+      "Processing child",
+      category = "Reconciler",
+      Map(
+        "newChildKey"   -> newChild.key.getOrElse("none"),
+        "newIndex"      -> newIndex.toString,
+        "remainingKeys" -> remaining.map(_.key).mkString(", "),
+      ),
+    )
+
     newChild.key match {
       case Some(key) =>
+        // Handle keyed nodes
         oldKeyedNodes.get(key) match {
           case Some((oldChild, oldIndex)) =>
             // Found matching key - update if needed and move to new position if different
@@ -243,31 +322,59 @@ private def diffChildren(
                 Seq(MoveNode(oldChild, newIndex))
               else
                 Nil
+
+            logger.debug(
+              "Matched keyed nodes",
+              category = "Reconciler",
+              Map(
+                "key"       -> key,
+                "oldIndex"  -> oldIndex.toString,
+                "newIndex"  -> newIndex.toString,
+                "needsMove" -> (oldIndex != newIndex).toString,
+              ),
+            )
+
             (ops ++ updateOps ++ moveOps, remaining - oldChild)
+
           case None =>
             // No matching key - insert new node
+            logger.debug(
+              "No matching key found - inserting",
+              category = "Reconciler",
+              Map("key" -> key),
+            )
             (ops :+ InsertNode(newChild, Some(newIndex)), remaining)
         }
+
       case None =>
-        // Non-keyed node - use index-based matching
+        // Handle non-keyed nodes using position matching
         val oldChild = oldChildren.lift(newIndex)
         if (oldChild.exists(old => old.key.isEmpty)) {
           // Both nodes are non-keyed, do regular diff
+          logger.debug(
+            "Matched non-keyed nodes by position",
+            category = "Reconciler",
+            Map("index" -> newIndex.toString),
+          )
           (ops ++ diff(oldChild, Some(newChild)), oldChild.map(remaining - _).getOrElse(remaining))
         } else {
           // Old node was keyed or doesn't exist - insert new
+          logger.debug(
+            "No matching non-keyed node - inserting",
+            category = "Reconciler",
+            Map("index" -> newIndex.toString),
+          )
           (ops :+ InsertNode(newChild, Some(newIndex)), remaining)
         }
     }
   }
 
-  // Remove any remaining old nodes that weren't reused
+  // Generate removal operations for any unmatched old nodes
   val removals = remainingOld.toVector.map(RemoveNode.apply)
 
   logger.debug(
     "Diffing children complete",
     category = "Reconciler",
-    opId = 1,
     Map(
       "operations" -> operations.mkString(", "),
       "removals"   -> removals.mkString(", "),

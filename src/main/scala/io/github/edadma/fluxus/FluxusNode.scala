@@ -31,7 +31,32 @@ case class ElementNode(
     namespace: Option[String] = None,
     ref: Option[Element => Unit] = None,
     key: Option[String] = None,
-) extends FluxusNode
+) extends FluxusNode {
+  // Override hashCode to exclude parent
+  override def hashCode: Int = {
+    val prime  = 31
+    var result = 1
+    result = prime * result + tag.hashCode
+    result = prime * result + attrs.hashCode
+    result = prime * result + children.hashCode
+    result = prime * result + namespace.hashCode
+    result = prime * result + key.hashCode
+    result
+  }
+
+  // Override equals to exclude parent
+  override def equals(other: Any): Boolean = other match {
+    case that: ElementNode =>
+      tag == that.tag &&
+      attrs == that.attrs &&
+      events == that.events &&
+      children == that.children &&
+      namespace == that.namespace &&
+      ref == that.ref &&
+      key == that.key
+    case _ => false
+  }
+}
 
 case class ComponentNode(
     component: Product => FluxusNode,
@@ -40,12 +65,48 @@ case class ComponentNode(
     var domNode: Option[Node] = None,
     key: Option[String] = None,
     var instance: Option[ComponentInstance] = None,
-) extends FluxusNode:
+) extends FluxusNode {
+  override def hashCode: Int = {
+    val prime  = 31
+    var result = 1
+    result = prime * result + component.hashCode // Include component function
+    result = prime * result + props.hashCode
+    result = prime * result + key.hashCode
+    // Note: component function is not included in hashCode as functions don't have reliable hash codes
+    result
+  }
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ComponentNode =>
+      component == that.component && // Include component function
+      props == that.props &&
+      key == that.key
+    // Note: component function equality is not reliable
+    case _ => false
+  }
+
   def withKey(k: String): ComponentNode = copy(key = Some(k))
+}
 
 case class TextNode(
     text: String,
     parent: Option[FluxusNode],
     var domNode: Option[Node],
-) extends FluxusNode:
+) extends FluxusNode {
   val key: Option[String] = None
+
+  override def hashCode: Int = {
+    val prime  = 31
+    var result = 1
+    result = prime * result + text.hashCode
+    result = prime * result + key.hashCode
+    result
+  }
+
+  override def equals(other: Any): Boolean = other match {
+    case that: TextNode =>
+      text == that.text &&
+      key == that.key
+    case _ => false
+  }
+}
