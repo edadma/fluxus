@@ -33,6 +33,7 @@ DOMSpec.scala
 DOMTest.scala
 HookTest.scala
 ReconcilerTest.scala
+RenderingTests.scala
 
 # build files
 ./
