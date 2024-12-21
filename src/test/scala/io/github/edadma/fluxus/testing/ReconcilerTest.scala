@@ -17,7 +17,7 @@ import org.scalajs.dom
 import pprint.pprintln
 
 class ReconcilerTest extends AnyDOMSpec {
-  "checkbox reconciliation" should "handle checked state changes correctly" in {
+  "checkbox reconciliation" should "handle checked state change from true to false correctly" in {
     val container = getContainer
 
     // Initial checkbox - checked
@@ -46,6 +46,37 @@ class ReconcilerTest extends AnyDOMSpec {
     // Verify final state
     val finalInput = container.querySelector("input")
     finalInput.hasAttribute("checked") shouldBe false
+  }
+
+  it should "handle checked state change from false to true correctly" in {
+    val container = getContainer
+
+    // Initial checkbox - checked
+    val oldNode = input(
+      typ     := "checkbox",
+      checked := false,
+    )
+    createDOM(oldNode, container)
+
+    // Verify initial state
+    val initialInput = container.querySelector("input")
+    initialInput.hasAttribute("checked") shouldBe false
+
+    // Create new node with checked=true
+    val newNode = input(
+      typ     := "checkbox",
+      checked := true,
+    )
+
+    // Get and verify operations
+    val ops = diff(Some(oldNode), Some(newNode))
+
+    // Apply the changes
+    ops.foreach(op => commit(op, container))
+
+    // Verify final state
+    val finalInput = container.querySelector("input")
+    finalInput.hasAttribute("checked") shouldBe true
   }
 
   "diff" should "handle optional content insertion correctly" in {

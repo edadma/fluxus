@@ -117,6 +117,95 @@ private def diffSameType(oldNode: FluxusNode, newNode: FluxusNode): Seq[DOMOpera
 //    Nil
 //}
 
+//private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperation] = {
+//  logger.debug(
+//    "Starting props diff",
+//    category = "Reconciler",
+//    opId = 1,
+//    Map(
+//      "oldEvents" -> oldNode.events.keySet.toString,
+//      "newEvents" -> newNode.events.keySet.toString,
+//    ),
+//  )
+//
+//  val propsToRemove = oldNode.attrs.keySet -- newNode.attrs.keySet
+//  val propsToAdd = newNode.attrs.filter { case (k, v) =>
+//    !oldNode.attrs.get(k).contains(v)
+//  }
+//
+//  // 1. Events that exist in old but not in new should be removed
+//  val eventsToRemove = oldNode.events.keySet -- newNode.events.keySet
+//
+//  logger.debug(
+//    "Identified removed events",
+//    category = "Reconciler",
+//    opId = 1,
+//    Map("eventsToRemove" -> eventsToRemove.toString),
+//  )
+//
+//  // 2. New events that didn't exist before should be added
+//  val eventsToAdd = newNode.events.keySet -- oldNode.events.keySet
+//
+//  logger.debug(
+//    "Identified added events",
+//    category = "Reconciler",
+//    opId = 1,
+//    Map("addedEvents" -> eventsToAdd.toString),
+//  )
+//
+//  // 3. For events that exist in both, we need to update if they've changed
+//  val commonEvents = oldNode.events.keySet.intersect(newNode.events.keySet)
+//
+//  val eventsToUpdate = commonEvents.filter { eventName =>
+//    oldNode.events(eventName) ne newNode.events(eventName)
+//  }
+//
+//  if (eventsToUpdate.nonEmpty) {
+//    logger.debug(
+//      "Updating event handlers",
+//      category = "Reconciler",
+//      Map(
+//        "events"  -> eventsToUpdate.toString,
+//        "domNode" -> oldNode.domNode.isDefined.toString,
+//      ),
+//    )
+//  }
+//
+//  // Keep the original DOM node reference
+//  newNode.domNode = oldNode.domNode
+//
+//  logger.debug(
+//    "Final event changes",
+//    category = "Reconciler",
+//    opId = 1,
+//    Map(
+//      "eventsToRemove" -> eventsToRemove.toString,
+//      "eventsToAdd"    -> eventsToAdd.toString,
+//    ),
+//  )
+//
+//  val ops = mutable.ArrayBuffer[DOMOperation]()
+//
+//  if (propsToRemove.nonEmpty) ops += RemoveProps(oldNode, propsToRemove)
+//  if (propsToAdd.nonEmpty) ops += AddProps(oldNode, propsToAdd)
+//
+//  // Remove old event handlers
+//  eventsToRemove.foreach(name => ops += RemoveEvent(oldNode, name))
+//
+//  // Add new event handlers
+//  eventsToAdd.foreach { name =>
+//    ops += AddEvent(oldNode, name, newNode.events(name))
+//  }
+//
+//  // Update changed handlers (remove old + add new)
+//  eventsToUpdate.foreach { name =>
+//    ops += RemoveEvent(oldNode, name)
+//    ops += AddEvent(oldNode, name, newNode.events(name))
+//  }
+//
+//  ops.toSeq
+//}
+
 private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperation] = {
   logger.debug(
     "Starting props diff",
@@ -128,10 +217,37 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
     ),
   )
 
-  val propsToRemove = oldNode.attrs.keySet -- newNode.attrs.keySet
-  val propsToAdd = newNode.attrs.filter { case (k, v) =>
-    !oldNode.attrs.get(k).contains(v)
+  // First identify all attributes that need handling
+  val allKeys = oldNode.attrs.keySet ++ newNode.attrs.keySet
+
+  // Split into regular and boolean attributes that need updates
+  val (booleanChanges, regularChanges) = allKeys.flatMap { key =>
+    (oldNode.attrs.get(key), newNode.attrs.get(key)) match {
+      // Boolean attribute changes
+      case (Some(oldValue: Boolean), Some(newValue: Boolean)) if oldValue != newValue =>
+        if (newValue)
+          Some(Right((key, newValue))) // Add boolean attribute
+        else
+          Some(Left(key)) // Remove boolean attribute
+
+      // Regular attribute changes
+      case (oldValue, newValue) if oldValue != newValue =>
+        if (newValue.isEmpty)
+          Some(Left(key)) // Remove if not in new node
+        else
+          Some(Right((key, newValue.get))) // Add/update with new value
+
+      case _ => None
+    }
+  }.partition {
+    case Left(_)                => true
+    case Right((_, v: Boolean)) => !v // false booleans go to remove
+    case _                      => false
   }
+
+  val propsToRemove = booleanChanges.collect { case Left(key) => key }.toSet ++
+    booleanChanges.collect { case Right((k, _)) => k }
+  val propsToAdd = regularChanges.collect { case Right((k, v)) => k -> v }.toMap
 
   // 1. Events that exist in old but not in new should be removed
   val eventsToRemove = oldNode.events.keySet -- newNode.events.keySet
