@@ -16,15 +16,13 @@ object TodoApp:
 
   def TodoApp(props: TodoProps): FluxusNode = {
     // State hooks
-    val (todos, setTodos)     = useState(Vector[Todo]())
-    val (newTodo, setNewTodo) = useState("")
-    println(("newTodo", newTodo))
+    val (todos, setTodos)         = useState(Vector[Todo]())
+    val (newTodo, setNewTodo)     = useState("")
     val (filter, setFilter)       = useState(Filter.All)
     val (editingId, setEditingId) = useState(Option.empty[Long])
     val (editText, setEditText)   = useState("")
 
     def handleAdd() =
-      println(("handleAdd", newTodo))
       if newTodo.trim.nonEmpty then
         setTodos(prev =>
           prev :+ Todo(
