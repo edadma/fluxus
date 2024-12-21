@@ -3,41 +3,29 @@ package io.github.edadma.fluxus.testing
 import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, reconcile}
 
-import scala.concurrent.Future
-
-class RenderingTests extends AsyncDOMSpec {
-  "Optional content" should "appear in correct order regardless of empty div" in /*withDebugLogging(
-    "appear in correct order regardless of empty div",
-  )*/ {
+class RenderingTests extends AnyDOMSpec {
+  "createDOMNode" should "handle boolean attributes correctly for checkboxes" in {
     val container = getContainer
 
-    val TestComponent = () => {
-      val (showText, setShowText) = useState(false)
+    // Test checked=true
+    val checkedBox = input(
+      typ     := "checkbox",
+      checked := true,
+    )
+    createDOM(checkedBox, container)
+    val checkedElement = container.querySelector("input")
+    checkedElement.hasAttribute("checked") shouldBe true
 
-      div(
-        button(
-          onClick := (() => setShowText(!_)),
-          "Toggle",
-        ),
-        Option.when(showText)(
-          div("toggled"),
-        ),
-        div("last"),
-      )
-    }
+    // Clear container
+    container.innerHTML = ""
 
-    createDOM(TestComponent <> (), container)
-
-    val buttonElem = container.querySelector("button")
-
-    eventually {
-      container.innerHTML shouldBe "<div><button>Toggle</button><div>last</div></div>"
-    }.map { _ =>
-      click(buttonElem)
-    }.flatMap { _ =>
-      eventually {
-        container.innerHTML shouldBe "<div><button>Toggle</button><div>toggled</div><div>last</div></div>"
-      }
-    }
+    // Test checked=false
+    val uncheckedBox = input(
+      typ     := "checkbox",
+      checked := false,
+    )
+    createDOM(uncheckedBox, container)
+    val uncheckedElement = container.querySelector("input")
+    uncheckedElement.hasAttribute("checked") shouldBe false
   }
 }

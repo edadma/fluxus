@@ -37,11 +37,7 @@ trait DOMSpec extends Matchers with BeforeAndAfterEach { this: Suite =>
     logger.setLogLevel(LogLevel.OFF)
     logger.resetOpId()
 
-    // Clear container before each test
-    val container = getContainer
-    while (container.firstChild != null) {
-      container.removeChild(container.firstChild)
-    }
+    getContainer.innerHTML = ""
   }
 
   def click(element: dom.Element): dom.Event = {
