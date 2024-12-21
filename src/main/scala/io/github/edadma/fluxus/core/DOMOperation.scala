@@ -17,3 +17,4 @@ case class RemoveNode(node: FluxusNode)                                         
 case class InsertNode(node: FluxusNode, parentNode: FluxusNode, position: Option[Int] = None)     extends DOMOperation
 case class RerenderComponent(old: ComponentNode, newProps: ComponentNode)                         extends DOMOperation
 case class MoveNode(node: FluxusNode, toIndex: Int)                                               extends DOMOperation
+case class UpdateProperties(node: ElementNode, properties: Map[String, Any])                      extends DOMOperation
