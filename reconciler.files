@@ -1,0 +1,17 @@
+; Fluxus project sources
+
+# core
+./src/main/scala/io/github/edadma/fluxus/core
+commit.scala
+ComponentInstance.scala
+diff.scala
+DOMOperation.scala
+reconcile.scala
+
+# ergonomic api
+./src/main/scala/io/github/edadma/fluxus
+FluxusNode.scala
+
+# unit testing
+./src/test/scala/io/github/edadma/fluxus/testing
+ReconcilerTest.scala

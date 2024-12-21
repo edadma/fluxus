@@ -45,57 +45,6 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
         )
       }
 
-//    case UpdateProps(node, propsToRemove, propsToAdd, eventsToRemove, eventsToAdd) =>
-//      node.domNode.foreach { n =>
-//        val element = n.asInstanceOf[dom.Element]
-//
-//        // Update regular props
-//        propsToRemove.foreach(element.removeAttribute)
-//        propsToAdd.foreach { case (name, value) =>
-//          element.setAttribute(name, value.toString)
-//        }
-//
-//        logger.debug(
-//          "Removing events",
-//          category = "Reconciler",
-//          opId = 1,
-//          Map(
-//            "eventsToRemove" -> eventsToRemove.toString,
-//            "nodeEvents"     -> node.events.toString,
-//          ),
-//        )
-//
-//        // Update events - much simpler now with pre-wrapped handlers
-//        eventsToRemove.foreach { eventName =>
-//          val domEventName = eventName.toLowerCase match {
-//            case name if name.startsWith("on") => name.substring(2)
-//            case name                          => name
-//          }
-//
-//          logger.debug(
-//            "Removing event listener",
-//            category = "Reconciler",
-//            opId = 1,
-//            Map(
-//              "eventName"    -> eventName,
-//              "domEventName" -> domEventName,
-//              "handlerFound" -> node.events.contains(eventName).toString,
-//            ),
-//          )
-//
-//          node.events.get(eventName).foreach { handler =>
-//            element.removeEventListener(domEventName, handler)
-//          }
-//        }
-//
-//        eventsToAdd.foreach { case (eventName, handler) =>
-//          val domEventName = eventName.toLowerCase match {
-//            case name if name.startsWith("on") => name.substring(2)
-//            case name                          => name
-//          }
-//          element.addEventListener(domEventName, handler)
-//        }
-//      }
     case RemoveProps(node, props) =>
       node.domNode.foreach { n =>
         val element = n.asInstanceOf[dom.Element]

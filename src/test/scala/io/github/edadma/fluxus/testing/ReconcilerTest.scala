@@ -4,8 +4,41 @@ import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{commit, createDOM, diff, reconcile}
 import io.github.edadma.fluxus.core.DOMOperation.*
 import org.scalajs.dom
+import pprint.pprintln
 
 class ReconcilerTest extends AnyDOMSpec {
+  "diff" should "handle optional content insertion correctly" in {
+    val container = getContainer
+
+    // Initial tree - no optional content
+    val oldTree = div(
+      div("first"),
+      div("last"),
+    )
+
+    createDOM(oldTree, container)
+
+    // New tree - with optional content inserted
+    val newTree = div(
+      div("first"),
+      div("middle"),
+      div("last"),
+    )
+
+    val ops = diff(Some(oldTree), Some(newTree))
+
+//    pprintln(ops)
+//
+//    ops shouldBe Seq(
+//      InsertNode(div("toggled"), Some(1)),
+//    )
+
+    ops.foreach(op => commit(op, container))
+    println(container.innerHTML)
+
+    container.innerHTML shouldBe "<div><div>first</div><div>middle</div><div>last</div></div>"
+  }
+
   "TextNode reconciliation" should "generate correct operations and update DOM when text changes" in {
     val container = getContainer
 
