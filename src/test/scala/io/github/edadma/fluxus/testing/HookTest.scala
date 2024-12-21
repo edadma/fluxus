@@ -129,7 +129,7 @@ class HookTest extends AsyncDOMSpec {
     var checkbox: dom.Element = null
 
     eventually {
-      checkbox = container.querySelector("input[type=\"checkbox\"]")
+      checkbox = container.querySelector("input[type='checkbox']")
       checkbox.hasAttribute("checked") shouldBe false
     }
       .map { _ =>
