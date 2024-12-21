@@ -6,9 +6,9 @@ import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, reconcile}
 import scala.concurrent.Future
 
 class RenderingTests extends AsyncDOMSpec {
-  "Optional content" should "appear in correct order regardless of empty div" in withDebugLogging(
+  "Optional content" should "appear in correct order regardless of empty div" in /*withDebugLogging(
     "appear in correct order regardless of empty div",
-  ) {
+  )*/ {
     val container = getContainer
 
     val TestComponent = () => {

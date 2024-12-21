@@ -7,7 +7,9 @@ import org.scalajs.dom
 import scala.scalajs.js
 
 class HookTest extends AsyncDOMSpec {
-  "TodoInput" should "maintain input value in state for handleAdd" in {
+  "TodoInput" should "maintain input value in state for handleAdd" in withDebugLogging(
+    "maintain input value in state for handleAdd",
+  ) {
     val container = getContainer
     var addedTodo = ""
 
