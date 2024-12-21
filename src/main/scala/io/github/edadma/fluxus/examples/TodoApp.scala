@@ -17,7 +17,7 @@ object TodoApp:
   def TodoApp(props: TodoProps): FluxusNode = {
     // State hooks
     val (todos, setTodos)     = useState(Vector[Todo]())
-    val (newTodo, setNewTodo) = useState("zxcv")
+    val (newTodo, setNewTodo) = useState("")
     println(("newTodo", newTodo))
     val (filter, setFilter)       = useState(Filter.All)
     val (editingId, setEditingId) = useState(Option.empty[Long])
