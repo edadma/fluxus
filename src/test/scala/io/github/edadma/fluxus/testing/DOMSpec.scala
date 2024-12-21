@@ -128,6 +128,22 @@ class AsyncDOMSpec extends AsyncFlatSpec with DOMSpec with JSEventually {
       result
     }
   }
+
+  def after[T](millis: Int)(block: => T): Future[T] = {
+    val promise = Promise[T]()
+
+    js.timers.setTimeout(millis) {
+      try {
+        val result = block
+        promise.success(result)
+      } catch {
+        case e: Throwable =>
+          promise.failure(e)
+      }
+    }
+
+    promise.future
+  }
 }
 
 class AnyDOMSpec extends AnyFlatSpec with DOMSpec:

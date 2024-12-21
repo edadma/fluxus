@@ -14,10 +14,51 @@ class HookTest extends AsyncDOMSpec {
     var addedTodo = ""
 
     val TestTodoInput = () => {
-      val (newTodo, setNewTodo) = useState("")
+      logger.debug(
+        "Before useState",
+        category = "Test",
+        Map("instance" -> ComponentInstance.current.map(_.id).getOrElse("none")),
+      )
+
+      val hookResult = useState("")
+
+      logger.debug(
+        "After useState",
+        category = "Test",
+        Map(
+          "hookValue" -> hookResult._1,
+          "instance"  -> ComponentInstance.current.map(_.id).getOrElse("none"),
+        ),
+      )
+
+      val (newTodo, setNewTodo) = hookResult // Destructure
+
+      logger.debug(
+        "After destructure",
+        category = "Test",
+        Map(
+          "newTodo"  -> newTodo,
+          "instance" -> ComponentInstance.current.map(_.id).getOrElse("none"),
+        ),
+      )
+
+      val instance = ComponentInstance.current.get
 
       def handleAdd() = {
-        addedTodo = newTodo
+        // Instead of using newTodo from closure, get it directly from hook
+        val currentTodo = instance.hooks(0).asInstanceOf[StateHook[String]].value
+
+        logger.debug(
+          "handleAdd called",
+          category = "Test",
+          Map(
+            "newTodo"           -> newTodo,
+            "currentTodo"       -> currentTodo,
+            "componentInstance" -> instance.id,
+            "hooksState"        -> instance.hooks.toString,
+          ),
+        )
+        addedTodo = newTodo // Use the value from hook directly
       }
 
       div(
@@ -25,11 +66,27 @@ class HookTest extends AsyncDOMSpec {
           typ    := "text",
           value_ := newTodo,
           onInput := ((e: dom.Event) =>
-            setNewTodo(e.target.asInstanceOf[dom.html.Input].value)
+            val inputValue = e.target.asInstanceOf[dom.html.Input].value
+            logger.debug(
+              "onInput handler",
+              category = "Test",
+              Map("inputValue" -> inputValue),
+            )
+            setNewTodo(inputValue)
           ),
         ),
         button(
-          onClick := (() => handleAdd()),
+          onClick := (() => {
+            logger.debug(
+              "onClick before handleAdd",
+              category = "Test",
+              Map(
+                "componentInstance" -> ComponentInstance.current.map(_.id).getOrElse("none"),
+                "hooksState"        -> ComponentInstance.current.map(_.hooks.toString).getOrElse("none"),
+              ),
+            )
+            handleAdd()
+          }),
           "Add",
         ),
       )
@@ -44,11 +101,21 @@ class HookTest extends AsyncDOMSpec {
     // Simulate typing
     typeInput(inputElem, todoText)
 
-    // Wait for state update
-    eventually {
+    after(50) {
+      logger.debug(
+        "After delay",
+        category = "Test",
+        Map(
+          "inputValue" -> inputElem.asInstanceOf[dom.html.Input].value,
+        ),
+      )
       click(buttonElem)
-      addedTodo shouldBe todoText
     }
+      .flatMap { _ =>
+        eventually {
+          addedTodo shouldBe todoText
+        }
+      }
   }
 
   "useState hook" should "maintain state between renders" in {

@@ -70,7 +70,11 @@ def useState[T](initial: T): (T, (T | (T => T)) => Unit) = {
       logger.debug(
         "Reusing existing hook",
         category = "Hooks",
-        Map("hookIndex" -> instance.hookIndex.toString),
+        Map(
+          "hookIndex"    -> instance.hookIndex.toString,
+          "currentValue" -> h.value.toString,
+          "allHooks"     -> instance.hooks.toString,
+        ),
       )
       h.asInstanceOf[StateHook[T]]
     case None =>
@@ -85,8 +89,9 @@ def useState[T](initial: T): (T, (T | (T => T)) => Unit) = {
     "Returning hook value",
     category = "Hooks",
     Map(
-      "hookIndex" -> instance.hookIndex.toString,
-      "value"     -> hook.value.toString,
+      "hookIndex"   -> instance.hookIndex.toString,
+      "hookValue"   -> hook.value.toString, // Add this
+      "returnValue" -> hook.value.toString, // Add this
     ),
   )
 
