@@ -22,8 +22,11 @@ render.scala
 
 # example apps
 ./src/main/scala/io/github/edadma/fluxus/examples
+CountersApp.scala
 DemoApp.scala
+ListApp.scala
 main.scala
+TodoApp.scala
 
 # unit testing
 ./src/test/scala/io/github/edadma/fluxus/testing
