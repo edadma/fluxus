@@ -126,9 +126,10 @@ class HookTest extends AsyncDOMSpec {
     // Add a todo
     click(container.querySelector(".add"))
 
-    val checkbox = container.querySelector("input[type=checkbox]")
+    var checkbox: dom.Element = null
 
     eventually {
+      checkbox = container.querySelector("input[type=\"checkbox\"]")
       checkbox.hasAttribute("checked") shouldBe false
     }
       .map { _ =>
@@ -138,13 +139,15 @@ class HookTest extends AsyncDOMSpec {
       .flatMap { _ =>
         eventually {
           checkbox.hasAttribute("checked") shouldBe true
-
-          // Now try bulk toggle
-          click(container.querySelector(".toggle-all"))
-
-          eventually {
-            checkbox.hasAttribute("checked") shouldBe false
-          }
+        }
+      }
+      .map { _ =>
+        // Now try bulk toggle
+        click(container.querySelector(".toggle-all"))
+      }
+      .flatMap { _ =>
+        eventually {
+          checkbox.hasAttribute("checked") shouldBe false
         }
       }
   }
