@@ -1,6 +1,7 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{logger, ElementNode, FluxusNode, TextNode, ComponentNode}
+import io.github.edadma.fluxus.{ComponentNode, ElementNode, FluxusNode, TextNode, logger}
+import org.scalajs.dom
 import org.scalajs.dom.{Element, Event, Node, document}
 
 def createDOMNode(node: FluxusNode): Node = {
@@ -37,34 +38,28 @@ def createDOMNode(node: FluxusNode): Node = {
         case None     => document.createElement(tag)
 
       // Set attributes
-      attrs.foreach { case (name, value) =>
-        logger.debug(
-          "Setting attribute",
-          category = "DOM",
-          opId = 1,
-          Map(
-            "name"  -> name,
-            "value" -> value.toString,
-          ),
-        )
+      attrs.foreach {
+        case ("=checked", value: Boolean)      => elem.asInstanceOf[dom.html.Input].checked = value
+        case ("=value", value)                 => elem.asInstanceOf[dom.html.Input].value = value.toString
+        case ("=selected", value: Boolean)     => elem.asInstanceOf[dom.html.Option].selected = value
+        case (name, _) if name.startsWith("=") => sys.error(s"boolean value was expected for ${name drop 1}")
+        case (name, value) =>
+          logger.debug(
+            "Setting attribute",
+            category = "DOM",
+            opId = 1,
+            Map(
+              "name"  -> name,
+              "value" -> value.toString,
+            ),
+          )
 
-        value match
-          case b: Boolean =>
-            // Only set attribute if true, remove if false
-            if (b) elem.setAttribute(name, "")
-            else elem.removeAttribute(name)
-
-          case null | None =>
-            // Remove attribute for null/None values
-            elem.removeAttribute(name)
-
-          case Some(v) =>
-            // Handle Option values
-            elem.setAttribute(name, v.toString)
-
-          case v =>
-            // Handle all other values by converting to string
-            elem.setAttribute(name, v.toString)
+          value match
+            case true        => elem.setAttribute(name, "true")
+            case false       =>
+            case null | None =>
+            case Some(v)     => elem.setAttribute(name, v.toString)
+            case v           => elem.setAttribute(name, v.toString)
       }
 
       // Handle events by converting names and attaching listeners
@@ -125,6 +120,22 @@ def createDOMNode(node: FluxusNode): Node = {
   )
 
   domNode
+}
+
+private def setAttributeOrProperty(elem: dom.Element, name: String, value: Any): Unit = {
+  if (name.startsWith("=")) {
+    // Property binding
+    val propName = name.substring(1) // Remove "=" prefix
+    propName match {
+      case "checked"  => elem.asInstanceOf[dom.html.Input].checked = value.asInstanceOf[Boolean]
+      case "value"    => elem.asInstanceOf[dom.html.Input].value = value.toString
+      case "selected" => elem.asInstanceOf[dom.html.Option].selected = value.asInstanceOf[Boolean]
+      // Add other property bindings as needed
+    }
+  } else {
+    // Regular attribute binding
+    setDOMAttribute(elem, name, value)
+  }
 }
 
 def createDOM(root: FluxusNode, container: Element): Unit = {
