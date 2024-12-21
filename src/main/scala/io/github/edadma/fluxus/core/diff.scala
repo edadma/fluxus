@@ -387,12 +387,82 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
 //  operations ++ removals
 //}
 
+//private def diffChildren(
+//    oldChildren: Vector[FluxusNode],
+//    newChildren: Vector[FluxusNode],
+//    parent: FluxusNode, // Add parent parameter
+//): Seq[DOMOperation] = {
+//  // First, build map of keyed nodes and their positions from old children
+//  val oldKeyedNodes = oldChildren.zipWithIndex.flatMap { case (child, index) =>
+//    child.key.map(key => key -> (child, index))
+//  }.toMap
+//
+//  logger.debug(
+//    "Starting child reconciliation",
+//    category = "Reconciler",
+//    Map(
+//      "oldChildren" -> oldChildren.map(_.key).mkString(", "),
+//      "newChildren" -> newChildren.map(_.key).mkString(", "),
+//      "keyedNodes"  -> oldKeyedNodes.keys.mkString(", "),
+//    ),
+//  )
+//
+//  // Process new children and track remaining old nodes for removal
+//  val (operations, remainingOld) = newChildren.zipWithIndex.foldLeft(
+//    (Vector.empty[DOMOperation], oldChildren.toSet),
+//  ) { case ((ops, remaining), (newChild, newIndex)) =>
+//    newChild.key match {
+//      case Some(key) =>
+//        // Handle keyed nodes
+//        oldKeyedNodes.get(key) match {
+//          case Some((oldChild, oldIndex)) =>
+//            // Found matching key - update if needed and move to new position if different
+//            val updateOps = diff(Some(oldChild), Some(newChild), Some(parent))
+//            val moveOps =
+//              if (oldIndex != newIndex)
+//                Seq(MoveNode(oldChild, newIndex))
+//              else
+//                Nil
+//            (ops ++ updateOps ++ moveOps, remaining - oldChild)
+//
+//          case None =>
+//            // No matching key - insert new node with parent info
+//            logger.debug(
+//              "No matching key found - inserting",
+//              category = "Reconciler",
+//              Map("key" -> key),
+//            )
+//            // Changed here: Include parent in InsertNode
+//            (ops :+ InsertNode(newChild, parent, Some(newIndex)), remaining)
+//        }
+//
+//      case None =>
+//        // Handle non-keyed nodes using position matching
+//        val oldChild = oldChildren.lift(newIndex)
+//        if (oldChild.exists(old => old.key.isEmpty)) {
+//          // Both nodes are non-keyed, do regular diff
+//          (ops ++ diff(oldChild, Some(newChild)), oldChild.map(remaining - _).getOrElse(remaining))
+//        } else {
+//          // Old node was keyed or doesn't exist - insert new with parent info
+//          // Changed here: Include parent in InsertNode
+//          (ops :+ InsertNode(newChild, parent, Some(newIndex)), remaining)
+//        }
+//    }
+//  }
+//
+//  // Generate removal operations for any unmatched old nodes
+//  val removals = remainingOld.toVector.map(RemoveNode.apply)
+//
+//  operations ++ removals
+//}
+
+/*
 private def diffChildren(
     oldChildren: Vector[FluxusNode],
     newChildren: Vector[FluxusNode],
-    parent: FluxusNode, // Add parent parameter
+    parent: FluxusNode,
 ): Seq[DOMOperation] = {
-  // First, build map of keyed nodes and their positions from old children
+  // First, build map of keyed nodes from old children
   val oldKeyedNodes = oldChildren.zipWithIndex.flatMap { case (child, index) =>
     child.key.map(key => key -> (child, index))
   }.toMap
@@ -407,53 +477,157 @@ private def diffChildren(
     ),
   )
 
-  // Process new children and track remaining old nodes for removal
-  val (operations, remainingOld) = newChildren.zipWithIndex.foldLeft(
-    (Vector.empty[DOMOperation], oldChildren.toSet),
-  ) { case ((ops, remaining), (newChild, newIndex)) =>
+  val operations = mutable.ArrayBuffer[DOMOperation]()
+  val handledOld = mutable.Set[FluxusNode]()
+  val handledNew = mutable.Set[FluxusNode]()
+
+  // First pass: Handle all keyed nodes
+  newChildren.zipWithIndex.foreach { case (newChild, newIndex) =>
+    newChild.key.foreach { key =>
+      oldKeyedNodes.get(key).foreach { case (oldChild, oldIndex) =>
+        handledOld += oldChild
+        handledNew += newChild
+
+        // Generate updates if needed
+        operations ++= diff(Some(oldChild), Some(newChild), Some(parent))
+
+        // Move if position changed
+        if (oldIndex != newIndex) {
+          operations += MoveNode(oldChild, newIndex)
+        }
+      }
+    }
+  }
+
+  // Second pass: Handle non-keyed nodes using position matching
+  val remainingOld = oldChildren.filterNot(handledOld.contains)
+  val remainingNew = newChildren.filterNot(handledNew.contains)
+
+  remainingNew.zipWithIndex.foreach { case (newChild, relativeIdx) =>
+    val absoluteIdx = handledNew.count(_ => true) + relativeIdx
+
+    remainingOld.lift(relativeIdx) match {
+      case Some(oldChild) if sameNodeType(oldChild, newChild) =>
+        handledOld += oldChild
+        handledNew += newChild
+
+        // Update content if needed
+        operations ++= diff(Some(oldChild), Some(newChild), Some(parent))
+
+        // Move if position changed
+        val oldAbsoluteIdx = oldChildren.indexOf(oldChild)
+        if (oldAbsoluteIdx != absoluteIdx) {
+          operations += MoveNode(oldChild, absoluteIdx)
+        }
+
+      case _ =>
+        // Insert new node at correct position
+        operations += InsertNode(newChild, parent, Some(absoluteIdx))
+    }
+  }
+
+  // Final pass: Remove any unmatched old nodes
+  oldChildren.filterNot(handledOld.contains).foreach { oldChild =>
+    operations += RemoveNode(oldChild)
+  }
+
+  logger.debug(
+    "Diffing children complete",
+    category = "Reconciler",
+    Map(
+      "operations" -> operations.mkString(", "),
+      "removals"   -> oldChildren.filterNot(handledOld.contains).mkString(", "),
+    ),
+  )
+
+  operations.toSeq
+}
+ */
+
+private def diffChildren(
+    oldChildren: Vector[FluxusNode],
+    newChildren: Vector[FluxusNode],
+    parent: FluxusNode,
+): Seq[DOMOperation] = {
+  // Build map of keyed nodes and their positions from old children
+  val oldKeyedNodes = oldChildren.zipWithIndex.flatMap { case (child, index) =>
+    child.key.map(key => key -> (child, index))
+  }.toMap
+
+  logger.debug(
+    "Starting child reconciliation",
+    category = "Reconciler",
+    Map(
+      "oldChildren" -> oldChildren.map(_.key).mkString(", "),
+      "newChildren" -> newChildren.map(_.key).mkString(", "),
+      "keyedNodes"  -> oldKeyedNodes.keys.mkString(", "),
+    ),
+  )
+
+  val operations       = mutable.ArrayBuffer[DOMOperation]()
+  val handledOld       = mutable.Set[FluxusNode]()
+  val handledPositions = mutable.Set[Int]()
+
+  // First pass: Handle all keyed nodes and moves
+  newChildren.zipWithIndex.foreach { case (newChild, newIndex) =>
     newChild.key match {
       case Some(key) =>
-        // Handle keyed nodes
         oldKeyedNodes.get(key) match {
           case Some((oldChild, oldIndex)) =>
-            // Found matching key - update if needed and move to new position if different
-            val updateOps = diff(Some(oldChild), Some(newChild), Some(parent))
-            val moveOps =
-              if (oldIndex != newIndex)
-                Seq(MoveNode(oldChild, newIndex))
-              else
-                Nil
-            (ops ++ updateOps ++ moveOps, remaining - oldChild)
+            handledOld += oldChild
+            handledPositions += newIndex
+
+            // Generate content updates if needed
+            operations ++= diff(Some(oldChild), Some(newChild), Some(parent))
+
+            // If position changed, move the node
+            if (oldIndex != newIndex) {
+              operations += MoveNode(oldChild, newIndex)
+              logger.debug(
+                "Moving keyed node",
+                category = "Reconciler",
+                Map(
+                  "key"  -> key,
+                  "from" -> oldIndex.toString,
+                  "to"   -> newIndex.toString,
+                ),
+              )
+            }
 
           case None =>
-            // No matching key - insert new node with parent info
-            logger.debug(
-              "No matching key found - inserting",
-              category = "Reconciler",
-              Map("key" -> key),
-            )
-            // Changed here: Include parent in InsertNode
-            (ops :+ InsertNode(newChild, parent, Some(newIndex)), remaining)
+            // New keyed node - insert
+            operations += InsertNode(newChild, parent, Some(newIndex))
         }
 
       case None =>
-        // Handle non-keyed nodes using position matching
-        val oldChild = oldChildren.lift(newIndex)
-        if (oldChild.exists(old => old.key.isEmpty)) {
-          // Both nodes are non-keyed, do regular diff
-          (ops ++ diff(oldChild, Some(newChild)), oldChild.map(remaining - _).getOrElse(remaining))
-        } else {
-          // Old node was keyed or doesn't exist - insert new with parent info
-          // Changed here: Include parent in InsertNode
-          (ops :+ InsertNode(newChild, parent, Some(newIndex)), remaining)
+        // Handle non-keyed nodes
+        oldChildren.lift(newIndex).filter(old => old.key.isEmpty && !handledOld.contains(old)) match {
+          case Some(oldChild) =>
+            handledOld += oldChild
+            handledPositions += newIndex
+            operations ++= diff(Some(oldChild), Some(newChild), Some(parent))
+
+          case None =>
+            operations += InsertNode(newChild, parent, Some(newIndex))
         }
     }
   }
 
-  // Generate removal operations for any unmatched old nodes
-  val removals = remainingOld.toVector.map(RemoveNode.apply)
+  // Remove any unmatched old nodes
+  oldChildren.filterNot(handledOld.contains).foreach { oldChild =>
+    operations += RemoveNode(oldChild)
+  }
 
-  operations ++ removals
+  logger.debug(
+    "Diffing children complete",
+    category = "Reconciler",
+    Map(
+      "operations" -> operations.mkString(", "),
+      "removals"   -> oldChildren.filterNot(handledOld.contains).mkString(", "),
+    ),
+  )
+
+  operations.toSeq
 }
 
 private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOperation] = {

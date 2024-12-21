@@ -37,6 +37,8 @@ class ReconcilerTest extends AnyDOMSpec {
 
     val ops = diff(Some(oldTree), Some(newTree))
 
+    pprintln(ops)
+
     ops shouldBe Seq(
       UpdateText(
         TextNode("last", None, None),
