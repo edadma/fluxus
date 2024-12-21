@@ -2,7 +2,8 @@ package io.github.edadma.fluxus.core
 
 import io.github.edadma.fluxus.logger
 import org.scalajs.dom
-import DOMOperation._
+
+def commit(ops: Seq[DOMOperation], container: dom.Element): Unit = ops.foreach(op => commit(op, container))
 
 def commit(op: DOMOperation, container: dom.Element): Unit = {
   logger.debug(
@@ -107,13 +108,15 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
         }
       }
 
-    case InsertNode(node, position) =>
-      val dom = createDOMNode(node)
+    case InsertNode(node, parentNode, position) =>
+      val dom             = createDOMNode(node)
+      val targetContainer = parentNode.domNode.getOrElse(container)
+
       position match {
-        case Some(idx) if idx < container.childNodes.length =>
-          container.insertBefore(dom, container.childNodes(idx))
+        case Some(idx) if idx < targetContainer.childNodes.length =>
+          targetContainer.insertBefore(dom, targetContainer.childNodes(idx))
         case _ =>
-          container.appendChild(dom)
+          targetContainer.appendChild(dom)
       }
 
     case RerenderComponent(old, newProps) =>

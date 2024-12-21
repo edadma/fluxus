@@ -1,8 +1,18 @@
 package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.*
-import io.github.edadma.fluxus.core.{commit, createDOM, diff, reconcile}
-import io.github.edadma.fluxus.core.DOMOperation.*
+import io.github.edadma.fluxus.core.{
+  AddProps,
+  InsertNode,
+  RemoveEvent,
+  RemoveNode,
+  RerenderComponent,
+  UpdateText,
+  commit,
+  createDOM,
+  diff,
+  reconcile,
+}
 import org.scalajs.dom
 import pprint.pprintln
 
@@ -27,15 +37,24 @@ class ReconcilerTest extends AnyDOMSpec {
 
     val ops = diff(Some(oldTree), Some(newTree))
 
-//    pprintln(ops)
-//
-//    ops shouldBe Seq(
-//      InsertNode(div("toggled"), Some(1)),
-//    )
+    ops shouldBe Seq(
+      UpdateText(
+        TextNode("last", None, None),
+        "middle",
+      ),
+      InsertNode(
+        node = div(
+          TextNode("last", None, None),
+        ),
+        parentNode = div(
+          div(TextNode("first", None, None)),
+          div(TextNode("last", None, None)),
+        ),
+        position = Some(2),
+      ),
+    )
 
-    ops.foreach(op => commit(op, container))
-    println(container.innerHTML)
-
+    commit(ops, container)
     container.innerHTML shouldBe "<div><div>first</div><div>middle</div><div>last</div></div>"
   }
 
