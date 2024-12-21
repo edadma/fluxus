@@ -2,10 +2,53 @@ package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, reconcile}
+import org.scalajs.dom
 
 import scala.scalajs.js
 
 class HookTest extends AsyncDOMSpec {
+  "TodoInput" should "maintain input value in state for handleAdd" in {
+    val container = getContainer
+    var addedTodo = ""
+
+    val TestTodoInput = () => {
+      val (newTodo, setNewTodo) = useState("")
+
+      def handleAdd() = {
+        addedTodo = newTodo
+      }
+
+      div(
+        input(
+          typ    := "text",
+          value_ := newTodo,
+          onInput := ((e: dom.Event) =>
+            setNewTodo(e.target.asInstanceOf[dom.html.Input].value)
+          ),
+        ),
+        button(
+          onClick := (() => handleAdd()),
+          "Add",
+        ),
+      )
+    }
+
+    createDOM(TestTodoInput <> (), container)
+
+    val inputElem  = container.querySelector("input")
+    val buttonElem = container.querySelector("button")
+    val todoText   = "Test Todo"
+
+    // Simulate typing
+    typeInput(inputElem, todoText)
+
+    // Wait for state update
+    eventually {
+      click(buttonElem)
+      addedTodo shouldBe todoText
+    }
+  }
+
   "useState hook" should "maintain state between renders" in {
     val container = getContainer
     case class TestProps()

@@ -51,6 +51,15 @@ trait DOMSpec extends Matchers with BeforeAndAfterEach { this: Suite =>
     element.dispatchEvent(event)
     event
   }
+
+  def typeInput(element: dom.Element, value: String): dom.Event = {
+    val event = dom.document.createEvent("Event")
+
+    event.asInstanceOf[js.Dynamic].initEvent("input", true, true)
+    element.asInstanceOf[dom.html.Input].value = value
+    element.dispatchEvent(event)
+    event
+  }
 }
 
 import org.scalatest.concurrent.PatienceConfiguration
