@@ -7,6 +7,148 @@ import org.scalajs.dom
 import scala.scalajs.js
 
 class HookTest extends AsyncDOMSpec {
+  "checkbox reconciliation" should "handle multiple state-driven changes correctly" in {
+    case class Todo(id: Long, text: String, completed: Boolean)
+
+    val container = getContainer
+
+    case class TodoCompProps()
+
+    def TodoComponent(props: TodoCompProps) = {
+      val (todos, setTodos) = useState(Vector(
+        Todo(1, "test", false),
+      ))
+
+      def handleToggle(id: Long) =
+        setTodos(prev =>
+          prev.map(todo =>
+            if todo.id == id then todo.copy(completed = !todo.completed)
+            else todo,
+          ),
+        )
+
+      def toggleAll() = {
+        val allCompleted = todos.forall(_.completed)
+        setTodos(prev => prev.map(_.copy(completed = !allCompleted)))
+      }
+
+      div(
+        // Individual checkbox
+        input(
+          typ      := "checkbox",
+          checked  := todos(0).completed,
+          onChange := (() => handleToggle(1)),
+        ),
+        // Bulk toggle button
+        button(
+          onClick := (() => toggleAll()),
+          "Toggle All",
+        ),
+      )
+    }
+
+    createDOM(TodoComponent <> TodoCompProps(), container)
+
+    // Initial state - checkbox should be unchecked
+    val checkbox = container.querySelector("input")
+    checkbox.hasAttribute("checked") shouldBe false
+
+    // Click checkbox - should become checked
+    click(checkbox)
+
+    eventually {
+      checkbox.hasAttribute("checked") shouldBe true
+    }.flatMap { _ =>
+      // Click bulk toggle - should become unchecked
+      click(container.querySelector("button"))
+
+      eventually {
+        checkbox.hasAttribute("checked") shouldBe false
+      }
+    }
+  }
+
+  it should "handle new item addition and bulk toggle correctly" in {
+    case class Todo(id: Long, text: String, completed: Boolean)
+
+    val container = getContainer
+
+    case class TodoCompProps()
+
+    def TodoComponent(props: TodoCompProps) = {
+      val (todos, setTodos) = useState(Vector[Todo]())
+
+      def handleAdd() =
+        setTodos(prev => prev :+ Todo(System.currentTimeMillis(), "test", false))
+
+      def handleToggle(id: Long) =
+        setTodos(prev =>
+          prev.map(todo =>
+            if todo.id == id then todo.copy(completed = !todo.completed)
+            else todo,
+          ),
+        )
+
+      def toggleAll() = {
+        val allCompleted = todos.forall(_.completed)
+        setTodos(prev => prev.map(_.copy(completed = !allCompleted)))
+      }
+
+      div(
+        button(
+          cls     := "add",
+          onClick := (() => handleAdd()),
+          "Add",
+        ),
+        div(
+          cls := "todos",
+          todos.map(todo =>
+            div(
+              key_ := todo.id.toString,
+              input(
+                typ      := "checkbox",
+                checked  := todo.completed,
+                onChange := (() => handleToggle(todo.id)),
+              ),
+            ),
+          ),
+        ),
+        button(
+          cls     := "toggle-all",
+          onClick := (() => toggleAll()),
+          "Toggle All",
+        ),
+      )
+    }
+
+    createDOM(TodoComponent <> TodoCompProps(), container)
+
+    // Add a todo
+    click(container.querySelector(".add"))
+
+    val checkbox = container.querySelector("input[type=checkbox]")
+
+    eventually {
+      checkbox.hasAttribute("checked") shouldBe false
+    }
+      .map { _ =>
+        // Toggle the todo
+        click(checkbox)
+      }
+      .flatMap { _ =>
+        eventually {
+          checkbox.hasAttribute("checked") shouldBe true
+
+          // Now try bulk toggle
+          click(container.querySelector(".toggle-all"))
+
+          eventually {
+            checkbox.hasAttribute("checked") shouldBe false
+          }
+        }
+      }
+  }
+
   "Optional content" should "appear in correct order regardless of empty div" in /*withDebugLogging(
     "appear in correct order regardless of empty div",
   )*/ {
