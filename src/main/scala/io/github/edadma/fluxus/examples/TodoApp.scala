@@ -107,11 +107,9 @@ object TodoApp:
               ""
             ,
             input(
-              typ   := "text",
-              value := newTodo,
-              onChange := ((e: dom.Event) =>
-                setNewTodo(e.target.asInstanceOf[dom.html.Input].value)
-              ),
+              typ         := "text",
+              value       := newTodo,
+              onInput     := ((e: dom.Event) => setNewTodo(e.target.asInstanceOf[dom.html.Input].value)),
               placeholder := "What needs to be done?",
               cls         := "input input-bordered flex-grow",
             ),
