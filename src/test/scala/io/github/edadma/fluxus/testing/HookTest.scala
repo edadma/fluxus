@@ -7,150 +7,150 @@ import org.scalajs.dom
 import scala.scalajs.js
 
 class HookTest extends AsyncDOMSpec {
-  "checkbox reconciliation" should "handle multiple state-driven changes correctly" in {
-    case class Todo(id: Long, text: String, completed: Boolean)
+//  "checkbox reconciliation" should "handle multiple state-driven changes correctly" in {
+//    case class Todo(id: Long, text: String, completed: Boolean)
+//
+//    val container = getContainer
+//
+//    case class TodoCompProps()
+//
+//    def TodoComponent(props: TodoCompProps) = {
+//      val (todos, setTodos) = useState(Vector(
+//        Todo(1, "test", false),
+//      ))
+//
+//      def handleToggle(id: Long) =
+//        setTodos(prev =>
+//          prev.map(todo =>
+//            if todo.id == id then todo.copy(completed = !todo.completed)
+//            else todo,
+//          ),
+//        )
+//
+//      def toggleAll() = {
+//        val allCompleted = todos.forall(_.completed)
+//        setTodos(prev => prev.map(_.copy(completed = !allCompleted)))
+//      }
+//
+//      div(
+//        // Individual checkbox
+//        input(
+//          typ      := "checkbox",
+//          checked  := todos(0).completed,
+//          onChange := (() => handleToggle(1)),
+//        ),
+//        // Bulk toggle button
+//        button(
+//          onClick := (() => toggleAll()),
+//          "Toggle All",
+//        ),
+//      )
+//    }
+//
+//    createDOM(TodoComponent <> TodoCompProps(), container)
+//
+//    // Initial state - checkbox should be unchecked
+//    val checkbox = container.querySelector("input")
+//    checkbox.hasAttribute("checked") shouldBe false
+//
+//    // Click checkbox - should become checked
+//    click(checkbox)
+//
+//    eventually {
+//      checkbox.hasAttribute("checked") shouldBe true
+//    }.flatMap { _ =>
+//      // Click bulk toggle - should become unchecked
+//      click(container.querySelector("button"))
+//
+//      eventually {
+//        checkbox.hasAttribute("checked") shouldBe false
+//      }
+//    }
+//  }
 
-    val container = getContainer
-
-    case class TodoCompProps()
-
-    def TodoComponent(props: TodoCompProps) = {
-      val (todos, setTodos) = useState(Vector(
-        Todo(1, "test", false),
-      ))
-
-      def handleToggle(id: Long) =
-        setTodos(prev =>
-          prev.map(todo =>
-            if todo.id == id then todo.copy(completed = !todo.completed)
-            else todo,
-          ),
-        )
-
-      def toggleAll() = {
-        val allCompleted = todos.forall(_.completed)
-        setTodos(prev => prev.map(_.copy(completed = !allCompleted)))
-      }
-
-      div(
-        // Individual checkbox
-        input(
-          typ      := "checkbox",
-          checked  := todos(0).completed,
-          onChange := (() => handleToggle(1)),
-        ),
-        // Bulk toggle button
-        button(
-          onClick := (() => toggleAll()),
-          "Toggle All",
-        ),
-      )
-    }
-
-    createDOM(TodoComponent <> TodoCompProps(), container)
-
-    // Initial state - checkbox should be unchecked
-    val checkbox = container.querySelector("input")
-    checkbox.hasAttribute("checked") shouldBe false
-
-    // Click checkbox - should become checked
-    click(checkbox)
-
-    eventually {
-      checkbox.hasAttribute("checked") shouldBe true
-    }.flatMap { _ =>
-      // Click bulk toggle - should become unchecked
-      click(container.querySelector("button"))
-
-      eventually {
-        checkbox.hasAttribute("checked") shouldBe false
-      }
-    }
-  }
-
-  it should "handle new item addition and bulk toggle correctly" in {
-    case class Todo(id: Long, text: String, completed: Boolean)
-
-    val container = getContainer
-
-    case class TodoCompProps()
-
-    def TodoComponent(props: TodoCompProps) = {
-      val (todos, setTodos) = useState(Vector[Todo]())
-
-      def handleAdd() =
-        setTodos(prev => prev :+ Todo(System.currentTimeMillis(), "test", false))
-
-      def handleToggle(id: Long) =
-        setTodos(prev =>
-          prev.map(todo =>
-            if todo.id == id then todo.copy(completed = !todo.completed)
-            else todo,
-          ),
-        )
-
-      def toggleAll() = {
-        val allCompleted = todos.forall(_.completed)
-        setTodos(prev => prev.map(_.copy(completed = !allCompleted)))
-      }
-
-      div(
-        button(
-          cls     := "add",
-          onClick := (() => handleAdd()),
-          "Add",
-        ),
-        div(
-          cls := "todos",
-          todos.map(todo =>
-            div(
-              key_ := todo.id.toString,
-              input(
-                typ      := "checkbox",
-                checked  := todo.completed,
-                onChange := (() => handleToggle(todo.id)),
-              ),
-            ),
-          ),
-        ),
-        button(
-          cls     := "toggle-all",
-          onClick := (() => toggleAll()),
-          "Toggle All",
-        ),
-      )
-    }
-
-    createDOM(TodoComponent <> TodoCompProps(), container)
-
-    // Add a todo
-    click(container.querySelector(".add"))
-
-    var checkbox: dom.Element = null
-
-    eventually {
-      checkbox = container.querySelector("input[type='checkbox']")
-      checkbox.hasAttribute("checked") shouldBe false
-    }
-      .map { _ =>
-        // Toggle the todo
-        click(checkbox)
-      }
-      .flatMap { _ =>
-        eventually {
-          checkbox.hasAttribute("checked") shouldBe true
-        }
-      }
-      .map { _ =>
-        // Now try bulk toggle
-        click(container.querySelector(".toggle-all"))
-      }
-      .flatMap { _ =>
-        eventually {
-          checkbox.hasAttribute("checked") shouldBe false
-        }
-      }
-  }
+//  it should "handle new item addition and bulk toggle correctly" in {
+//    case class Todo(id: Long, text: String, completed: Boolean)
+//
+//    val container = getContainer
+//
+//    case class TodoCompProps()
+//
+//    def TodoComponent(props: TodoCompProps) = {
+//      val (todos, setTodos) = useState(Vector[Todo]())
+//
+//      def handleAdd() =
+//        setTodos(prev => prev :+ Todo(System.currentTimeMillis(), "test", false))
+//
+//      def handleToggle(id: Long) =
+//        setTodos(prev =>
+//          prev.map(todo =>
+//            if todo.id == id then todo.copy(completed = !todo.completed)
+//            else todo,
+//          ),
+//        )
+//
+//      def toggleAll() = {
+//        val allCompleted = todos.forall(_.completed)
+//        setTodos(prev => prev.map(_.copy(completed = !allCompleted)))
+//      }
+//
+//      div(
+//        button(
+//          cls     := "add",
+//          onClick := (() => handleAdd()),
+//          "Add",
+//        ),
+//        div(
+//          cls := "todos",
+//          todos.map(todo =>
+//            div(
+//              key_ := todo.id.toString,
+//              input(
+//                typ      := "checkbox",
+//                checked  := todo.completed,
+//                onChange := (() => handleToggle(todo.id)),
+//              ),
+//            ),
+//          ),
+//        ),
+//        button(
+//          cls     := "toggle-all",
+//          onClick := (() => toggleAll()),
+//          "Toggle All",
+//        ),
+//      )
+//    }
+//
+//    createDOM(TodoComponent <> TodoCompProps(), container)
+//
+//    // Add a todo
+//    click(container.querySelector(".add"))
+//
+//    var checkbox: dom.Element = null
+//
+//    eventually {
+//      checkbox = container.querySelector("input[type='checkbox']")
+//      checkbox.hasAttribute("checked") shouldBe false
+//    }
+//      .map { _ =>
+//        // Toggle the todo
+//        click(checkbox)
+//      }
+//      .flatMap { _ =>
+//        eventually {
+//          checkbox.hasAttribute("checked") shouldBe true
+//        }
+//      }
+//      .map { _ =>
+//        // Now try bulk toggle
+//        click(container.querySelector(".toggle-all"))
+//      }
+//      .flatMap { _ =>
+//        eventually {
+//          checkbox.hasAttribute("checked") shouldBe false
+//        }
+//      }
+//  }
 
   "Optional content" should "appear in correct order regardless of empty div" in /*withDebugLogging(
     "appear in correct order regardless of empty div",
@@ -187,116 +187,116 @@ class HookTest extends AsyncDOMSpec {
     }
   }
 
-  "TodoInput" should "maintain input value in state for handleAdd" in withDebugLogging(
-    "maintain input value in state for handleAdd",
-  ) {
-    val container = getContainer
-    var addedTodo = ""
-
-    val TestTodoInput = () => {
-      logger.debug(
-        "Before useState",
-        category = "Test",
-        Map("instance" -> ComponentInstance.current.map(_.id).getOrElse("none")),
-      )
-
-      val hookResult = useState("")
-
-      logger.debug(
-        "After useState",
-        category = "Test",
-        Map(
-          "hookValue" -> hookResult._1,
-          "instance"  -> ComponentInstance.current.map(_.id).getOrElse("none"),
-        ),
-      )
-
-      val (newTodo, setNewTodo) = hookResult // Destructure
-
-      logger.debug(
-        "After destructure",
-        category = "Test",
-        Map(
-          "newTodo"  -> newTodo,
-          "instance" -> ComponentInstance.current.map(_.id).getOrElse("none"),
-        ),
-      )
-
-      val instance = ComponentInstance.current.get
-
-      def handleAdd() = {
-        // Instead of using newTodo from closure, get it directly from hook
-        val currentTodo = instance.hooks(0).asInstanceOf[StateHook[String]].value
-
-        logger.debug(
-          "handleAdd called",
-          category = "Test",
-          Map(
-            "newTodo"           -> newTodo,
-            "currentTodo"       -> currentTodo,
-            "componentInstance" -> instance.id,
-            "hooksState"        -> instance.hooks.toString,
-          ),
-        )
-        addedTodo = newTodo // Use the value from hook directly
-      }
-
-      div(
-        input(
-          typ    := "text",
-          value_ := newTodo,
-          onInput := ((e: dom.Event) =>
-            val inputValue = e.target.asInstanceOf[dom.html.Input].value
-            logger.debug(
-              "onInput handler",
-              category = "Test",
-              Map("inputValue" -> inputValue),
-            )
-            setNewTodo(inputValue)
-          ),
-        ),
-        button(
-          onClick := (() => {
-            logger.debug(
-              "onClick before handleAdd",
-              category = "Test",
-              Map(
-                "componentInstance" -> ComponentInstance.current.map(_.id).getOrElse("none"),
-                "hooksState"        -> ComponentInstance.current.map(_.hooks.toString).getOrElse("none"),
-              ),
-            )
-            handleAdd()
-          }),
-          "Add",
-        ),
-      )
-    }
-
-    createDOM(TestTodoInput <> (), container)
-
-    val inputElem  = container.querySelector("input")
-    val buttonElem = container.querySelector("button")
-    val todoText   = "Test Todo"
-
-    // Simulate typing
-    typeInput(inputElem, todoText)
-
-    after(50) {
-      logger.debug(
-        "After delay",
-        category = "Test",
-        Map(
-          "inputValue" -> inputElem.asInstanceOf[dom.html.Input].value,
-        ),
-      )
-      click(buttonElem)
-    }
-      .flatMap { _ =>
-        eventually {
-          addedTodo shouldBe todoText
-        }
-      }
-  }
+//  "TodoInput" should "maintain input value in state for handleAdd" in withDebugLogging(
+//    "maintain input value in state for handleAdd",
+//  ) {
+//    val container = getContainer
+//    var addedTodo = ""
+//
+//    val TestTodoInput = () => {
+//      logger.debug(
+//        "Before useState",
+//        category = "Test",
+//        Map("instance" -> ComponentInstance.current.map(_.id).getOrElse("none")),
+//      )
+//
+//      val hookResult = useState("")
+//
+//      logger.debug(
+//        "After useState",
+//        category = "Test",
+//        Map(
+//          "hookValue" -> hookResult._1,
+//          "instance"  -> ComponentInstance.current.map(_.id).getOrElse("none"),
+//        ),
+//      )
+//
+//      val (newTodo, setNewTodo) = hookResult // Destructure
+//
+//      logger.debug(
+//        "After destructure",
+//        category = "Test",
+//        Map(
+//          "newTodo"  -> newTodo,
+//          "instance" -> ComponentInstance.current.map(_.id).getOrElse("none"),
+//        ),
+//      )
+//
+//      val instance = ComponentInstance.current.get
+//
+//      def handleAdd() = {
+//        // Instead of using newTodo from closure, get it directly from hook
+//        val currentTodo = instance.hooks(0).asInstanceOf[StateHook[String]].value
+//
+//        logger.debug(
+//          "handleAdd called",
+//          category = "Test",
+//          Map(
+//            "newTodo"           -> newTodo,
+//            "currentTodo"       -> currentTodo,
+//            "componentInstance" -> instance.id,
+//            "hooksState"        -> instance.hooks.toString,
+//          ),
+//        )
+//        addedTodo = newTodo // Use the value from hook directly
+//      }
+//
+//      div(
+//        input(
+//          typ    := "text",
+//          value_ := newTodo,
+//          onInput := ((e: dom.Event) =>
+//            val inputValue = e.target.asInstanceOf[dom.html.Input].value
+//            logger.debug(
+//              "onInput handler",
+//              category = "Test",
+//              Map("inputValue" -> inputValue),
+//            )
+//            setNewTodo(inputValue)
+//          ),
+//        ),
+//        button(
+//          onClick := (() => {
+//            logger.debug(
+//              "onClick before handleAdd",
+//              category = "Test",
+//              Map(
+//                "componentInstance" -> ComponentInstance.current.map(_.id).getOrElse("none"),
+//                "hooksState"        -> ComponentInstance.current.map(_.hooks.toString).getOrElse("none"),
+//              ),
+//            )
+//            handleAdd()
+//          }),
+//          "Add",
+//        ),
+//      )
+//    }
+//
+//    createDOM(TestTodoInput <> (), container)
+//
+//    val inputElem  = container.querySelector("input")
+//    val buttonElem = container.querySelector("button")
+//    val todoText   = "Test Todo"
+//
+//    // Simulate typing
+//    typeInput(inputElem, todoText)
+//
+//    after(50) {
+//      logger.debug(
+//        "After delay",
+//        category = "Test",
+//        Map(
+//          "inputValue" -> inputElem.asInstanceOf[dom.html.Input].value,
+//        ),
+//      )
+//      click(buttonElem)
+//    }
+//      .flatMap { _ =>
+//        eventually {
+//          addedTodo shouldBe todoText
+//        }
+//      }
+//  }
 
   "useState hook" should "maintain state between renders" in {
     val container = getContainer

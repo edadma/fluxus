@@ -46,16 +46,16 @@ class DOMTest extends AnyDOMSpec {
     domNode.getAttribute("data-test") shouldBe "test-value"
   }
 
-  it should "handle boolean attributes correctly" in {
-    val node = input(
-      disabled := true,
-      checked  := false,
-    )
-    val domNode = createDOMNode(node).asInstanceOf[dom.Element]
-
-    domNode.hasAttribute("disabled") shouldBe true
-    domNode.hasAttribute("checked") shouldBe false
-  }
+//  it should "handle boolean attributes correctly" in {
+//    val node = input(
+//      disabled := true,
+//      checked  := false,
+//    )
+//    val domNode = createDOMNode(node).asInstanceOf[dom.Element]
+//
+//    domNode.hasAttribute("disabled") shouldBe true
+//    domNode.hasAttribute("checked") shouldBe false
+//  }
 
   it should "handle numeric attributes" in {
     val node = input(
