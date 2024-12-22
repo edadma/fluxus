@@ -11,8 +11,20 @@ object ComponentInstance:
   def withInstance[T](instance: ComponentInstance)(f: => T): T =
     val prev = currentInstance
     currentInstance = Some(instance)
-    try f
-    finally currentInstance = prev
+    try {
+      // When creating a child component during this parent's render,
+      // the child should know about its parent
+      val result = f
+      // If result is a ComponentNode, set its instance's parent
+      result match {
+        case comp: ComponentNode =>
+          comp.instance.foreach(_.parent = currentInstance)
+        case _ =>
+      }
+      result
+    } finally {
+      currentInstance = prev
+    }
 
   def nextId: String =
     instanceCounter += 1

@@ -346,7 +346,7 @@ object BatchScheduler {
         checkParent(child.parent)
       }
 
-      isParentOf(a, b)
+      !isParentOf(a, b)
     }
 
     logger.debug(

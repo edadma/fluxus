@@ -110,9 +110,6 @@ def createDOMNode(node: FluxusNode): Node = {
       // Create DOM from rendered node
       val compNode = createDOMNode(rendered)
 
-      // Now that DOM is created, run effects
-      BatchScheduler.handleEffects(Set(instance))
-
       compNode
 
   // Store the created DOM node
@@ -144,4 +141,28 @@ def createDOM(root: FluxusNode, container: Element): Unit = {
 
   logger.debug("Appending to container", category = "DOM", opId = 1)
   container.appendChild(dom)
+
+  // After entire tree is created, find all component instances and run their effects
+  def collectInstances(node: FluxusNode): Set[ComponentInstance] = {
+    node match {
+      case comp: ComponentNode =>
+        comp.instance.toSet ++ comp.instance.flatMap(_.rendered).toSet.flatMap(collectInstances)
+      case elem: ElementNode =>
+        elem.children.flatMap(collectInstances).toSet
+      case _ => Set.empty
+    }
+  }
+
+  val instances = collectInstances(root)
+
+  logger.debug(
+    "Running effects for initial render",
+    category = "DOM",
+    Map(
+      "instanceCount" -> instances.size.toString,
+      "instances"     -> instances.map(_.id).mkString(", "),
+    ),
+  )
+
+  BatchScheduler.handleEffects(instances)
 }
