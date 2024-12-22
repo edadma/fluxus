@@ -20,8 +20,8 @@ class BatchSchedulerTest extends AsyncDOMSpec {
         Map("renderCount" -> renderCount.toString),
       )
       renderCount += 1
-      val (count1, setCount1) = useState(0)
-      val (count2, setCount2) = useState(0)
+      val (count1, setCount1, _) = useState(0)
+      val (count2, setCount2, _) = useState(0)
 
       div(
         p(cls := "count1", s"Count1: $count1"),
@@ -76,7 +76,7 @@ class BatchSchedulerTest extends AsyncDOMSpec {
     case class Props(onUnmount: () => Unit)
 
     def TestComponent(props: Props) = {
-      val (count, setCount) = useState(0)
+      val (count, setCount, _) = useState(0)
 
       useEffect(
         () => {

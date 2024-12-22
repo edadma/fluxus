@@ -11,11 +11,11 @@ class StateTests extends AsyncDOMSpec {
     val container = getContainer
 
     val TestComponent = () => {
-      val (showText, setShowText) = useState(false)
+      val (showText, _, updateShowText) = useState(false)
 
       div(
         button(
-          onClick := (() => setShowText(!_)),
+          onClick := (() => updateShowText(!_)),
           "Toggle",
         ),
         Option.when(showText)(
@@ -64,7 +64,7 @@ class StateTests extends AsyncDOMSpec {
         ),
       )
 
-      val (newTodo, setNewTodo) = hookResult // Destructure
+      val (newTodo, setNewTodo, _) = hookResult // Destructure
 
       logger.debug(
         "After destructure",
@@ -156,7 +156,7 @@ class StateTests extends AsyncDOMSpec {
     case class TestProps()
 
     def TestComponent(props: TestProps): FluxusNode = {
-      val (count, setCount) = useState(0)
+      val (count, _, _) = useState(0)
       div(count.toString)
     }
 
@@ -192,7 +192,7 @@ class StateTests extends AsyncDOMSpec {
 
       lastInstance = currentInstance
 
-      val (_, setter) = useState(0)
+      val (_, setter, _) = useState(0)
       if (setterRef.isEmpty) {
         setterRef = Some(setter)
         logger.debug("Stored initial setter", category = "Test")
@@ -241,7 +241,7 @@ class StateTests extends AsyncDOMSpec {
         Map("value" -> props.value.toString),
       )
 
-      val (_, setter) = useState(0)
+      val (_, setter, _) = useState(0)
 
       // Store setter references to compare
       if (firstSetter == null) {
@@ -291,14 +291,14 @@ class StateTests extends AsyncDOMSpec {
 
     def Counter(props: CounterProps): FluxusNode = {
       renderCount += 1
-      val (count, setCount) = useState(0)
+      val (count, _, updateCount) = useState(0)
 
       div(
         p(cls := "count", s"Count: $count"),
         button(
           onClick := (() => {
-            setCount(prev => prev + 1)
-            setCount(prev => prev + 1)
+            updateCount(prev => prev + 1)
+            updateCount(prev => prev + 1)
           }),
           "Increment Twice",
         ),
@@ -335,9 +335,9 @@ class StateTests extends AsyncDOMSpec {
         ),
       )
 
-      val (count1, setCount1) = useState(0)
-      val (count2, setCount2) = useState(10)      // Different initial value
-      val (text, setText)     = useState("hello") // Different type
+      val (count1, _, updateCount1) = useState(0)
+      val (count2, _, updateCount2) = useState(10)      // Different initial value
+      val (text, _, updateText)     = useState("hello") // Different type
 
       logger.debug(
         "Component state values",
@@ -362,7 +362,7 @@ class StateTests extends AsyncDOMSpec {
               category = "Test",
               Map("currentValue" -> count1.toString),
             )
-            setCount1(_ + 1)
+            updateCount1(_ + 1)
           }),
           "Increment First",
         ),
@@ -374,7 +374,7 @@ class StateTests extends AsyncDOMSpec {
               category = "Test",
               Map("currentValue" -> count2.toString),
             )
-            setCount2(_ + 1)
+            updateCount2(_ + 1)
           }),
           "Increment Second",
         ),
@@ -386,7 +386,7 @@ class StateTests extends AsyncDOMSpec {
               category = "Test",
               Map("currentText" -> text),
             )
-            setText(_ + "!")
+            updateText(_ + "!")
           }),
           "Add Exclamation",
         ),
@@ -454,7 +454,7 @@ class StateTests extends AsyncDOMSpec {
         ),
       )
 
-      val (count, setCount) = useState(0)
+      val (count, setCount, _) = useState(0)
 
       div(
         cls := "counter",
@@ -498,7 +498,7 @@ class StateTests extends AsyncDOMSpec {
 
     // Should throw when trying to use hooks outside component context
     val error = intercept[Error] {
-      val (_, _) = useState(0)
+      val (_, _, _) = useState(0)
     }
     error.getMessage should include("within component render")
   }
@@ -510,22 +510,22 @@ class StateTests extends AsyncDOMSpec {
     case class ComplexUpdateProps()
 
     def ComplexUpdateComponent(props: ComplexUpdateProps) = {
-      val (count1, setCount1) = useState(0)
-      val (count2, setCount2) = useState(10)
+      val (count1, _, updateCount1) = useState(0)
+      val (count2, _, updateCount2) = useState(10)
 
       div(
         button(
           onClick := (() => {
             // Interleaved updates to test ordering
-            setCount1(c => {
+            updateCount1(c => {
               results = results :+ c
               c + 1
             })
-            setCount2(c => {
+            updateCount2(c => {
               results = results :+ c
               c + 1
             })
-            setCount1(c => {
+            updateCount1(c => {
               results = results :+ c
               c + 1
             })
@@ -552,7 +552,7 @@ class StateTests extends AsyncDOMSpec {
 
     val ChildWithHooks = () => {
       hookCount += 1
-      val (_, _) = useState(0)
+      val (_, _, _) = useState(0)
       div()
     }
 
@@ -586,7 +586,7 @@ class StateTests extends AsyncDOMSpec {
     val container = getContainer
 
     def DynamicStateComponent = () => {
-      val (stats, setStats) = useState(Map[String, Double]())
+      val (stats, setStats, _) = useState(Map[String, Double]())
 
       useEffect(
         () => {
