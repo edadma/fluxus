@@ -49,7 +49,8 @@ class EffectTests extends AsyncDOMSpec {
     }
 
     // Initial render
-    createDOM(EffectTestComponent <> EffectTestProps(), container)
+    val node = EffectTestComponent <> EffectTestProps()
+    createDOM(node, container)
 
     eventually {
       logger.debug(
@@ -68,7 +69,7 @@ class EffectTests extends AsyncDOMSpec {
     }
       .flatMap { _ =>
         // Force cleanup by unmounting
-        val ops = diff(Some(EffectTestComponent <> EffectTestProps()), None)
+        val ops = diff(Some(node), None)
 
         commit(ops, container)
 

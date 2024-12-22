@@ -107,9 +107,9 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
             "Processing ComponentNode removal",
             category = "Reconciler",
             Map(
-              "hasInstance"   -> comp.instance.isDefined.toString,
-              "node"          -> comp.toString,
-              "componentType" -> comp.componentType,
+              "hasInstance" -> comp.instance.isDefined.toString,
+              "node"        -> comp.toString,
+              "props"       -> comp.props.toString,
             ),
           )
           comp.instance.foreach { instance =>
