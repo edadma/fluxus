@@ -143,13 +143,13 @@ def createDOM(root: FluxusNode, container: Element): Unit = {
   container.appendChild(dom)
 
   // After entire tree is created, find all component instances and run their effects
-  def collectInstances(node: FluxusNode): Set[ComponentInstance] = {
+  def collectInstances(node: FluxusNode): Seq[ComponentInstance] = {
     node match {
       case comp: ComponentNode =>
-        comp.instance.toSet ++ comp.instance.flatMap(_.rendered).toSet.flatMap(collectInstances)
+        (comp.instance ++ comp.instance.flatMap(_.rendered).flatMap(collectInstances)).toSeq
       case elem: ElementNode =>
-        elem.children.flatMap(collectInstances).toSet
-      case _ => Set.empty
+        elem.children.flatMap(collectInstances)
+      case _ => Nil
     }
   }
 
@@ -164,5 +164,5 @@ def createDOM(root: FluxusNode, container: Element): Unit = {
     ),
   )
 
-  BatchScheduler.handleEffects(instances)
+  BatchScheduler.handleEffects(instances.toSet)
 }
