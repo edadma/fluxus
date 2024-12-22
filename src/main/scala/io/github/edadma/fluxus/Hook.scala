@@ -77,6 +77,8 @@ def useState[T](initial: T): (T, (T | (T => T)) => Unit) = {
         ),
       )
       h.asInstanceOf[StateHook[T]]
+    case Some(_: EffectHook) =>
+      throw new Error(s"Hook mismatch: expected StateHook but found EffectHook at index ${instance.hookIndex}")
     case None =>
       logger.debug("Creating new hook", category = "Hooks")
 
@@ -97,3 +99,10 @@ def useState[T](initial: T): (T, (T | (T => T)) => Unit) = {
 
   (hook.value, hook.setter)
 }
+
+case class EffectHook(
+    effect: () => (() => Unit) | Unit, // Effect fn returning optional cleanup
+    deps: Seq[Any],                    // Dependencies (null means run every time)
+    var cleanup: Option[() => Unit],   // Last cleanup function if any
+    var lastDeps: Seq[Any],            // Previous deps for comparison
+) extends Hook

@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{StateHook, logger}
+import io.github.edadma.fluxus.{EffectHook, StateHook, logger}
 import org.scalajs.dom
 
 import scala.annotation.tailrec
@@ -279,6 +279,24 @@ object BatchScheduler {
       )
 
       instance.rerender()
+    }
+
+    // Run effects for updated components
+    componentsToUpdate.foreach { instance =>
+      instance.hooks.foreach {
+        case hook: EffectHook =>
+          // Run cleanup if exists
+          hook.cleanup.foreach(cleanup => cleanup())
+
+          // Run effect and store new cleanup
+          val result = hook.effect()
+          hook.cleanup = result match {
+            case cleanup: (() => Unit) => Some(cleanup)
+            case _                     => None
+          }
+          hook.lastDeps = hook.deps
+        case _ => // Not an effect hook
+      }
     }
   }
 }
