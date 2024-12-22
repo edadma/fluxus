@@ -211,4 +211,48 @@ class EffectTests extends AsyncDOMSpec {
         }
       }
   }
+
+  it should "handle effects in nested components correctly" in {
+    val container      = getContainer
+    var executionOrder = Vector[String]()
+
+    def ChildComponent = () => {
+      useEffect(() => {
+        executionOrder = executionOrder :+ "child"
+        () => executionOrder = executionOrder :+ "cleanup child"
+      })
+      div("child")
+    }
+
+    def ParentComponent = () => {
+      useEffect(() => {
+        executionOrder = executionOrder :+ "parent"
+        () => executionOrder = executionOrder :+ "cleanup parent"
+      })
+
+      div(ChildComponent <> ())
+    }
+
+    createDOM(ParentComponent <> (), container)
+
+    eventually {
+      // Parent effects should run before child effects
+      executionOrder shouldBe Vector("parent", "child")
+    }
+      .map { _ =>
+        // Unmount
+        reconcile(Some(ParentComponent <> ()), None, container)
+      }
+      .flatMap { _ =>
+        eventually {
+          // Cleanup should happen in reverse order
+          executionOrder shouldBe Vector(
+            "parent",
+            "child",
+            "cleanup child",
+            "cleanup parent",
+          )
+        }
+      }
+  }
 }
