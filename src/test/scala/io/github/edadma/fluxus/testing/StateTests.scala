@@ -580,9 +580,9 @@ class StateTests extends AsyncDOMSpec {
   }
 
 //   In StateTests.scala
-  "useState hook" should "handle updates with js.Dynamic values correctly" in withDebugLogging(
+  "useState hook" should "handle updates with js.Dynamic values correctly" in /*withDebugLogging(
     "handle updates with js.Dynamic values correctly",
-  ) {
+  )*/ {
     val container = getContainer
 
     def DynamicStateComponent = () => {

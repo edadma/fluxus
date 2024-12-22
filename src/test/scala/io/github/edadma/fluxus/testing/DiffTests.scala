@@ -8,7 +8,7 @@ import org.scalatest.matchers.should.Matchers
 import pprint.pprintln
 
 class DiffTests extends AnyFlatSpec with Matchers {
-  it should "handle simple text changes" in {
+  "diff" should "handle simple text changes" in {
     val oldTree = TextNode("hello", None, None)
     val newTree = TextNode("world", None, None)
 

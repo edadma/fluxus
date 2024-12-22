@@ -7,7 +7,7 @@ import org.scalajs.dom.Node
 
 import scala.scalajs.js
 
-class DOMTest extends AnyDOMSpec {
+class DOMTests extends AnyDOMSpec {
 
   "createDOMNode" should "create a DOM text node with correct content" in {
     val node    = TextNode("Hello world", None, None)
@@ -45,17 +45,6 @@ class DOMTest extends AnyDOMSpec {
     domNode.getAttribute("id") shouldBe "test-id"
     domNode.getAttribute("data-test") shouldBe "test-value"
   }
-
-//  it should "handle boolean attributes correctly" in {
-//    val node = input(
-//      disabled := true,
-//      checked  := false,
-//    )
-//    val domNode = createDOMNode(node).asInstanceOf[dom.Element]
-//
-//    domNode.hasAttribute("disabled") shouldBe true
-//    domNode.hasAttribute("checked") shouldBe false
-//  }
 
   it should "handle numeric attributes" in {
     val node = input(

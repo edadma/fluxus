@@ -5,7 +5,7 @@ import io.github.edadma.fluxus.core.*
 
 import scala.scalajs.js
 
-class BatchSchedulerTest extends AsyncDOMSpec {
+class BatchSchedulerTests extends AsyncDOMSpec {
 
   "BatchScheduler" should "batch multiple state updates" in /*withDebugLogging("batch multiple state updates")*/ {
     val container   = getContainer

@@ -16,69 +16,7 @@ import io.github.edadma.fluxus.core.{
 import org.scalajs.dom
 import pprint.pprintln
 
-class ReconcilerTest extends AnyDOMSpec {
-//  "checkbox reconciliation" should "handle checked state change from true to false correctly" in {
-//    val container = getContainer
-//
-//    // Initial checkbox - checked
-//    val oldNode = input(
-//      typ     := "checkbox",
-//      checked := true,
-//    )
-//    createDOM(oldNode, container)
-//
-//    // Verify initial state
-//    val initialInput = container.querySelector("input")
-//    initialInput.hasAttribute("checked") shouldBe true
-//
-//    // Create new node with checked=false
-//    val newNode = input(
-//      typ     := "checkbox",
-//      checked := false,
-//    )
-//
-//    // Get and verify operations
-//    val ops = diff(Some(oldNode), Some(newNode))
-//
-//    // Apply the changes
-//    ops.foreach(op => commit(op, container))
-//
-//    // Verify final state
-//    val finalInput = container.querySelector("input")
-//    finalInput.hasAttribute("checked") shouldBe false
-//  }
-//
-//  it should "handle checked state change from false to true correctly" in {
-//    val container = getContainer
-//
-//    // Initial checkbox - checked
-//    val oldNode = input(
-//      typ     := "checkbox",
-//      checked := false,
-//    )
-//    createDOM(oldNode, container)
-//
-//    // Verify initial state
-//    val initialInput = container.querySelector("input")
-//    initialInput.hasAttribute("checked") shouldBe false
-//
-//    // Create new node with checked=true
-//    val newNode = input(
-//      typ     := "checkbox",
-//      checked := true,
-//    )
-//
-//    // Get and verify operations
-//    val ops = diff(Some(oldNode), Some(newNode))
-//
-//    // Apply the changes
-//    ops.foreach(op => commit(op, container))
-//
-//    // Verify final state
-//    val finalInput = container.querySelector("input")
-//    finalInput.hasAttribute("checked") shouldBe true
-//  }
-
+class ReconcilerTests extends AnyDOMSpec {
   "diff" should "handle optional content insertion correctly" in {
     val container = getContainer
 
@@ -316,36 +254,36 @@ class ReconcilerTest extends AnyDOMSpec {
     clicked shouldBe false
   }
 
-//  it should "update existing event handlers" in {
-//    val container = getContainer
-//    var count1    = 0
-//    var count2    = 0
-//
-//    // Create nodes with different click handlers
-//    val oldNode = button(onClick := (() => count1 += 1))
-//    val newNode = button(onClick := (() => count2 += 1))
-//
-//    // Create initial DOM
-//    createDOM(oldNode, container)
-//    val buttonElem = container.firstChild.asInstanceOf[dom.Element]
-//
-//    // Test initial handler
-//    val clickEvent = click(buttonElem)
-//
-//    count1 shouldBe 1
-//    count2 shouldBe 0
-//
-//    // Get and verify operations
-//    val ops = diff(Some(oldNode), Some(newNode))
-//
-//    // Commit changes
-//    ops.foreach(commit(_, container))
-//
-//    // Test new handler
-//    buttonElem.dispatchEvent(clickEvent)
-//    count1 shouldBe 1 // Old handler shouldn't fire
-//    count2 shouldBe 1 // New handler should fire
-//  }
+  it should "update existing event handlers" in {
+    val container = getContainer
+    var count1    = 0
+    var count2    = 0
+
+    // Create nodes with different click handlers
+    val oldNode = button(onClick := (() => count1 += 1))
+    val newNode = button(onClick := (() => count2 += 1))
+
+    // Create initial DOM
+    createDOM(oldNode, container)
+    val buttonElem = container.firstChild.asInstanceOf[dom.Element]
+
+    // Test initial handler
+    val clickEvent = click(buttonElem)
+
+    count1 shouldBe 1
+    count2 shouldBe 0
+
+    // Get and verify operations
+    val ops = diff(Some(oldNode), Some(newNode))
+
+    // Commit changes
+    ops.foreach(commit(_, container))
+
+    // Test new handler
+    buttonElem.dispatchEvent(clickEvent)
+    count1 shouldBe 1 // Old handler shouldn't fire
+    count2 shouldBe 1 // New handler should fire
+  }
 
   "List reconciliation with keys" should "reuse nodes with matching keys" in {
     val container = getContainer

@@ -3,7 +3,7 @@ package io.github.edadma.fluxus.testing
 import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, reconcile}
 
-class ComponentInstanceTest extends AnyDOMSpec {
+class ComponentInstanceTests extends AnyDOMSpec {
   "ComponentInstance" should "maintain stable identity through re-renders" in {
     val container                                   = getContainer
     var capturedInstance: Option[ComponentInstance] = None
