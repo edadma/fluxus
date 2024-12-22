@@ -31,12 +31,13 @@ TodoApp.scala
 
 # unit testing
 ./src/test/scala/io/github/edadma/fluxus/testing
-BatchSchedulerTest.scala
-ComponentInstanceTest.scala
+BatchSchedulerTests.scala
+ComponentInstanceTests.scala
+DiffTests.scala
 DOMSpec.scala
-DOMTest.scala
+DOMTests.scala
 EffectTests.scala
-ReconcilerTest.scala
+ReconcilerTests.scala
 RenderingTests.scala
 StateTests.scala
 
