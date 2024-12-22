@@ -333,6 +333,17 @@ object BatchScheduler {
               hook.lastDeps != hook.deps ||
               hook.cleanup.isEmpty
 
+            logger.debug(
+              "Checking effect dependencies",
+              category = "BatchScheduler",
+              Map(
+                "lastDeps"  -> Option(hook.lastDeps).map(_.mkString(", ")).getOrElse("null"),
+                "newDeps"   -> Option(hook.deps).map(_.mkString(", ")).getOrElse("null"),
+                "areEqual"  -> (hook.lastDeps == hook.deps).toString,
+                "shouldRun" -> shouldRun.toString,
+              ),
+            )
+
             if (shouldRun) {
               logger.debug(
                 "Running effect",

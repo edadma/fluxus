@@ -125,7 +125,7 @@ case class ComponentInstance(
             reconcile(rendered, Some(newNode), parent.asInstanceOf[org.scalajs.dom.Element])
 
             rendered = Some(newNode)
-
+            BatchScheduler.handleEffects(Set(this))
           case None =>
             logger.error(
               "Component instance has rendered node but no DOM node",
