@@ -27,6 +27,30 @@ case class ComponentInstance(
     var rendered: Option[FluxusNode] = None,
     var node: ComponentNode,
 ):
+  def createInitialRender(): Unit = {
+    hookIndex = 0 // Reset hook index for new render
+
+    rendered match {
+      case None =>
+        // Get new tree from component
+        val newNode = ComponentInstance.withInstance(this) {
+          node.component(node.props)
+        }
+
+        rendered = Some(newNode)
+
+        // NEW: Handle initial effects
+        BatchScheduler.handleEffects(Set(this))
+
+      case Some(_) =>
+        logger.error(
+          "Attempted to do initial render on already rendered component",
+          category = "ComponentInstance",
+          Map("instanceId" -> id),
+        )
+    }
+  }
+
   def rerender(): Unit = {
     logger.debug(
       "Before re-rendering component instance",

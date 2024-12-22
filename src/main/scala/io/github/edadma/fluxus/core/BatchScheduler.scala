@@ -292,7 +292,11 @@ object BatchScheduler {
     )
 
     // Run effects for updated components
-    componentsToUpdate.foreach { instance =>
+    handleEffects(componentsToUpdate)
+  }
+
+  def handleEffects(components: Set[ComponentInstance]): Unit = {
+    components.foreach { instance =>
       logger.debug(
         "Processing effects for component",
         category = "BatchScheduler",

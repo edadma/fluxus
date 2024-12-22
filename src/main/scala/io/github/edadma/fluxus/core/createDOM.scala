@@ -105,6 +105,9 @@ def createDOMNode(node: FluxusNode): Node = {
 
       instance.rendered = Some(rendered)
 
+      // Call component function to get rendered node and handle effects
+      instance.createInitialRender() // NEW: Use createInitialRender instead
+
       // Create DOM from rendered node
       createDOMNode(rendered)
 
