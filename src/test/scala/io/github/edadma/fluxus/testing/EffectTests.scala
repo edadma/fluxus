@@ -212,7 +212,9 @@ class EffectTests extends AsyncDOMSpec {
       }
   }
 
-  it should "handle effects in nested components correctly" in {
+  it should "handle effects in nested components correctly" in withDebugLogging(
+    "handle effects in nested components correctly",
+  ) {
     val container      = getContainer
     var executionOrder = Vector[String]()
 

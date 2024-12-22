@@ -331,7 +331,33 @@ object BatchScheduler {
       ),
     )
 
-    components.foreach { instance =>
+    // Sort components so parents run before children
+    val orderedComponents = components.toSeq.sortWith { (a, b) =>
+      def isParentOf(parent: ComponentInstance, child: ComponentInstance): Boolean = {
+        @scala.annotation.tailrec
+        def checkParent(current: Option[ComponentInstance]): Boolean = {
+          current match {
+            case None                                 => false
+            case Some(instance) if instance == parent => true
+            case Some(instance)                       => checkParent(instance.parent)
+          }
+        }
+
+        checkParent(child.parent)
+      }
+
+      isParentOf(a, b)
+    }
+
+    logger.debug(
+      "Ordered components for effects",
+      category = "BatchScheduler",
+      Map(
+        "order" -> orderedComponents.map(_.id).mkString(", "),
+      ),
+    )
+
+    orderedComponents.foreach { instance =>
       logger.debug(
         "Processing effects for component",
         category = "BatchScheduler",

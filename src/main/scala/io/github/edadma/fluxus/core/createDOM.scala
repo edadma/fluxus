@@ -94,6 +94,7 @@ def createDOMNode(node: FluxusNode): Node = {
       val instance = ComponentInstance(
         componentType = props.getClass.getSimpleName,
         node = comp,
+        parent = ComponentInstance.current, // Get current parent instance if any
       )
 
       // Store instance in node
