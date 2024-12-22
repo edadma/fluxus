@@ -68,21 +68,21 @@ class RenderingTests extends AnyDOMSpec {
     uncheckedElement.hasAttribute("disabled") shouldBe false
   }
 
-//  "ElementNode property binding" should "handle form element properties correctly" in {
-//    val container = getContainer
-//
-//    // Create a checkbox with checked=true via attribute
-//    val node = input(
-//      typ     := "checkbox",
-//      checked := true,
-//    )
-//    createDOM(node, container)
-//
-//    // Get the DOM node
-//    val checkbox = container.querySelector("input")
-//
-//    // Current behavior: getAttribute("checked") returns "true"
-//    // But we want the property to be set
-//    checkbox.asInstanceOf[dom.html.Input].checked shouldBe true // This will fail
-//  }
+  "ElementNode property binding" should "handle form element properties correctly" in {
+    val container = getContainer
+
+    // Create a checkbox with checked=true via attribute
+    val node = input(
+      typ     := "checkbox",
+      checked := true,
+    )
+    createDOM(node, container)
+
+    // Get the DOM node
+    val checkbox = container.querySelector("input")
+
+    // Current behavior: getAttribute("checked") returns "true"
+    // But we want the property to be set
+    checkbox.asInstanceOf[dom.html.Input].checked shouldBe true // This will fail
+  }
 }

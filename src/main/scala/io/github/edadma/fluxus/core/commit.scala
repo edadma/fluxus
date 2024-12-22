@@ -141,20 +141,9 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
         Map(
           "oldInstanceId" -> old.instance.map(_.id).getOrElse("none"),
           "newInstanceId" -> newProps.instance.map(_.id).getOrElse("none"),
-          "sameInstance"  -> old.instance.zip(newProps.instance).map(_._1 eq _._2).getOrElse(false).toString,
+          "sameInstance"  -> old.instance.zip(newProps.instance).exists(_._1 eq _._2).toString,
         ),
       )
-
-//      val rendered = ComponentInstance.withInstance(old.instance.get) {
-//        newProps.component(newProps.props)
-//      }
-//
-//      old.instance.foreach(_.rendered = Some(rendered))
-//      old.domNode.foreach { n =>
-//        val parent = n.parentNode.asInstanceOf[dom.Element]
-//        val newDom = createDOMNode(rendered)
-//        parent.replaceChild(newDom, n)
-//      }
 
       // Let the instance handle its own rerendering - it will take care of:
       // 1. Resetting hookIndex

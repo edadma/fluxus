@@ -503,37 +503,37 @@ class HookTest extends AsyncDOMSpec {
     error.getMessage should include("within component render")
   }
 
-//  "hook order" should "throw error when conditional hooks change order" in {
-//    val container = getContainer
-//    var condition = true
-//
-//    case class ConditionalHookProps(toggle: Boolean)
-//
-//    def ConditionalComponent(props: ConditionalHookProps) = {
-//      // First hook always exists
-//      val (count1, _) = useState(0)
-//
-//      // Second hook only sometimes exists - this should error
-//      if (props.toggle) {
-//        val (count2, _) = useState(0)
-//      }
-//
-//      div(count1.toString)
-//    }
-//
-//    // First render with hook
-//    createDOM(ConditionalComponent <> ConditionalHookProps(true), container)
-//
-//    // Should throw when hook order changes
-//    val error = intercept[Error] {
-//      reconcile(
-//        Some(ConditionalComponent <> ConditionalHookProps(true)),
-//        Some(ConditionalComponent <> ConditionalHookProps(false)),
-//        container,
-//      )
-//    }
-//    error.getMessage should include("Hook mismatch")
-//  }
+  "hook order" should "throw error when conditional hooks change order" in {
+    val container = getContainer
+    var condition = true
+
+    case class ConditionalHookProps(toggle: Boolean)
+
+    def ConditionalComponent(props: ConditionalHookProps) = {
+      // First hook always exists
+      val (count1, _) = useState(0)
+
+      // Second hook only sometimes exists - this should error
+      if (props.toggle) {
+        val (count2, _) = useState(0)
+      }
+
+      div(count1.toString)
+    }
+
+    // First render with hook
+    createDOM(ConditionalComponent <> ConditionalHookProps(true), container)
+
+    // Should throw when hook order changes
+    val error = intercept[Error] {
+      reconcile(
+        Some(ConditionalComponent <> ConditionalHookProps(true)),
+        Some(ConditionalComponent <> ConditionalHookProps(false)),
+        container,
+      )
+    }
+    error.getMessage should include("Hook mismatch")
+  }
 
   "useState" should "handle multiple interleaved updates correctly" in {
     val container = getContainer
