@@ -80,7 +80,7 @@ class EffectTests extends AsyncDOMSpec {
       }
   }
 
-  it should "re-run effect when dependencies change" in withDebugLogging("re-run effect when dependencies change") {
+  it should "re-run effect when dependencies change" in /*withDebugLogging("re-run effect when dependencies change")*/ {
     val container   = getContainer
     var effectCount = 0
 
