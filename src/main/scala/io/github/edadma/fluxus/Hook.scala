@@ -101,8 +101,55 @@ def useState[T](initial: T): (T, (T | (T => T)) => Unit) = {
 }
 
 case class EffectHook(
-    effect: () => (() => Unit) | Unit, // Effect fn returning optional cleanup
-    deps: Seq[Any],                    // Dependencies (null means run every time)
-    var cleanup: Option[() => Unit],   // Last cleanup function if any
-    var lastDeps: Seq[Any],            // Previous deps for comparison
-) extends Hook
+    var effect: () => (() => Unit) | Unit, // Effect fn returning optional cleanup
+    var deps: Seq[Any],                    // Dependencies (null means run every time)
+    var cleanup: Option[() => Unit],       // Last cleanup function if any
+    var lastDeps: Seq[Any],                // Previous deps for comparison
+) extends Hook:
+  override def toString: String = "EffectHook"
+
+def useEffect(effect: () => (() => Unit) | Unit, deps: Seq[Any] = null): Unit = {
+  val instance = ComponentInstance.current.getOrElse(
+    throw new Error("Hooks must be called within component render"),
+  )
+
+  logger.debug(
+    "useEffect called",
+    category = "Hooks",
+    Map(
+      "instance"  -> instance.id,
+      "hookIndex" -> instance.hookIndex.toString,
+      "hasDeps"   -> (deps != null).toString,
+      "deps"      -> Option(deps).map(_.mkString(", ")).getOrElse("null"),
+    ),
+  )
+
+  // Get or create hook
+  val hook = instance.hooks.lift(instance.hookIndex) match {
+    case Some(h: EffectHook) =>
+      logger.debug(
+        "Reusing existing effect hook",
+        category = "Hooks",
+        Map(
+          "hasCleanup" -> h.cleanup.isDefined.toString,
+          "lastDeps"   -> Option(h.lastDeps).map(_.mkString(", ")).getOrElse("null"),
+        ),
+      )
+      h
+    case None =>
+      logger.debug("Creating new effect hook", category = "Hooks")
+      val hook = EffectHook(effect, deps, None, deps)
+      instance.hooks = instance.hooks :+ hook
+      hook
+    case Some(h) =>
+      throw new Error(
+        s"Hook mismatch at index ${instance.hookIndex}: expected EffectHook but found ${h.getClass.getSimpleName}",
+      )
+  }
+
+  // Update effect function and dependencies
+  hook.effect = effect
+  hook.deps = deps
+
+  instance.hookIndex += 1
+}
