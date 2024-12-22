@@ -1,7 +1,7 @@
 package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.*
-import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, reconcile, diff, commit}
+import io.github.edadma.fluxus.core.{createDOMNode, ComponentInstance, createDOM, reconcile, diff, commit}
 import org.scalajs.dom
 import pprint.pprintln
 
@@ -171,6 +171,43 @@ class EffectTests extends AsyncDOMSpec {
           // Effect should not run again since dependency didn't change
           effectCount shouldBe 2
           container.textContent shouldBe "2"
+        }
+      }
+  }
+
+  it should "handle multiple effects in correct order" in {
+    val container      = getContainer
+    var executionOrder = Vector[String]()
+
+    def MultiEffectComponent = () => {
+      useEffect(() => {
+        executionOrder = executionOrder :+ "first"
+        () => executionOrder = executionOrder :+ "cleanup first"
+      })
+
+      useEffect(() => {
+        executionOrder = executionOrder :+ "second"
+        () => executionOrder = executionOrder :+ "cleanup second"
+      })
+
+      div()
+    }
+
+    val node = MultiEffectComponent <> ()
+
+    createDOM(node, container)
+
+    eventually {
+      executionOrder shouldBe Vector("first", "second")
+    }
+      .map { _ =>
+        // Unmount
+        reconcile(Some(node), None, container)
+      }
+      .flatMap { _ =>
+        eventually {
+          // Cleanup should run in reverse order
+          executionOrder shouldBe Vector("first", "second", "cleanup second", "cleanup first")
         }
       }
   }

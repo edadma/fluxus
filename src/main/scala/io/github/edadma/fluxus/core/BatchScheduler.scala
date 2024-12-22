@@ -342,6 +342,20 @@ object BatchScheduler {
         ),
       )
 
+      // First collect all hooks that need cleanup
+      val hooksNeedingCleanup = instance.hooks.collect {
+        case hook: EffectHook
+            if hook.lastDeps != null &&
+              hook.deps != hook.lastDeps &&
+              hook.cleanup.isDefined => hook
+      }
+
+      // Run cleanups in reverse order
+      hooksNeedingCleanup.reverse.foreach { hook =>
+        logger.debug("Running cleanup before effect re-run", category = "BatchScheduler")
+        hook.cleanup.get()
+      }
+
       instance.hooks.foreach {
         case hook: EffectHook =>
           try {

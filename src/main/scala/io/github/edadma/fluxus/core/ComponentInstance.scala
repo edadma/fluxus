@@ -59,7 +59,7 @@ case class ComponentInstance(
     )
 
     // Run cleanup functions for all effect hooks
-    hooks.foreach {
+    hooks.reverse.foreach {
       case hook: EffectHook =>
         hook.cleanup.foreach { cleanup =>
           logger.debug(
