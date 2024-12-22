@@ -296,6 +296,15 @@ object BatchScheduler {
   }
 
   def handleEffects(components: Set[ComponentInstance]): Unit = {
+    logger.debug(
+      "Starting handleEffects",
+      category = "BatchScheduler",
+      Map(
+        "componentCount" -> components.size.toString,
+        "components"     -> components.map(_.id).mkString(", "),
+      ),
+    )
+
     components.foreach { instance =>
       logger.debug(
         "Processing effects for component",
@@ -303,50 +312,75 @@ object BatchScheduler {
         Map(
           "instanceId" -> instance.id,
           "hookCount"  -> instance.hooks.length.toString,
+          "hooks"      -> instance.hooks.map(_.toString).mkString(", "),
         ),
       )
 
       instance.hooks.foreach {
         case hook: EffectHook =>
-          val shouldRun = hook.deps == null ||
-            hook.lastDeps != hook.deps ||
-            hook.cleanup.isEmpty
-
-          if (shouldRun) {
+          try {
             logger.debug(
-              "Running effect",
+              "Found effect hook",
               category = "BatchScheduler",
               Map(
-                "instanceId" -> instance.id,
-                "hasDeps"    -> (hook.deps != null).toString,
+                "hookDeps"   -> Option(hook.deps).map(_.mkString(", ")).getOrElse("null"),
+                "lastDeps"   -> Option(hook.lastDeps).map(_.mkString(", ")).getOrElse("null"),
                 "hasCleanup" -> hook.cleanup.isDefined.toString,
               ),
             )
 
-            // Run cleanup if exists
-            hook.cleanup.foreach { cleanup =>
-              logger.debug("Running cleanup", category = "BatchScheduler")
-              cleanup()
-            }
+            val shouldRun = hook.deps == null ||
+              hook.lastDeps != hook.deps ||
+              hook.cleanup.isEmpty
 
-            // Run effect and store new cleanup
-            val result = hook.effect()
-            hook.cleanup = result match {
-              case cleanup: (() => Unit) => Some(cleanup)
-              case _                     => None
-            }
-            hook.lastDeps = hook.deps
+            if (shouldRun) {
+              logger.debug(
+                "Running effect",
+                category = "BatchScheduler",
+                Map(
+                  "instanceId" -> instance.id,
+                  "hasDeps"    -> (hook.deps != null).toString,
+                  "hasCleanup" -> hook.cleanup.isDefined.toString,
+                ),
+              )
 
-            logger.debug(
-              "Effect complete",
-              category = "BatchScheduler",
-              Map(
-                "hasNewCleanup" -> hook.cleanup.isDefined.toString,
-              ),
-            )
+              // Only run cleanup if deps have changed (not on initial render)
+              if (hook.lastDeps != null && hook.deps != hook.lastDeps) {
+                hook.cleanup.foreach { cleanup =>
+                  logger.debug("Running cleanup before effect re-run", category = "BatchScheduler")
+                  cleanup()
+                }
+              }
+
+              // Run effect and store new cleanup
+              val result = hook.effect()
+              hook.cleanup = result match {
+                case cleanup: (() => Unit) => Some(cleanup)
+                case _                     => None
+              }
+              hook.lastDeps = hook.deps
+
+              logger.debug(
+                "Effect complete",
+                category = "BatchScheduler",
+                Map(
+                  "hasNewCleanup" -> hook.cleanup.isDefined.toString,
+                ),
+              )
+            } else {
+              logger.debug("Skipping effect - no changes", category = "BatchScheduler")
+            }
+          } catch {
+            case e: Throwable =>
+              logger.error(
+                "Error in effect",
+                category = "BatchScheduler",
+                Map("error" -> e.toString),
+              )
+              throw e
           }
-
         case _ => // Not an effect hook
+          logger.debug("Non-effect hook found", category = "BatchScheduler")
       }
     }
   }

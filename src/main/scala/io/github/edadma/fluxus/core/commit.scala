@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.logger
+import io.github.edadma.fluxus.{ComponentNode, logger}
 import org.scalajs.dom
 
 def commit(ops: Seq[DOMOperation], container: dom.Element): Unit = ops.foreach(op => commit(op, container))
@@ -100,6 +100,29 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
       }
 
     case RemoveNode(node) =>
+      // Handle cleanup before DOM removal
+      node match {
+        case comp: ComponentNode =>
+          logger.debug(
+            "Processing ComponentNode removal",
+            category = "Reconciler",
+            Map(
+              "hasInstance"   -> comp.instance.isDefined.toString,
+              "node"          -> comp.toString,
+              "componentType" -> comp.componentType,
+            ),
+          )
+          comp.instance.foreach { instance =>
+            logger.debug(
+              "Running cleanup for removed component",
+              category = "Reconciler",
+              Map("instanceId" -> instance.id),
+            )
+            instance.cleanup()
+          }
+        case _ => // Not a component
+      }
+
       node.domNode.foreach { dom =>
         if (dom.parentNode != null) {
           logger.debug(

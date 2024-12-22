@@ -4,7 +4,7 @@ import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, reconcile}
 import org.scalajs.dom
 
-class HookTest extends AsyncDOMSpec {
+class StateTests extends AsyncDOMSpec {
   "Optional content" should "appear in correct order regardless of empty div" in /*withDebugLogging(
     "appear in correct order regardless of empty div",
   )*/ {
@@ -577,46 +577,5 @@ class HookTest extends AsyncDOMSpec {
 
     // Verify hooks were cleaned up
     hookCount shouldBe 1 // Should not increase since component was unmounted
-  }
-
-  "useEffect" should "run effect after render and handle cleanup" in withDebugLogging(
-    "run effect after render and handle cleanup",
-  ) {
-    val container  = getContainer
-    var effectRan  = false
-    var cleanupRan = false
-
-    case class EffectTestProps()
-
-    def EffectTestComponent(props: EffectTestProps) = {
-      useEffect(() => {
-        effectRan = true
-        // Return cleanup function
-        () => {
-          cleanupRan = true
-        }
-      })
-
-      div("Test Component")
-    }
-
-    // Initial render
-    createDOM(EffectTestComponent <> EffectTestProps(), container)
-
-    eventually {
-      // Effect should have run after initial render
-      effectRan shouldBe true
-      // Cleanup shouldn't have run yet
-//      cleanupRan shouldBe false
-    }
-//      .flatMap { _ =>
-//        // Force cleanup by unmounting
-//        reconcile(Some(EffectTestComponent <> EffectTestProps()), None, container)
-//
-//        eventually {
-//          // Cleanup should now have run
-//          cleanupRan shouldBe true
-//        }
-//      }
   }
 }

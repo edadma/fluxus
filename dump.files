@@ -34,9 +34,10 @@ BatchSchedulerTest.scala
 ComponentInstanceTest.scala
 DOMSpec.scala
 DOMTest.scala
-HookTest.scala
+EffectTests.scala
 ReconcilerTest.scala
 RenderingTests.scala
+StateTests.scala
 
 # build files
 ./

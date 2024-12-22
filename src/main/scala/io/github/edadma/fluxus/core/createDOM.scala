@@ -85,7 +85,8 @@ def createDOMNode(node: FluxusNode): Node = {
         category = "DOM",
         opId = 1,
         Map(
-          "props" -> props.toString,
+          "componentType" -> props.getClass.getSimpleName,
+          "props"         -> props.toString,
         ),
       )
 
@@ -105,11 +106,13 @@ def createDOMNode(node: FluxusNode): Node = {
 
       instance.rendered = Some(rendered)
 
-      // Call component function to get rendered node and handle effects
-      instance.createInitialRender() // NEW: Use createInitialRender instead
-
       // Create DOM from rendered node
-      createDOMNode(rendered)
+      val compNode = createDOMNode(rendered)
+
+      // Now that DOM is created, run effects
+      BatchScheduler.handleEffects(Set(instance))
+
+      compNode
 
   // Store the created DOM node
   node.domNode = Some(domNode)

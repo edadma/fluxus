@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{ComponentNode, FluxusNode, Hook, logger}
+import io.github.edadma.fluxus.{ComponentNode, EffectHook, FluxusNode, Hook, logger}
 
 object ComponentInstance:
   private var currentInstance: Option[ComponentInstance] = None
@@ -39,7 +39,7 @@ case class ComponentInstance(
 
         rendered = Some(newNode)
 
-        // NEW: Handle initial effects
+        // Run initial effects after the render is complete
         BatchScheduler.handleEffects(Set(this))
 
       case Some(_) =>
@@ -48,6 +48,28 @@ case class ComponentInstance(
           category = "ComponentInstance",
           Map("instanceId" -> id),
         )
+    }
+  }
+
+  def cleanup(): Unit = {
+    logger.debug(
+      "Cleaning up component instance",
+      category = "ComponentInstance",
+      Map("id" -> id),
+    )
+
+    // Run cleanup functions for all effect hooks
+    hooks.foreach {
+      case hook: EffectHook =>
+        hook.cleanup.foreach { cleanup =>
+          logger.debug(
+            "Running effect cleanup",
+            category = "ComponentInstance",
+            Map("hasCleanup" -> hook.cleanup.isDefined.toString),
+          )
+          cleanup()
+        }
+      case _ => // Not an effect hook
     }
   }
 
