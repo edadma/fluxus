@@ -221,7 +221,7 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
   val allKeys = oldNode.attrs.keySet ++ newNode.attrs.keySet
 
   // Split into regular and boolean attributes that need updates
-  val (booleanChanges, regularChanges) = allKeys.flatMap { key =>
+  val (booleanChanges, regularChanges) = allKeys.filterNot(_.startsWith("=")).flatMap { key =>
     (oldNode.attrs.get(key), newNode.attrs.get(key)) match {
       // Boolean attribute changes
       case (Some(oldValue: Boolean), Some(newValue: Boolean)) if oldValue != newValue =>
@@ -245,7 +245,7 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
     case _                      => false
   }
 
-  val propsToRemove = booleanChanges.collect { case Left(key) => key }.toSet ++
+  val propsToRemove = booleanChanges.collect { case Left(key) => key } ++
     booleanChanges.collect { case Right((k, _)) => k }
   val propsToAdd = regularChanges.collect { case Right((k, v)) => k -> v }.toMap
 
@@ -300,10 +300,30 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
     ),
   )
 
+  // Property bindings (new)
+  val propertyChanges = allKeys.filter(_.startsWith("=")).flatMap { key =>
+    // For property bindings, compare against actual DOM property
+    oldNode.domNode.map { domNode =>
+      val propName = key.substring(1) // Remove "=" prefix
+      val currentValue = propName match {
+        case "checked"  => domNode.asInstanceOf[dom.html.Input].checked
+        case "value"    => domNode.asInstanceOf[dom.html.Input].value
+        case "selected" => domNode.asInstanceOf[dom.html.Option].selected
+      }
+
+      // Compare new desired value against current DOM property value
+      newNode.attrs.get(key).map(newValue =>
+        if (currentValue != newValue) Some(key -> newValue)
+        else None,
+      ).flatten
+    }.getOrElse(None)
+  }.toMap
+
   val ops = mutable.ArrayBuffer[DOMOperation]()
 
   if (propsToRemove.nonEmpty) ops += RemoveProps(oldNode, propsToRemove)
   if (propsToAdd.nonEmpty) ops += AddProps(oldNode, propsToAdd)
+  if (propertyChanges.nonEmpty) ops += UpdateProperties(oldNode, propertyChanges)
 
   // Remove old event handlers
   eventsToRemove.foreach(name => ops += RemoveEvent(oldNode, name))
@@ -321,6 +341,82 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
 
   ops.toSeq
 }
+
+//private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperation] = {
+//  logger.debug(
+//    "Starting props diff",
+//    category = "Reconciler",
+//    opId = 1,
+//    Map(
+//      "oldEvents" -> oldNode.events.keySet.toString,
+//      "newEvents" -> newNode.events.keySet.toString,
+//    ),
+//  )
+//
+//  // First identify all attributes that need handling
+//  val allKeys = oldNode.attrs.keySet ++ newNode.attrs.keySet
+//
+//  // Split into regular and boolean attributes that need updates
+//  val (booleanChanges, regularChanges) = allKeys.flatMap { key =>
+//    (oldNode.attrs.get(key), newNode.attrs.get(key)) match {
+//      // Boolean attribute changes
+//      case (Some(oldValue: Boolean), Some(newValue: Boolean)) if oldValue != newValue =>
+//        if (newValue)
+//          Some(Right((key, newValue))) // Add boolean attribute
+//        else
+//          Some(Left(key)) // Remove boolean attribute
+//
+//      // Regular attribute changes
+//      case (oldValue, newValue) if oldValue != newValue =>
+//        if (newValue.isEmpty)
+//          Some(Left(key)) // Remove if not in new node
+//        else
+//          Some(Right((key, newValue.get))) // Add/update with new value
+//
+//      case _ => None
+//    }
+//  }.partition {
+//    case Left(_)                => true
+//    case Right((_, v: Boolean)) => !v // false booleans go to remove
+//    case _                      => false
+//  }
+//
+//  val propsToRemove = booleanChanges.collect { case Left(key) => key }.toSet ++
+//    booleanChanges.collect { case Right((k, _)) => k }
+//  val propsToAdd = regularChanges.collect { case Right((k, v)) => k -> v }.toMap
+//
+//  // Property bindings (new)
+//  val propertyChanges = allKeys.filter(_.startsWith("=")).flatMap { key =>
+//    if (oldNode.attrs.get(key) != newNode.attrs.get(key)) {
+//      newNode.attrs.get(key).map(value => key -> value)
+//    } else None
+//  }.toMap
+//
+//  val ops = mutable.ArrayBuffer[DOMOperation]()
+//
+//  if (propsToRemove.nonEmpty) ops += RemoveProps(oldNode, propsToRemove)
+//  if (propsToAdd.nonEmpty) ops += AddProps(oldNode, propsToAdd)
+//  if (propertyChanges.nonEmpty) ops += UpdateProperties(oldNode, propertyChanges)
+//
+//  // Handle events exactly as before
+//  val eventsToRemove = oldNode.events.keySet -- newNode.events.keySet
+//  val eventsToAdd    = newNode.events.keySet -- oldNode.events.keySet
+//  val commonEvents   = oldNode.events.keySet.intersect(newNode.events.keySet)
+//  val eventsToUpdate = commonEvents.filter { eventName =>
+//    oldNode.events(eventName) ne newNode.events(eventName)
+//  }
+//
+//  eventsToRemove.foreach(name => ops += RemoveEvent(oldNode, name))
+//  eventsToAdd.foreach { name =>
+//    ops += AddEvent(oldNode, name, newNode.events(name))
+//  }
+//  eventsToUpdate.foreach { name =>
+//    ops += RemoveEvent(oldNode, name)
+//    ops += AddEvent(oldNode, name, newNode.events(name))
+//  }
+//
+//  ops.toSeq
+//}
 
 //private def diffChildren(
 //    oldChildren: Vector[FluxusNode],

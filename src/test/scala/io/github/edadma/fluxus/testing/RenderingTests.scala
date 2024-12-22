@@ -1,8 +1,10 @@
 package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.*
-import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, reconcile}
+import io.github.edadma.fluxus.core.{ComponentInstance, commit, createDOM, diff, reconcile}
 import org.scalajs.dom
+
+import pprint.pprintln
 
 class RenderingTests extends AnyDOMSpec {
   "ElementNode property binding" should "maintain checkbox state correctly after user interaction" in {

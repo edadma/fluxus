@@ -20,6 +20,21 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
   )
 
   op match {
+    case UpdateProperties(node, properties) =>
+      node.domNode.foreach { n =>
+        val element = n.asInstanceOf[dom.Element]
+        properties.foreach { case (name, value) =>
+          val propName = name.substring(1) // Remove "=" prefix
+          propName match {
+            case "checked" =>
+              element.asInstanceOf[dom.html.Input].checked = value.asInstanceOf[Boolean]
+            case "value" =>
+              element.asInstanceOf[dom.html.Input].value = value.toString
+            case "selected" =>
+              element.asInstanceOf[dom.html.Option].selected = value.asInstanceOf[Boolean]
+          }
+        }
+      }
     case Replace(oldNode, newNode) =>
       oldNode.domNode.foreach { old =>
         val dom = createDOMNode(newNode)

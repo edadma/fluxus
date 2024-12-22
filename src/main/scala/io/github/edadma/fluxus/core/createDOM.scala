@@ -122,22 +122,6 @@ def createDOMNode(node: FluxusNode): Node = {
   domNode
 }
 
-private def setAttributeOrProperty(elem: dom.Element, name: String, value: Any): Unit = {
-  if (name.startsWith("=")) {
-    // Property binding
-    val propName = name.substring(1) // Remove "=" prefix
-    propName match {
-      case "checked"  => elem.asInstanceOf[dom.html.Input].checked = value.asInstanceOf[Boolean]
-      case "value"    => elem.asInstanceOf[dom.html.Input].value = value.toString
-      case "selected" => elem.asInstanceOf[dom.html.Option].selected = value.asInstanceOf[Boolean]
-      // Add other property bindings as needed
-    }
-  } else {
-    // Regular attribute binding
-    setDOMAttribute(elem, name, value)
-  }
-}
-
 def createDOM(root: FluxusNode, container: Element): Unit = {
   logger.debug(
     "Creating DOM tree",
