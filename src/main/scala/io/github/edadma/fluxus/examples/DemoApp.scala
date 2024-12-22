@@ -64,7 +64,6 @@ object DemoApp:
         cls := "card w-96 bg-base-100 shadow-xl",
         figure(
           cls := "px-10 pt-10",
-          // Using Hero Icons through DaisyUI
           i("data-lucide" := icon),
         ),
         div(

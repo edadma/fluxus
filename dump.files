@@ -26,6 +26,7 @@ CountersApp.scala
 DemoApp.scala
 ListApp.scala
 main.scala
+TimerApp.scala
 TodoApp.scala
 
 # unit testing
