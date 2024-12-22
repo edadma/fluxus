@@ -75,7 +75,7 @@ object TimerApp {
               onClick := (() => resetTimer()),
             ),
           ),
-//          MemoryStats <> (),
+          MemoryStats <> (),
         ),
       ),
     )
@@ -86,7 +86,8 @@ object TimerApp {
     useEffect(
       () => {
         val intervalId = timers.setInterval(1000) {
-          val mem = js.Dynamic.global.performance.memory.asInstanceOf[js.Dynamic]
+          val mem = js.Dynamic.global.performance.memory
+
           setStats(Map(
             "used"  -> (mem.usedJSHeapSize.asInstanceOf[Double] / (1024 * 1024)),
             "total" -> (mem.totalJSHeapSize.asInstanceOf[Double] / (1024 * 1024)),
