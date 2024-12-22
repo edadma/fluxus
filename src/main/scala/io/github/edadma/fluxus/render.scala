@@ -4,6 +4,6 @@ import io.github.edadma.fluxus.core.createDOM
 
 import org.scalajs.dom.{Element, document}
 
-def render(root: => FluxusNode, container: Element): Unit = createDOM(root, container)
+def render(app: => FluxusNode, container: Element): Unit = createDOM(noPropsComponentNode(() => app), container)
 
-def render(root: => FluxusNode, id: String): Unit = render(root, document.getElementById("app"))
+def render(app: => FluxusNode, id: String): Unit = render(app, document.getElementById("app"))
