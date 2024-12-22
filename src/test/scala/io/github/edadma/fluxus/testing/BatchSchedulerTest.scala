@@ -69,4 +69,46 @@ class BatchSchedulerTest extends AsyncDOMSpec {
       container.querySelector(".count2").textContent shouldBe "Count2: 1"
     }
   }
+
+  "BatchScheduler" should "handle state updates for unmounting components safely" in {
+    val container = getContainer
+
+    case class Props(onUnmount: () => Unit)
+
+    def TestComponent(props: Props) = {
+      val (count, setCount) = useState(0)
+
+      useEffect(
+        () => {
+          // Schedule an update that will happen after unmount
+          val timeout = js.timers.setTimeout(50) {
+            setCount(count + 1)
+          }
+
+          // Cleanup
+          () => {
+            js.timers.clearTimeout(timeout)
+            props.onUnmount()
+          }
+        },
+        Seq(),
+      )
+
+      div(count.toString)
+    }
+
+    var unmounted = false
+    val node      = TestComponent <> Props(() => unmounted = true)
+
+    createDOM(node, container)
+
+    // Force unmount
+    reconcile(Some(node), None, container)
+
+    eventually {
+      unmounted shouldBe true
+      // Verify container is empty
+      container.childNodes.length shouldBe 0
+    }
+  }
 }

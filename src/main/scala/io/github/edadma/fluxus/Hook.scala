@@ -5,11 +5,12 @@ import io.github.edadma.fluxus.core.{BatchScheduler, ComponentInstance}
 sealed trait Hook
 case class StateHook[T](
     var value: T,
-    var setter: (T | (T => T)) => Unit,
+    var setter: T => Unit,
+    var updater: (T => T) => Unit,
 ) extends Hook:
   override def toString: String = s"StateHook($value)"
 
-def useState[T](initial: T): (T, (T | (T => T)) => Unit) = {
+def useState[T](initial: T): (T, T => Unit, (T => T) => Unit) = {
   val instance = ComponentInstance.current.getOrElse(
     throw new Error("Hooks must be called within component render"),
   )
@@ -39,28 +40,20 @@ def useState[T](initial: T): (T, (T | (T => T)) => Unit) = {
     val hook = new StateHook[T](
       value = initial,
       setter = null, // Placeholder
+      updater = null, // Will be set below
     )
 
-    // Create a stable setter function that handles both cases
-    val setter = (update: T | (T => T)) => {
-      logger.debug(
-        "Setter called",
-        category = "Hooks",
-        Map(
-          "currentValue" -> hook.value.toString,
-          "updateType"   -> (if (update.isInstanceOf[Function1[?, ?]]) "function" else "value"),
-        ),
-      )
+    // Create separate stable functions for direct and functional updates
+    val setter = (value: T) => {
+      BatchScheduler.scheduleUpdate(instance, hook, value)
+    }
 
-      update match {
-        case f: (T => T) @unchecked =>
-          BatchScheduler.scheduleFunctionalUpdate(instance, hook, f)
-        case value: T @unchecked =>
-          BatchScheduler.scheduleUpdate(instance, hook, value)
-      }
+    val updater = (fn: T => T) => {
+      BatchScheduler.scheduleFunctionalUpdate(instance, hook, fn)
     }
 
     hook.setter = setter
+    hook.updater = updater
     instance.hooks = instance.hooks :+ hook
     hook
   }
@@ -97,7 +90,7 @@ def useState[T](initial: T): (T, (T | (T => T)) => Unit) = {
     ),
   )
 
-  (hook.value, hook.setter)
+  (hook.value, hook.setter, hook.updater)
 }
 
 case class EffectHook(

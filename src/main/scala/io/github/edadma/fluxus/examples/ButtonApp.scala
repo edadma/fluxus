@@ -4,7 +4,7 @@ import io.github.edadma.fluxus.*
 
 object ButtonApp {
   def App: FluxusNode =
-    val (message, setMessage) = useState("Welcome to the React app!")
+    val (message, setMessage, _) = useState("Welcome to the React app!")
 
     div(
       cls := "min-h-screen bg-base-200 flex items-center justify-center",

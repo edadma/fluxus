@@ -211,8 +211,12 @@ object BatchScheduler {
       "Processing batch - start",
       category = "BatchScheduler",
       Map(
-        "queueSize" -> updates.size.toString,
-        "updates"   -> updates.map(u => s"${u.instance.id}: ${u.hook.value}").mkString(", "),
+        "batchSize" -> batch.size.toString,
+        "updates" -> batch.map(u =>
+          s"instance=${Option(u.instance).map(_.id).getOrElse("null")}, " +
+            s"hook=${Option(u.hook).map(_.toString).getOrElse("null")}, " +
+            s"fn=${Option(u.updateFn).map(_.toString).getOrElse("null")}",
+        ).mkString("; "),
       ),
     )
 
@@ -229,13 +233,24 @@ object BatchScheduler {
 
     // Apply all state updates
     batch.foreach { update =>
+      if (update.instance == null) {
+        logger.error(
+          "Null instance in state update",
+          category = "BatchScheduler",
+          Map(
+            "hook"     -> Option(update.hook).map(_.toString).getOrElse("null"),
+            "updateFn" -> Option(update.updateFn).map(_.toString).getOrElse("null"),
+          ),
+        )
+        sys.error("Null instance in state update")
+      }
+
       logger.debug(
-        "Processing update - before access",
+        "Processing update",
         category = "BatchScheduler",
         Map(
-          "instance" -> update.instance.toString,
-          "hook"     -> update.hook.toString,
-          "fn"       -> update.updateFn.toString,
+          "instanceId" -> update.instance.id,
+          "hookValue"  -> Option(update.hook.value).map(_.toString).getOrElse("null"),
         ),
       )
 
@@ -246,10 +261,10 @@ object BatchScheduler {
         "After value update",
         category = "BatchScheduler",
         Map(
-          "hook"     -> update.hook.toString,
-          "instance" -> update.instance.id,
-          "oldValue" -> oldValue.toString,
-          "newValue" -> newValue.toString,
+          "hook"       -> update.hook.toString,
+          "instanceId" -> update.instance.id,
+          "oldValue"   -> oldValue.toString,
+          "newValue"   -> newValue.toString,
         ),
       )
 
@@ -263,7 +278,10 @@ object BatchScheduler {
       "Processing batch - components to update",
       category = "BatchScheduler",
       Map(
-        "components" -> componentsToUpdate.map(_.id).mkString(", "),
+        "count" -> componentsToUpdate.size.toString,
+        "components" -> componentsToUpdate.map(c =>
+          s"id=${c.id}, hooks=${c.hooks.length}, mounted=${c.rendered.isDefined}",
+        ).mkString("; "),
       ),
     )
 
@@ -277,6 +295,14 @@ object BatchScheduler {
           "hooks"    -> instance.hooks.map(_.toString).mkString(", "),
         ),
       )
+
+      if (instance.rendered.isEmpty) {
+        logger.warn(
+          "Attempting to rerender unmounted component",
+          category = "BatchScheduler",
+          Map("instanceId" -> instance.id),
+        )
+      }
 
       instance.rerender()
     }

@@ -10,9 +10,9 @@ def now: Double = Date.now() / 1000
 
 object TimerApp {
   def App: FluxusNode =
-    val (running, setRunning) = useState(false)
-    val (time, setTime)       = useState(0.0) // Time in seconds
-    val (start, setStart)     = useState(now)
+    val (running, setRunning, updateRunning) = useState(false)
+    val (time, setTime, _)                   = useState(0.0) // Time in seconds
+    val (start, setStart, _)                 = useState(now)
 
     useEffect(
       () => {
@@ -35,7 +35,7 @@ object TimerApp {
       if !running then
         setStart(now - time)
 
-      setRunning(!running)
+      updateRunning(!_)
 
     def resetTimer(): Unit =
       setRunning(false)
@@ -81,7 +81,7 @@ object TimerApp {
     )
 
   private val MemoryStats = () =>
-    val (stats, setStats) = useState(Map[String, Double]())
+    val (stats, setStats, _) = useState(Map[String, Double]())
 
     useEffect(
       () => {

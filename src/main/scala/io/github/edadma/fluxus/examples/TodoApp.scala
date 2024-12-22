@@ -16,15 +16,15 @@ object TodoApp:
 
   def TodoApp(props: TodoProps): FluxusNode = {
     // State hooks
-    val (todos, setTodos)         = useState(Vector[Todo]())
-    val (newTodo, setNewTodo)     = useState("")
-    val (filter, setFilter)       = useState(Filter.All)
-    val (editingId, setEditingId) = useState(Option.empty[Long])
-    val (editText, setEditText)   = useState("")
+    val (todos, _, updateTodos)      = useState(Vector[Todo]())
+    val (newTodo, setNewTodo, _)     = useState("")
+    val (filter, setFilter, _)       = useState(Filter.All)
+    val (editingId, setEditingId, _) = useState(Option.empty[Long])
+    val (editText, setEditText, _)   = useState("")
 
     def handleAdd() =
       if newTodo.trim.nonEmpty then
-        setTodos(prev =>
+        updateTodos(prev =>
           prev :+ Todo(
             id = System.currentTimeMillis(),
             text = newTodo.trim,
@@ -34,7 +34,7 @@ object TodoApp:
         setNewTodo("")
 
     def handleToggle(id: Long) =
-      setTodos(prev =>
+      updateTodos(prev =>
         prev.map(todo =>
           if todo.id == id then todo.copy(completed = !todo.completed)
           else todo,
@@ -42,11 +42,11 @@ object TodoApp:
       )
 
     def handleDelete(id: Long) =
-      setTodos(prev => prev.filterNot(_.id == id))
+      updateTodos(prev => prev.filterNot(_.id == id))
 
     def handleBulkToggle() = {
       val allCompleted = todos.forall(_.completed)
-      setTodos(prev => prev.map(_.copy(completed = !allCompleted)))
+      updateTodos(prev => prev.map(_.copy(completed = !allCompleted)))
     }
 
     def startEditing(todo: Todo) = {
@@ -56,7 +56,7 @@ object TodoApp:
 
     def handleEdit(id: Long, e: KeyboardEvent) = {
       if (e.key == "Enter" && editText.trim.nonEmpty) {
-        setTodos(prev =>
+        updateTodos(prev =>
           prev.map(todo =>
             if todo.id == id then todo.copy(text = editText.trim)
             else todo,
@@ -195,7 +195,7 @@ object TodoApp:
             ),
             if todos.exists(_.completed) then
               button(
-                onClick := (() => setTodos(_.filterNot(_.completed))),
+                onClick := (() => updateTodos(_.filterNot(_.completed))),
                 cls     := "btn btn-ghost btn-sm",
                 "Clear completed",
               )

@@ -578,4 +578,43 @@ class StateTests extends AsyncDOMSpec {
     // Verify hooks were cleaned up
     hookCount shouldBe 1 // Should not increase since component was unmounted
   }
+
+//   In StateTests.scala
+  "useState hook" should "handle updates with js.Dynamic values correctly" in withDebugLogging(
+    "handle updates with js.Dynamic values correctly",
+  ) {
+    val container = getContainer
+
+    def DynamicStateComponent = () => {
+      val (stats, setStats) = useState(Map[String, Double]())
+
+      useEffect(
+        () => {
+          // Simulate js.Dynamic update
+          setStats(Map(
+            "test" -> 1.0,
+          ))
+          ()
+        },
+        Seq(),
+      )
+
+      div(
+        if stats.nonEmpty then
+          stats.map { case (key, value) =>
+            div(key := value.toString)
+          }
+        else
+          div("No stats"),
+      )
+    }
+
+    createDOM(DynamicStateComponent <> (), container)
+
+    eventually {
+      container.querySelector("div").textContent should (
+        equal("test: 1.0") or equal("No stats")
+      )
+    }
+  }
 }

@@ -12,10 +12,10 @@ object CountersApp:
 
   def Counters: () => FluxusNode = () =>
     // Track collection of counters
-    val (counters, setCounters) = useState(Vector[(String, Int)]())
+    val (counters, _, updateCounters) = useState(Vector[(String, Int)]())
 
     // Track whether to show stats
-    val (showStats, setShowStats) = useState(false)
+    val (showStats, _, updateShowStats) = useState(false)
 
     div(
       cls := "container mx-auto",
@@ -28,12 +28,12 @@ object CountersApp:
           cls := "space-x-2",
           button(
             cls     := "btn btn-primary",
-            onClick := (() => setCounters(_ :+ (IdGenerator.nextListItemId, 0))),
+            onClick := (() => updateCounters(_ :+ (IdGenerator.nextListItemId, 0))),
             "Add Counter",
           ),
           button(
             cls     := "btn btn-secondary",
-            onClick := (() => setShowStats(!_)),
+            onClick := (() => updateShowStats(!_)),
             if showStats then "Hide Stats" else "Show Stats",
           ),
         ),
@@ -66,21 +66,21 @@ object CountersApp:
             key = id, // Add key prop for React-like list handling
             count = count,
             onIncrement = () => {
-              setCounters(cs =>
+              updateCounters(cs =>
                 cs.map { case (cid, ccount) =>
                   if (cid == id) (cid, ccount + 1) else (cid, ccount)
                 },
               )
             },
             onDecrement = () => {
-              setCounters(cs =>
+              updateCounters(cs =>
                 cs.map { case (cid, ccount) =>
                   if (cid == id) (cid, ccount - 1) else (cid, ccount)
                 },
               )
             },
             onRemove = () => {
-              setCounters(cs => cs.filter(_._1 != id))
+              updateCounters(cs => cs.filter(_._1 != id))
             },
           )
         },
@@ -97,7 +97,7 @@ object CountersApp:
 
   def Counter: CounterProps => FluxusNode = props =>
     // Local state for hover effect needs to be declared outside the JSX-like structure
-    val (isHovering, setHovering) = useState(false)
+    val (isHovering, setHovering, _) = useState(false)
 
     div(
       cls := "card bg-base-100 shadow-xl",

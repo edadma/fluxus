@@ -9,11 +9,11 @@ object ListApp:
   def App: FluxusNode = ListApp <> ListProps()
 
   def ListApp(props: ListProps): FluxusNode = {
-    val (items, setItems)         = useState(Vector[ListItem]())
-    val (showStats, setShowStats) = useState(false)
+    val (items, _, updateItems)         = useState(Vector[ListItem]())
+    val (showStats, _, updateShowStats) = useState(false)
 
     def handleAdd() =
-      setItems(prev => prev :+ ListItem(prev.length, s"Item ${prev.length + 1}"))
+      updateItems(prev => prev :+ ListItem(prev.length, s"Item ${prev.length + 1}"))
 
     div(
       // Add button
@@ -24,7 +24,7 @@ object ListApp:
 
       // Stats toggle
       button(
-        onClick := (() => setShowStats(!_)),
+        onClick := (() => updateShowStats(!_)),
         "Toggle Stats",
       ),
 
