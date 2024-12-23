@@ -70,7 +70,9 @@ class BatchSchedulerTests extends AsyncDOMSpec {
     }
   }
 
-  "BatchScheduler" should "handle state updates for unmounting components safely" in {
+  "BatchScheduler" should "handle state updates for unmounting components safely" in withDebugLogging(
+    "handle state updates for unmounting components safely",
+  ) {
     val container = getContainer
 
     case class Props(onUnmount: () => Unit)
@@ -100,7 +102,7 @@ class BatchSchedulerTests extends AsyncDOMSpec {
     var unmounted = false
     val node      = TestComponent <> Props(() => unmounted = true)
 
-    createDOM(node, container)
+    render(node, container)
 
     // Force unmount
     reconcile(Some(node), None, container)
