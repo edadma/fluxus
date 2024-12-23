@@ -64,4 +64,38 @@ class FetchTests extends AsyncDOMSpec {
       items(2).textContent shouldBe "Third Item"
     }
   }
+
+  it should "handle HTTP errors (404)" in {
+    case class Item(id: Int, name: String) derives JsonDecoder
+
+    val container = getContainer
+
+    def TestComponent = () => {
+      val (state, _) = useFetch[List[Item]]("/api/not-found")
+
+      div(
+        cls := "fetch-test",
+        state match {
+          case FetchState.Error(FetchError.HttpError(status, text)) =>
+            div(
+              cls := "error",
+              s"HTTP Error $status: $text",
+            )
+          case FetchState.Loading() =>
+            div(cls := "loading", "Loading...")
+          case other =>
+            div(cls := "unexpected", other.toString)
+        },
+      )
+    }
+
+    render(TestComponent <> (), container)
+
+    eventually {
+      val errorDiv = container.querySelector(".error")
+
+      errorDiv should not be null
+      errorDiv.textContent shouldBe "HTTP Error 404: Not Found"
+    }
+  }
 }
