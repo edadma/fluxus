@@ -24,7 +24,6 @@ render.scala
 ./src/main/scala/io/github/edadma/fluxus/examples
 CountersApp.scala
 DemoApp.scala
-ListApp.scala
 main.scala
 TimerApp.scala
 TodoApp.scala
