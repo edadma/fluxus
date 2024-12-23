@@ -1,8 +1,10 @@
 package io.github.edadma.fluxus
 
 import org.scalajs.dom
-
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.concurrent.Future
+import scala.scalajs.js
+import scala.scalajs.js.JSConverters.*
 
 // First, let's create the basic types
 case class MockEndpoint(
@@ -20,10 +22,36 @@ case class MockError(
 class MockServer(endpoints: MockEndpoint*):
   private var routes = endpoints.map(e => (e.path, e)).toMap
 
+  def overrideFetch(): Unit =
+    js.Dynamic.global.fetch =
+      (url: String, init: dom.RequestInit) =>
+        logger.debug(
+          "Mock fetch called",
+          category = "Test",
+          Map("url" -> url),
+        )
+
+      handle(url, init).toJSPromise
+
   def handle(url: String, init: dom.RequestInit): Future[dom.Response] =
+    logger.debug(
+      "MockServer handling request",
+      category = "MockServer",
+      Map(
+        "url"         -> url,
+        "method"      -> Option(init).map(_.method).getOrElse("GET"),
+        "knownRoutes" -> routes.keys.mkString(", "),
+      ),
+    )
+
     routes.get(url) match
       case None =>
-        // Return 404 for unknown routes
+        logger.debug(
+          "Route not found",
+          category = "MockServer",
+          Map("url" -> url),
+        )
+
         Future.successful(
           new dom.Response(
             "Not Found",
@@ -35,6 +63,15 @@ class MockServer(endpoints: MockEndpoint*):
         )
 
       case Some(endpoint) =>
+        logger.debug(
+          "Found matching endpoint",
+          category = "MockServer",
+          Map(
+            "url"      -> url,
+            "response" -> endpoint.response.toString,
+          ),
+        )
+
         endpoint.response match
           case Right(body) =>
             Future.successful(

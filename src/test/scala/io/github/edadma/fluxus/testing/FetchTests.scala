@@ -4,11 +4,9 @@ import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.*
 import org.scalajs.dom
 import zio.json.*
-import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js
 
 class FetchTests extends AsyncDOMSpec {
-  // Set up mock server before tests
   val mockServer = MockServer(
     MockEndpoint(
       path = "/api/items",
@@ -18,13 +16,17 @@ class FetchTests extends AsyncDOMSpec {
         {"id": 3, "name": "Third Item"}
       ]"""),
     ),
+    MockEndpoint(
+      path = "/api/not-found",
+      response = Left(MockError(404, "Not Found")),
+    ),
   )
 
-  // Override fetch in jsdom environment
-  js.Dynamic.global.fetch = (url: String, init: dom.RequestInit) =>
-    mockServer.handle(url, init).toJSPromise
+  mockServer.overrideFetch()
 
-  "useFetch" should "successfully fetch and render a list of items" in {
+  "useFetch" should "successfully fetch and render a list of items" in withDebugLogging(
+    "successfully fetch and render a list of items",
+  ) {
     case class Item(id: Int, name: String) derives JsonDecoder
 
     val container = getContainer
@@ -52,7 +54,7 @@ class FetchTests extends AsyncDOMSpec {
       )
     }
 
-    createDOM(TestComponent <> (), container)
+    render(TestComponent <> (), container)
 
     eventually {
       val items = container.querySelectorAll(".item")
