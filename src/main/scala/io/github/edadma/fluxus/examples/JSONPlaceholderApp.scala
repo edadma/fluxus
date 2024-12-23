@@ -10,7 +10,17 @@ case class User(
     email: String,
     website: String,
     company: Company,
-) derives JsonDecoder
+)
+
+object User:
+  given JsonDecoder[User] = DeriveJsonDecoder.gen[User].mapOrFail { user =>
+    if (!user.email.matches("""^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"""))
+      Left(s"Invalid email format: ${user.email}")
+    else if (user.name.length < 3)
+      Left(s"Name must be at least 20 characters: ${user.name}")
+    else
+      Right(user)
+  }
 
 case class Company(
     name: String,
@@ -80,7 +90,7 @@ object JSONPlaceholderApp:
                 ),
               ),
             )
-          case FetchState.Success(userList) =>
+          case FetchState.Success(users) =>
             div(
               cls := "overflow-x-auto",
               table(
@@ -96,7 +106,7 @@ object JSONPlaceholderApp:
                   ),
                 ),
                 tbody(
-                  userList.map(user =>
+                  users.map(user =>
                     tr(
                       key := user.id,
                       td(user.id.toString),
