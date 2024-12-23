@@ -72,11 +72,12 @@ def useFetch[T: JsonDecoder](
           // Handle HTTP errors
           Future.failed(FetchError.HttpError(response.status, response.statusText))
         } else {
-          response.json().toFuture
-            .map(_.asInstanceOf[T])
-            .recoverWith { case e: Throwable =>
-              // Handle JSON decode errors
-              Future.failed(FetchError.DecodeError(e.getMessage))
+          response.text().toFuture
+            .flatMap { jsonText =>
+              jsonText.fromJson[T] match {
+                case Left(error)  => Future.failed(FetchError.DecodeError(error))
+                case Right(value) => Future.successful(value)
+              }
             }
         }
       }
