@@ -117,7 +117,12 @@ private def processMixedContent(items: Seq[Any])
   (attrs, events, children)
 }
 
-def createElement(tag: String, contents: Any*): ElementNode = {
+def createElement(tag: String, contents: Any*): ElementNode = createElementNode(tag, None, contents*)
+
+def createElementInNamespace(tag: String, namespace: String, contents: Any*): ElementNode =
+  createElementNode(tag, Some(namespace), contents*)
+
+def createElementNode(tag: String, namespace: Option[String], contents: Any*): ElementNode = {
   val (attrs, events, children) = processMixedContent(contents)
 
   // Extract key from attrs and remove it
@@ -126,12 +131,13 @@ def createElement(tag: String, contents: Any*): ElementNode = {
 
   ElementNode(
     tag = tag,
-    attrs = attrs,
+    key = key,
+    attrs = attrsWithoutKey,
     events = events,
     children = children,
     parent = None,
     domNode = None,
-    namespace = None,
+    namespace = namespace,
     ref = None,
   )
 }
@@ -191,3 +197,13 @@ def thead(contents: Any*): ElementNode    = createElement("thead", contents*)
 def tr(contents: Any*): ElementNode       = createElement("tr", contents*)
 def ul(contents: Any*): ElementNode       = createElement("ul", contents*)
 def figure(contents: Any*): ElementNode   = createElement("figure", contents*)
+
+def svg(contents: Any*): ElementNode =
+  createElementInNamespace(
+    "svg",
+    "http://www.w3.org/2000/svg",
+    contents :+ Attribute("xmlns", "http://www.w3.org/2000/svg"),
+  )
+def circle(contents: Any*): ElementNode = createElementInNamespace("circle", "http://www.w3.org/2000/svg", contents*)
+def rect(contents: Any*): ElementNode   = createElementInNamespace("rect", "http://www.w3.org/2000/svg", contents*)
+def path(contents: Any*): ElementNode   = createElementInNamespace("path", "http://www.w3.org/2000/svg", contents*)
