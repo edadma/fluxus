@@ -6,22 +6,6 @@ import org.scalajs.dom.RequestInit
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
 
-def createRequestInit(
-    method: String = "GET",
-    headers: Map[String, String] = Map(
-      "Content-Type" -> "application/json",
-    ),
-    body: Option[String] = None,
-): dom.RequestInit = {
-  val init = js.Dynamic.literal(
-    method = method,
-    headers = headers.toJSDictionary,
-  )
-
-  body.foreach(init.updateDynamic("body")(_))
-  init.asInstanceOf[dom.RequestInit]
-}
-
 // Enum for fetch states
 enum FetchState[T]:
   case Success(data: T)
@@ -34,7 +18,8 @@ case class FetchOptions(
     headers: Map[String, String] = Map.empty,
     body: Option[String] = None,
     retries: Int = 3,
-    retryDelay: Int = 1000, // milliseconds
+    retryDelay: Int = 1000,
+    mode: String = "cors",
 )
 
 def useFetch[T](
@@ -54,8 +39,9 @@ def useFetch[T](
     setState(FetchState.Loading())
 
     val init = js.Dynamic.literal(
-      method = method,
+      method = options.method,
       headers = options.headers.toJSDictionary,
+      mode = options.mode,
     )
 
     options.body.foreach(init.updateDynamic("body")(_))
