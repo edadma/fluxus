@@ -70,9 +70,9 @@ class BatchSchedulerTests extends AsyncDOMSpec {
     }
   }
 
-  "BatchScheduler" should "handle state updates for unmounting components safely" in withDebugLogging(
+  "BatchScheduler" should "handle state updates for unmounting components safely" in /*withDebugLogging(
     "handle state updates for unmounting components safely",
-  ) {
+  )*/ {
     val container = getContainer
 
     case class Props(onUnmount: () => Unit)
