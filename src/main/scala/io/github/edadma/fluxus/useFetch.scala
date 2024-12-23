@@ -29,10 +29,18 @@ enum FetchState[T]:
   case Idle()
   case Loading()
 
+case class FetchOptions(
+    method: String = "GET",
+    headers: Map[String, String] = Map.empty,
+    body: Option[String] = None,
+    retries: Int = 3,
+    retryDelay: Int = 1000, // milliseconds
+)
+
 def useFetch[T](
     url: String,
     dependencies: Seq[Any] = Seq.empty,
-    options: RequestInit = createRequestInit(),
+    options: FetchOptions = FetchOptions(),
 ): (FetchState[T], () => Unit) = {
   // State for managing fetch results
   val (state, setState, _) = useState[FetchState[T]](FetchState.Idle())
@@ -45,8 +53,15 @@ def useFetch[T](
     // Cancellation flag to prevent updates on unmounted components
     var isCancelled = false
 
+    val init = js.Dynamic.literal(
+      method = method,
+      headers = options.headers.toJSDictionary,
+    )
+
+    options.body.foreach(init.updateDynamic("body")(_))
+
     // Perform fetch with error handling
-    dom.fetch(url, options)
+    dom.fetch(url, init.asInstanceOf[dom.RequestInit])
       .`then`(response =>
         if (!response.ok)
           throw new Error(s"HTTP error! status: ${response.status}")
