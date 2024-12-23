@@ -8,10 +8,21 @@ import scala.scalajs.js.JSConverters.*
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.util.{Success, Failure}
 
+enum FetchError extends Throwable:
+  case NetworkError(message: String)              extends FetchError
+  case DecodeError(message: String)               extends FetchError
+  case HttpError(status: Int, statusText: String) extends FetchError
+
+  // Override getMessage for better error reporting
+  override def getMessage: String = this match
+    case NetworkError(msg)       => s"Network error: $msg"
+    case DecodeError(msg)        => s"Failed to decode response: $msg"
+    case HttpError(status, text) => s"HTTP error $status: $text"
+
 // Enum for fetch states
 enum FetchState[T]:
   case Success(data: T)
-  case Error(message: String)
+  case Error(error: FetchError)
   case Idle()
   case Loading()
 
@@ -23,6 +34,12 @@ case class FetchOptions(
     retryDelay: Int = 1000,
     mode: String = "cors",
 )
+
+private def shouldRetry(error: FetchError): Boolean = error match
+  case FetchError.NetworkError(_) => true // Always retry network errors
+  case FetchError.HttpError(status, _) =>
+    status >= 500 // Only retry server errors
+  case FetchError.DecodeError(_) => false // Don't retry decode errors
 
 def useFetch[T: JsonDecoder](
     url: String,
@@ -48,25 +65,36 @@ def useFetch[T: JsonDecoder](
 
     options.body.foreach(init.updateDynamic("body")(_))
 
-    // Perform fetch with error handling
-    dom.fetch(url, init.asInstanceOf[dom.RequestInit]).toFuture
-      .flatMap(response =>
-        if (!response.ok)
-          Future.failed(new Error(s"HTTP error! status: ${response.status}"))
-        else
-          response.text().toFuture,
-      )
-      .map(_.fromJson[T])
+    dom.fetch(url, init.asInstanceOf[dom.RequestInit])
+      .toFuture
+      .flatMap { response =>
+        if (!response.ok) {
+          // Handle HTTP errors
+          Future.failed(FetchError.HttpError(response.status, response.statusText))
+        } else {
+          response.json().toFuture
+            .map(_.asInstanceOf[T])
+            .recoverWith { case e: Throwable =>
+              // Handle JSON decode errors
+              Future.failed(FetchError.DecodeError(e.getMessage))
+            }
+        }
+      }
+      .recoverWith { case e: Throwable =>
+        e match {
+          case e: FetchError => Future.failed(e)
+          case _             => Future.failed(FetchError.NetworkError(e.getMessage))
+        }
+      }
       .onComplete {
-        case Success(Right(data)) if !isCancelled => setState(FetchState.Success(data))
-        case Success(Left(error)) if !isCancelled => setState(FetchState.Error(s"JSON decode error: $error"))
-        case Failure(error) if !isCancelled =>
-          if (remainingRetries > 0) {
+        case Success(data) if !isCancelled => setState(FetchState.Success(data))
+        case Failure(error: FetchError) if !isCancelled =>
+          if (remainingRetries > 0 && shouldRetry(error)) {
             js.timers.setTimeout(options.retryDelay) {
               performFetch(remainingRetries - 1)
             }
           } else {
-            setState(FetchState.Error(error.getMessage))
+            setState(FetchState.Error(error))
           }
         case _ => // Request was cancelled
       }
