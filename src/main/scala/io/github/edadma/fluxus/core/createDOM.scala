@@ -143,26 +143,31 @@ def createDOM(root: FluxusNode, container: Element): Unit = {
   container.appendChild(dom)
 
   // After entire tree is created, find all component instances and run their effects
-  def collectInstances(node: FluxusNode): Seq[ComponentInstance] = {
-    node match {
-      case comp: ComponentNode =>
-        (comp.instance ++ comp.instance.flatMap(_.rendered).flatMap(collectInstances)).toSeq
-      case elem: ElementNode =>
-        elem.children.flatMap(collectInstances)
-      case _ => Nil
-    }
-  }
+//  def collectInstances(node: FluxusNode): Seq[ComponentInstance] = {
+//    node match {
+//      case comp: ComponentNode =>
+//        // Get this component's instance first (parent)
+//        val thisInstance = comp.instance.toSeq
+//        // Then get child instances from rendered tree
+//        val childInstances = comp.instance.flatMap(_.rendered).toSeq.flatMap(collectInstances)
+//        // Parent first, then children
+//        thisInstance ++ childInstances
+//      case elem: ElementNode =>
+//        elem.children.flatMap(collectInstances)
+//      case _ => Nil
+//    }
+//  }
 
-  val instances = collectInstances(root)
+//  val instances = collectInstances(root)
+//
+//  logger.debug(
+//    "Running effects for initial render",
+//    category = "DOM",
+//    Map(
+//      "instanceCount" -> instances.size.toString,
+//      "instances"     -> instances.map(_.id).mkString(", "),
+//    ),
+//  )
 
-  logger.debug(
-    "Running effects for initial render",
-    category = "DOM",
-    Map(
-      "instanceCount" -> instances.size.toString,
-      "instances"     -> instances.map(_.id).mkString(", "),
-    ),
-  )
-
-  BatchScheduler.handleEffects(instances.toSet)
+//  BatchScheduler.handleEffects(instances.toSet)
 }

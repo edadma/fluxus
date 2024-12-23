@@ -39,29 +39,29 @@ case class ComponentInstance(
     var rendered: Option[FluxusNode] = None,
     var node: ComponentNode,
 ):
-  def createInitialRender(): Unit = {
-    hookIndex = 0 // Reset hook index for new render
-
-    rendered match {
-      case None =>
-        // Get new tree from component
-        val newNode = ComponentInstance.withInstance(this) {
-          node.component(node.props)
-        }
-
-        rendered = Some(newNode)
-
-        // Run initial effects after the render is complete
-        BatchScheduler.handleEffects(Set(this))
-
-      case Some(_) =>
-        logger.error(
-          "Attempted to do initial render on already rendered component",
-          category = "ComponentInstance",
-          Map("instanceId" -> id),
-        )
-    }
-  }
+//  def createInitialRender(): Unit = {
+//    hookIndex = 0 // Reset hook index for new render
+//
+//    rendered match {
+//      case None =>
+//        // Get new tree from component
+//        val newNode = ComponentInstance.withInstance(this) {
+//          node.component(node.props)
+//        }
+//
+//        rendered = Some(newNode)
+//
+//        // Run initial effects after the render is complete
+////        BatchScheduler.handleEffects(Set(this))
+//
+//      case Some(_) =>
+//        logger.error(
+//          "Attempted to do initial render on already rendered component",
+//          category = "ComponentInstance",
+//          Map("instanceId" -> id),
+//        )
+//    }
+//  }
 
   def cleanup(): Unit = {
     logger.debug(
@@ -137,7 +137,7 @@ case class ComponentInstance(
             reconcile(rendered, Some(newNode), parent.asInstanceOf[org.scalajs.dom.Element])
 
             rendered = Some(newNode)
-            BatchScheduler.handleEffects(Set(this))
+            BatchScheduler.scheduleEffects(this)
           case None =>
             logger.error(
               "Component instance has rendered node but no DOM node",

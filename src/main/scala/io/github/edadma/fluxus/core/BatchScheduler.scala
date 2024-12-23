@@ -10,6 +10,29 @@ import scala.scalajs.js
 /** Handles batching of state updates to prevent unnecessary re-renders and ensure consistent state updates.
   */
 object BatchScheduler {
+  private var pendingEffects = Set[ComponentInstance]()
+
+  def scheduleEffects(instance: ComponentInstance): Unit = {
+    logger.debug(
+      "Scheduling effects for component",
+      category = "BatchScheduler",
+      Map("instanceId" -> instance.id),
+    )
+    pendingEffects += instance
+  }
+
+  def flushEffects(): Unit = {
+    if (pendingEffects.nonEmpty) {
+      logger.debug(
+        "Flushing effects",
+        category = "BatchScheduler",
+        Map("count" -> pendingEffects.size.toString),
+      )
+      handleEffects(pendingEffects)
+      pendingEffects = Set()
+    }
+  }
+
   // Tracks if we're currently processing a batch
 //  private var isProcessing = false
   private class BatchState {
@@ -318,7 +341,7 @@ object BatchScheduler {
     )
 
     // Run effects for updated components
-    handleEffects(componentsToUpdate)
+    flushEffects()
   }
 
   def handleEffects(components: Set[ComponentInstance]): Unit = {
