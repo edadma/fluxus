@@ -1,7 +1,6 @@
 package io.github.edadma.fluxus.examples
 
 import io.github.edadma.fluxus.*
-import scala.scalajs.js
 import zio.json.*
 
 case class User(
@@ -26,7 +25,6 @@ object JSONPlaceholderApp:
     )
 
   def UsersTable: () => FluxusNode = () => {
-    // Use the useFetch hook to get users
     val (users, retry) = useFetch[List[User]](
       url = "https://jsonplaceholder.typicode.com/users",
       options = FetchOptions(
@@ -45,14 +43,12 @@ object JSONPlaceholderApp:
           cls := "card-title text-2xl mb-4",
           "JSONPlaceholder Users",
         ),
-        // Render different views based on fetch state
         users match {
           case FetchState.Idle() =>
             div(
               cls := "alert alert-info",
               "Ready to fetch users",
             )
-
           case FetchState.Loading() =>
             div(
               cls := "overflow-x-auto",
@@ -100,7 +96,6 @@ object JSONPlaceholderApp:
                   ),
                 ),
                 tbody(
-                  // Convert JS objects to Scala case classes
                   userList.map(user =>
                     tr(
                       key := user.id,
