@@ -127,7 +127,6 @@ object JSONPlaceholderApp:
                 ),
               ),
             )
-
           case FetchState.Error(message) =>
             div(
               cls := "alert alert-error",
