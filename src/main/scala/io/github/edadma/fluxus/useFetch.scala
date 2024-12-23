@@ -1,7 +1,6 @@
 package io.github.edadma.fluxus
 
 import org.scalajs.dom
-import org.scalajs.dom.RequestInit
 
 import scala.concurrent.Future
 import scala.scalajs.js
