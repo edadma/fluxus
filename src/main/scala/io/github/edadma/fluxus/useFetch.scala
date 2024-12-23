@@ -45,13 +45,13 @@ def useFetch[T](
   // State for managing fetch results
   val (state, setState, _) = useState[FetchState[T]](FetchState.Idle())
 
+  // Cancellation flag to prevent updates on unmounted components
+  var isCancelled = false
+
   // Function to perform fetch with retry logic
   def performFetch(remainingRetries: Int): Unit = {
     // Set loading state
     setState(FetchState.Loading())
-
-    // Cancellation flag to prevent updates on unmounted components
-    var isCancelled = false
 
     val init = js.Dynamic.literal(
       method = method,
@@ -81,15 +81,10 @@ def useFetch[T](
               performFetch(remainingRetries - 1)
             }
           } else {
-            setState(FetchState.Error(error.toString))
+            setState(FetchState.Error(String.valueOf(error)))
           }
         },
       )
-
-    // Cleanup function
-    () => {
-      isCancelled = true
-    }
   }
 
   // Retry function exposed to the user
@@ -103,7 +98,12 @@ def useFetch[T](
       // Only fetch if URL is non-empty
       if (url.nonEmpty) {
         performFetch(options.retries)
-      } else () // No-op if URL is empty
+      }
+
+      // Cleanup function
+      () => {
+        isCancelled = true
+      }
     },
     url +: dependencies,
   ) // Trigger fetch on URL or dependency changes

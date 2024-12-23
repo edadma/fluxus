@@ -29,10 +29,10 @@ object JSONPlaceholderApp:
   def UsersTable: () => FluxusNode = () => {
     // Use the useFetch hook to get users
     val (users, retry) = useFetch[js.Array[User]](
-      url = "https://jsonplaceholder.typicode.com/users",
+      url = "https://cors-anywhere.herokuapp.com/https://jsonplaceholder.typicode.com/users",
       options = FetchOptions(
-        retries = 3,
-        retryDelay = 1000,
+        retries = 1,
+        retryDelay = 500,
       ),
     )
 
@@ -46,13 +46,13 @@ object JSONPlaceholderApp:
         ),
         // Render different views based on fetch state
         users match {
-          case FetchState.Idle =>
+          case FetchState.Idle() =>
             div(
               cls := "alert alert-info",
               "Ready to fetch users",
             )
 
-          case FetchState.Loading =>
+          case FetchState.Loading() =>
             div(
               cls := "flex justify-center items-center",
               span(

@@ -19,11 +19,13 @@ Hook.scala
 implicits.scala
 package.scala
 render.scala
+useFetch.scala
 
 # example apps
 ./src/main/scala/io/github/edadma/fluxus/examples
 CountersApp.scala
 DemoApp.scala
+JSONPlaceholderApp.scala
 main.scala
 TimerApp.scala
 TodoApp.scala
