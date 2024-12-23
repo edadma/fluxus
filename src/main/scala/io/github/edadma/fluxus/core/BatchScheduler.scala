@@ -356,20 +356,40 @@ object BatchScheduler {
 
     // Sort components so parents run before children
     val orderedComponents = components.toSeq.sortWith { (a, b) =>
-      def isParentOf(parent: ComponentInstance, child: ComponentInstance): Boolean = {
+//      def isParentOf(parent: ComponentInstance, child: ComponentInstance): Boolean = {
+//        @scala.annotation.tailrec
+//        def checkParent(current: Option[ComponentInstance]): Boolean = {
+//          current match {
+//            case None                                 => false
+//            case Some(instance) if instance == parent => true
+//            case Some(instance)                       => checkParent(instance.parent)
+//          }
+//        }
+//
+//        checkParent(child.parent)
+//      }
+//
+//      isParentOf(a, b)
+//    }
+      def isAncestorOf(ancestor: ComponentInstance, descendant: ComponentInstance): Boolean = {
         @scala.annotation.tailrec
-        def checkParent(current: Option[ComponentInstance]): Boolean = {
+        def checkAncestors(current: Option[ComponentInstance]): Boolean = {
           current match {
-            case None                                 => false
-            case Some(instance) if instance == parent => true
-            case Some(instance)                       => checkParent(instance.parent)
+            case None                                   => false
+            case Some(instance) if instance == ancestor => true
+            case Some(instance)                         => checkAncestors(instance.parent)
           }
         }
-
-        checkParent(child.parent)
+        checkAncestors(descendant.parent)
       }
 
-      !isParentOf(a, b)
+      // Order based on ancestor/descendant relationship:
+      // - If a is ancestor of b: a comes first (return true)
+      // - If b is ancestor of a: b comes first (return false)
+      // - Otherwise: order doesn't matter
+      if (isAncestorOf(a, b)) true
+      else if (isAncestorOf(b, a)) false
+      else a.id < b.id // Stable sort for unrelated components
     }
 
     logger.debug(

@@ -110,6 +110,8 @@ def createDOMNode(node: FluxusNode): Node = {
       // Create DOM from rendered node
       val compNode = createDOMNode(rendered)
 
+      BatchScheduler.scheduleEffects(instance)
+
       compNode
 
   // Store the created DOM node

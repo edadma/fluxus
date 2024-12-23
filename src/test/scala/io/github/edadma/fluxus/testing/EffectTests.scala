@@ -50,7 +50,7 @@ class EffectTests extends AsyncDOMSpec {
 
     // Initial render
     val node = EffectTestComponent <> EffectTestProps()
-    createDOM(node, container)
+    render(node, container)
 
     eventually {
       logger.debug(
@@ -237,7 +237,7 @@ class EffectTests extends AsyncDOMSpec {
 
     val parent = ParentComponent <> ()
 
-    createDOM(parent, container)
+    render(parent, container)
 
     eventually {
       // Parent effects should run before child effects
