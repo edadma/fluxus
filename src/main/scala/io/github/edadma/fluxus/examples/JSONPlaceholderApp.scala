@@ -53,20 +53,6 @@ object Company {
   )
 }
 
-case class SkeletonRowProps(columns: Int)
-
-def SkeletonRow: SkeletonRowProps => FluxusNode = props =>
-  tr(
-    cls := "animate-pulse",
-    (1 to props.columns).map(_ =>
-      td(
-        div(
-          cls := "h-4 bg-base-300 rounded",
-        ),
-      ),
-    ),
-  )
-
 object JSONPlaceholderApp:
   def App: FluxusNode =
     div(
@@ -79,8 +65,6 @@ object JSONPlaceholderApp:
     val (users, retry) = useFetch[js.Array[UserJS]](
       url = "https://jsonplaceholder.typicode.com/users",
       options = FetchOptions(
-        retries = 1,
-        retryDelay = 500,
         headers = Map(
           "Accept"       -> "application/json",
           "Content-Type" -> "application/json",
