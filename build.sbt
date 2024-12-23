@@ -12,7 +12,7 @@ lazy val fluxus = project
   .settings(
     name             := "fluxus",
     version          := "0.0.1",
-    scalaVersion     := "3.5.2",
+    scalaVersion     := "3.6.2",
     organization     := "io.github.edadma",
     githubOwner      := "edadma",
     githubRepository := name.value,
@@ -21,6 +21,7 @@ lazy val fluxus = project
       "com.lihaoyi"      %%% "pprint"      % "0.9.0"  % "test",
       "org.scala-js"     %%% "scalajs-dom" % "2.8.0",
       "io.github.edadma" %%% "logger"      % "0.0.5",
+      "dev.zio"          %%% "zio-json"    % "0.7.3",
     ),
     Test / npmDependencies ++= Seq(
       "jsdom" -> "25.0.1",

@@ -1,7 +1,7 @@
 package io.github.edadma.fluxus
 
 import org.scalajs.dom
-
+import zio.json.*
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
@@ -24,7 +24,7 @@ case class FetchOptions(
     mode: String = "cors",
 )
 
-def useFetch[T](
+def useFetch[T: JsonDecoder](
     url: String,
     dependencies: Seq[Any] = Seq.empty,
     options: FetchOptions = FetchOptions(),
@@ -49,29 +49,27 @@ def useFetch[T](
     options.body.foreach(init.updateDynamic("body")(_))
 
     // Perform fetch with error handling
-    val future = dom.fetch(url, init.asInstanceOf[dom.RequestInit]).toFuture
+    dom.fetch(url, init.asInstanceOf[dom.RequestInit]).toFuture
       .flatMap(response =>
         if (!response.ok)
           Future.failed(new Error(s"HTTP error! status: ${response.status}"))
         else
-          response.json().toFuture.map(_.asInstanceOf[T]),
+          response.text().toFuture,
       )
-
-    future.onComplete {
-      case Success(data) if !isCancelled =>
-        setState(FetchState.Success(data))
-
-      case Failure(error) if !isCancelled =>
-        if (remainingRetries > 0) {
-          js.timers.setTimeout(options.retryDelay) {
-            performFetch(remainingRetries - 1)
+      .map(_.fromJson[T])
+      .onComplete {
+        case Success(Right(data)) if !isCancelled => setState(FetchState.Success(data))
+        case Success(Left(error)) if !isCancelled => setState(FetchState.Error(s"JSON decode error: $error"))
+        case Failure(error) if !isCancelled =>
+          if (remainingRetries > 0) {
+            js.timers.setTimeout(options.retryDelay) {
+              performFetch(remainingRetries - 1)
+            }
+          } else {
+            setState(FetchState.Error(error.getMessage))
           }
-        } else {
-          setState(FetchState.Error(error.getMessage))
-        }
-
-      case _ => // Request was cancelled
-    }
+        case _ => // Request was cancelled
+      }
   }
 
   // Retry function exposed to the user

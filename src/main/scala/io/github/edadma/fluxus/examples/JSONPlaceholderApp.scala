@@ -2,25 +2,8 @@ package io.github.edadma.fluxus.examples
 
 import io.github.edadma.fluxus.*
 import scala.scalajs.js
+import zio.json.*
 
-// Create a JS facade for the raw JSON structure
-@js.native
-trait UserJS extends js.Object {
-  val id: Int            = js.native
-  val name: String       = js.native
-  val username: String   = js.native
-  val email: String      = js.native
-  val website: String    = js.native
-  val company: CompanyJS = js.native
-}
-
-@js.native
-trait CompanyJS extends js.Object {
-  val name: String        = js.native
-  val catchPhrase: String = js.native
-}
-
-// Update case classes with conversion methods
 case class User(
     id: Int,
     name: String,
@@ -28,30 +11,12 @@ case class User(
     email: String,
     website: String,
     company: Company,
-)
-
-object User {
-  def fromJS(obj: UserJS): User = User(
-    id = obj.id,
-    name = obj.name,
-    username = obj.username,
-    email = obj.email,
-    website = obj.website,
-    company = Company.fromJS(obj.company),
-  )
-}
+) derives JsonDecoder
 
 case class Company(
     name: String,
     catchPhrase: String,
-)
-
-object Company {
-  def fromJS(obj: CompanyJS): Company = Company(
-    name = obj.name,
-    catchPhrase = obj.catchPhrase,
-  )
-}
+) derives JsonDecoder
 
 object JSONPlaceholderApp:
   def App: FluxusNode =
@@ -62,7 +27,7 @@ object JSONPlaceholderApp:
 
   def UsersTable: () => FluxusNode = () => {
     // Use the useFetch hook to get users
-    val (users, retry) = useFetch[js.Array[UserJS]](
+    val (users, retry) = useFetch[List[User]](
       url = "https://jsonplaceholder.typicode.com/users",
       options = FetchOptions(
         headers = Map(
@@ -136,8 +101,7 @@ object JSONPlaceholderApp:
                 ),
                 tbody(
                   // Convert JS objects to Scala case classes
-                  userList.toSeq.map(jsUser => {
-                    val user = User.fromJS(jsUser)
+                  userList.map(user =>
                     tr(
                       key := user.id,
                       td(user.id.toString),
@@ -153,8 +117,8 @@ object JSONPlaceholderApp:
                           user.website,
                         ),
                       ),
-                    )
-                  }),
+                    ),
+                  ),
                 ),
               ),
             )
