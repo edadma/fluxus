@@ -3,8 +3,11 @@ package io.github.edadma.fluxus
 import org.scalajs.dom
 import org.scalajs.dom.RequestInit
 
+import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+import scala.util.{Success, Failure}
 
 // Enum for fetch states
 enum FetchState[T]:
@@ -47,30 +50,29 @@ def useFetch[T](
     options.body.foreach(init.updateDynamic("body")(_))
 
     // Perform fetch with error handling
-    dom.fetch(url, init.asInstanceOf[dom.RequestInit])
-      .`then`(response =>
+    val future = dom.fetch(url, init.asInstanceOf[dom.RequestInit]).toFuture
+      .flatMap(response =>
         if (!response.ok)
-          throw new Error(s"HTTP error! status: ${response.status}")
+          Future.failed(new Error(s"HTTP error! status: ${response.status}"))
         else
-          response.json(),
+          response.json().toFuture.map(_.asInstanceOf[T]),
       )
-      .`then`(data =>
-        if (!isCancelled) {
-          setState(FetchState.Success(data.asInstanceOf[T]))
-        },
-      )
-      .`catch`(error =>
-        if (!isCancelled) {
-          if (remainingRetries > 0) {
-            // Schedule retry with exponential backoff
-            js.timers.setTimeout(options.retryDelay) {
-              performFetch(remainingRetries - 1)
-            }
-          } else {
-            setState(FetchState.Error(String.valueOf(error)))
+
+    future.onComplete {
+      case Success(data) if !isCancelled =>
+        setState(FetchState.Success(data))
+
+      case Failure(error) if !isCancelled =>
+        if (remainingRetries > 0) {
+          js.timers.setTimeout(options.retryDelay) {
+            performFetch(remainingRetries - 1)
           }
-        },
-      )
+        } else {
+          setState(FetchState.Error(error.getMessage))
+        }
+
+      case _ => // Request was cancelled
+    }
   }
 
   // Retry function exposed to the user
