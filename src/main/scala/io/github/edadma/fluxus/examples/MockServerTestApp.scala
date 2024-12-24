@@ -8,18 +8,19 @@ object MockServerTestApp:
       id: Int,
       name: String,
       email: String,
-  ) derives JsonDecoder
+  ) derives JsonEncoder, JsonDecoder
 
   val mockServer = MockServer(
     MockEndpoint(
       path = "/api/users",
-      response = () =>
-        Right(
-          """[
-        {"id": 1, "name": "John Doe", "email": "john@example.com"},
-        {"id": 2, "name": "Jane Smith", "email": "jane@example.com"}
-      ]""",
-        ),
+      response =
+        () =>
+          Right(
+            List(
+              User(1, "John Doe", "john@example.com"),
+              User(2, "Jane Smith", "jane@example.com"),
+            ).toJson,
+          ),
     ),
     MockEndpoint(
       path = "/api/error",
