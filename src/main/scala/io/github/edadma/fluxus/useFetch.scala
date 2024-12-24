@@ -36,10 +36,9 @@ case class FetchOptions(
 )
 
 private def shouldRetry(error: FetchError): Boolean = error match
-  case FetchError.NetworkError(_) => true // Always retry network errors
-  case FetchError.HttpError(status, _) =>
-    status >= 500 // Only retry server errors
-  case FetchError.DecodeError(_) => false // Don't retry decode errors
+  case FetchError.NetworkError(_)      => true          // Always retry network errors
+  case FetchError.HttpError(status, _) => status >= 500 // Only retry server errors
+  case FetchError.DecodeError(_)       => false         // Don't retry decode errors
 
 def useFetch[T: JsonDecoder](
     url: String,

@@ -1,17 +1,14 @@
 package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.*
-import io.github.edadma.fluxus.core.*
-import org.scalajs.dom
 import zio.json.*
-import scala.scalajs.js
 
 class FetchTests extends AsyncDOMSpec {
   var attempts = 0
   val mockServer = MockServer(
     MockEndpoint(
       path = "/api/items",
-      response = Right("""[
+      response = () => Right("""[
         {"id": 1, "name": "First Item"},
         {"id": 2, "name": "Second Item"},
         {"id": 3, "name": "Third Item"}
@@ -19,25 +16,23 @@ class FetchTests extends AsyncDOMSpec {
     ),
     MockEndpoint(
       path = "/api/not-found",
-      response = Left(MockError(404, "Not Found")),
+      response = () => Left(MockError(404, "Not Found")),
     ),
     MockEndpoint(
       path = "/api/server-error",
-      response = {
+      response = () => {
         attempts += 1
-        if (attempts <= 2)
-          Left(MockError(500, "Internal Server Error"))
-        else
-          Right("""[{"id": 1, "name": "Success after retry"}]""")
+        if (attempts <= 2) Left(MockError(500, "Internal Server Error"))
+        else Right("""[{"id": 1, "name": "Success after retry"}]""")
       },
     ),
   )
 
   mockServer.overrideFetch()
 
-  "useFetch" should "successfully fetch and render a list of items" in withDebugLogging(
+  "useFetch" should "successfully fetch and render a list of items" in /*withDebugLogging(
     "successfully fetch and render a list of items",
-  ) {
+  )*/ {
     case class Item(id: Int, name: String) derives JsonDecoder
 
     val container = getContainer
@@ -76,7 +71,7 @@ class FetchTests extends AsyncDOMSpec {
     }
   }
 
-  it should "handle HTTP errors (404)" in {
+  it should "handle HTTP errors (404)" in withDebugLogging("handle HTTP errors (404)") {
     case class Item(id: Int, name: String) derives JsonDecoder
 
     val container = getContainer
@@ -120,12 +115,14 @@ class FetchTests extends AsyncDOMSpec {
     def TestComponent = () => {
       val (state, _) = useFetch[List[Item]](
         "/api/server-error",
-        options = FetchOptions(retries = 3, retryDelay = 50), // Short delay for tests
+        options = FetchOptions(retries = 3, retryDelay = 10), // Short delay for tests
       )
 
       div(
         cls := "fetch-test",
         state match {
+          case FetchState.Idle() =>
+            div(cls := "idle", "Idle...")
           case FetchState.Success(items) =>
             div(cls := "success", items.head.name)
           case FetchState.Error(FetchError.HttpError(status, text)) =>
