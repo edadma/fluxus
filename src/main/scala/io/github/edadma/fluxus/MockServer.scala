@@ -6,7 +6,6 @@ import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
 
-// First, let's create the basic types
 case class MockEndpoint(
     path: String,
     method: String = "GET",
@@ -20,7 +19,7 @@ case class MockError(
 )
 
 class MockServer(endpoints: MockEndpoint*):
-  private var routes = endpoints.map(e => (e.path, e)).toMap
+  private val routes = endpoints.map(e => (e.path, e)).toMap
 
   def overrideFetch(): Unit =
     js.Dynamic.global.fetch =
@@ -31,7 +30,7 @@ class MockServer(endpoints: MockEndpoint*):
           Map("url" -> url),
         )
 
-      handle(url, init).toJSPromise
+        handle(url, init).toJSPromise
 
   def handle(url: String, init: dom.RequestInit): Future[dom.Response] =
     logger.debug(
