@@ -3,31 +3,31 @@ package io.github.edadma.fluxus.examples
 import io.github.edadma.fluxus.*
 import zio.json.*
 
-case class User(
-    id: Int,
-    name: String,
-    username: String,
-    email: String,
-    website: String,
-    company: Company,
-)
-
-object User:
-  given JsonDecoder[User] = DeriveJsonDecoder.gen[User].mapOrFail { user =>
-    if (!user.email.matches("""^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"""))
-      Left(s"Invalid email format: ${user.email}")
-    else if (user.name.length < 3)
-      Left(s"Name must be at least 20 characters: ${user.name}")
-    else
-      Right(user)
-  }
-
-case class Company(
-    name: String,
-    catchPhrase: String,
-) derives JsonDecoder
-
 object JSONPlaceholderApp:
+  case class User(
+      id: Int,
+      name: String,
+      username: String,
+      email: String,
+      website: String,
+      company: Company,
+  )
+
+  object User:
+    given JsonDecoder[User] = DeriveJsonDecoder.gen[User].mapOrFail { user =>
+      if (!user.email.matches("""^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"""))
+        Left(s"Invalid email format: ${user.email}")
+      else if (user.name.length < 3)
+        Left(s"Name must be at least 20 characters: ${user.name}")
+      else
+        Right(user)
+    }
+
+  case class Company(
+      name: String,
+      catchPhrase: String,
+  ) derives JsonDecoder
+
   def App: FluxusNode =
     div(
       cls := "min-h-screen bg-base-200 p-8",
