@@ -60,17 +60,17 @@ object MockServerTestApp:
         div(
           cls := "btn-group mb-4",
           button(
-            cls     := s"btn ${if scenario == "idle" then "btn-active" else ""}",
+            cls     := s"btn ${if scenario == "idle" then "btn-outline" else ""}",
             onClick := (() => setScenario("idle")),
             "Idle",
           ),
           button(
-            cls     := s"btn ${if scenario == "success" then "btn-active" else ""}",
+            cls     := s"btn ${if scenario == "success" then "btn-outline" else ""}",
             onClick := (() => setScenario("success")),
             "Fetch Users",
           ),
           button(
-            cls     := s"btn ${if scenario == "error" then "btn-active" else ""}",
+            cls     := s"btn ${if scenario == "error" then "btn-outline" else ""}",
             onClick := (() => setScenario("error")),
             "Trigger Error",
           ),
