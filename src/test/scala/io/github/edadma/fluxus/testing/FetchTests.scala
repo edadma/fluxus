@@ -71,7 +71,7 @@ class FetchTests extends AsyncDOMSpec {
     }
   }
 
-  it should "handle HTTP errors (404)" in withDebugLogging("handle HTTP errors (404)") {
+  it should "handle HTTP errors (404)" in /*withDebugLogging("handle HTTP errors (404)")*/ {
     case class Item(id: Int, name: String) derives JsonDecoder
 
     val container = getContainer

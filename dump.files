@@ -21,6 +21,7 @@ MockServer.scala
 package.scala
 render.scala
 useFetch.scala
+useSignal.scala
 
 # example apps
 ./src/main/scala/io/github/edadma/fluxus/examples
@@ -28,6 +29,8 @@ CountersApp.scala
 DemoApp.scala
 JSONPlaceholderApp.scala
 main.scala
+MockServerTestApp.scala
+SignalDemoApp.scala
 TimerApp.scala
 TodoApp.scala
 

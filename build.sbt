@@ -22,6 +22,7 @@ lazy val fluxus = project
       "org.scala-js"     %%% "scalajs-dom" % "2.8.0",
       "io.github.edadma" %%% "logger"      % "0.0.5",
       "dev.zio"          %%% "zio-json"    % "0.7.3",
+      "com.raquo"        %%% "airstream"   % "16.0.0",
     ),
     Test / npmDependencies ++= Seq(
       "jsdom" -> "25.0.1",
