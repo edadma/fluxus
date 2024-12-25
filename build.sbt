@@ -7,7 +7,6 @@ publish / skip := true
 lazy val fluxus = project
   .in(file("."))
   .enablePlugins(ScalaJSPlugin)
-  .enablePlugins(ScalaJSBundlerPlugin)
 //  .enablePlugins(ScalablyTypedConverterPlugin)
   .settings(
     name             := "fluxus",
@@ -24,10 +23,6 @@ lazy val fluxus = project
       "dev.zio"          %%% "zio-json"    % "0.7.3",
       "com.raquo"        %%% "airstream"   % "16.0.0",
     ),
-    Test / npmDependencies ++= Seq(
-      "jsdom" -> "25.0.1",
-//      "jsdom-global" -> "3.0.2",
-    ),
     jsEnv := new org.scalajs.jsenv.nodejs.NodeJSEnv(),
 //    Test / scalaJSUseMainModuleInitializer := true,
 //    Test / scalaJSUseTestModuleInitializer := false,
@@ -42,8 +37,7 @@ lazy val fluxus = project
 //        .withArgs(List("--require", "jsdom-global/register")),
 //    ),
     scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
-    //    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     publishMavenStyle      := true,
     Test / publishArtifact := false,
   )

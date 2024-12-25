@@ -1,12 +1,14 @@
 {
   "name": "fluxus",
   "version": "1.0.0",
-  "description": "Fluxus: (Not) The Ultimate App Framework",
+  "description": "A minimalist UI framework inspired by component-based design, built with Scala.js",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "dev": "vite",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tailwind:build": "tailwindcss -i ./src/main/resources/styles/tailwind.css -o ./public/output.css --minify",
-    "tailwind:watch": "tailwindcss -i ./src/main/resources/styles/tailwind.css -o ./public/output.css --watch"
+    "tailwind:build": "tailwindcss -i ./src/main/resources/styles/tailwind.css -o ./output.css --minify",
+    "tailwind:watch": "tailwindcss -i ./src/main/resources/styles/tailwind.css -o ./output.css --watch"
   },
   "keywords": [],
   "author": "",

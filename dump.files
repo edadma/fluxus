@@ -52,11 +52,12 @@ StateTests.scala
 build.sbt
 package.json
 tailwind.config.js
+vite.config.js
 ./project
 plugins.sbt
 
 # support for running test apps
-./public
+./
 index.html
 ./src/main/resources/styles
 tailwind.css

@@ -45,7 +45,7 @@ object DemoApp:
             h1(cls := "text-5xl font-bold", title),
             p(
               cls := "py-6",
-              "A minimalist React-like UI framework built with Scala.js.",
+              "A minimalist UI framework inspired by component-based design, built with Scala.js.",
             ),
             button(cls := "btn btn-primary", "Get Started"),
           ),
