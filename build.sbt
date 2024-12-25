@@ -3,18 +3,27 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 ThisBuild / licenses += "ISC"  -> url("https://opensource.org/licenses/ISC")
 ThisBuild / versionScheme      := Some("semver-spec")
 ThisBuild / evictionErrorLevel := Level.Warn
+ThisBuild / scalaVersion       := "3.6.2"
+ThisBuild / organization       := "io.github.edadma"
+ThisBuild / version            := "0.0.1"
 
 publish / skip := true
 
-lazy val fluxus = project
-  .in(file("."))
+lazy val commonSettings = Seq(
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-feature",
+    "-unchecked",
+    "-Xfatal-warnings",
+  ),
+)
+
+lazy val library = project
   .enablePlugins(ScalaJSPlugin)
+  .settings(commonSettings)
 //  .enablePlugins(ScalablyTypedConverterPlugin)
   .settings(
-    name             := "fluxus",
-    version          := "0.0.1",
-    scalaVersion     := "3.6.2",
-    organization     := "io.github.edadma",
+    name             := "fluxus-library",
     githubOwner      := "edadma",
     githubRepository := name.value,
     libraryDependencies ++= Seq(
@@ -28,20 +37,29 @@ lazy val fluxus = project
     jsEnv := new org.scalajs.jsenv.nodejs.NodeJSEnv(),
 //    Test / scalaJSUseMainModuleInitializer := true,
 //    Test / scalaJSUseTestModuleInitializer := false,
-    Test / parallelExecution               := false,
     Test / scalaJSUseMainModuleInitializer := false,
     Test / scalaJSUseTestModuleInitializer := true,
-//    Test / jsEnv                           := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
-//      org.scalajs.jsenv.nodejs.NodeJSEnv.Config()
-//        .withEnv(Map(
-//          "NODE_PATH" -> "node_modules",
-//        ))
-//        .withArgs(List("--require", "jsdom-global/register")),
-//    ),
-    scalaJSUseMainModuleInitializer := true,
+    Test / parallelExecution               := false,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     scalaJSLinkerConfig ~= { _.withModuleSplitStyle(ModuleSplitStyle.SmallestModules) },
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     publishMavenStyle      := true,
     Test / publishArtifact := false,
+  )
+
+lazy val examples = project
+  .enablePlugins(ScalaJSPlugin)
+  .dependsOn(library)
+  .settings(commonSettings)
+  .settings(
+    name                            := "fluxus-examples",
+    scalaJSUseMainModuleInitializer := true,
+  )
+
+lazy val root = project
+  .in(file("."))
+  .aggregate(library, examples)
+  .settings(
+    publish      := {},
+    publishLocal := {},
   )
