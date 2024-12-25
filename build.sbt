@@ -19,6 +19,8 @@ lazy val commonSettings = Seq(
   scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
   scalaJSLinkerConfig ~= { _.withModuleSplitStyle(ModuleSplitStyle.SmallestModules) },
   scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+  githubOwner      := "edadma",
+  githubRepository := name.value,
 )
 
 lazy val library = project
@@ -26,9 +28,7 @@ lazy val library = project
   .settings(commonSettings)
 //  .enablePlugins(ScalablyTypedConverterPlugin)
   .settings(
-    name             := "fluxus-library",
-    githubOwner      := "edadma",
-    githubRepository := name.value,
+    name := "fluxus-library",
     libraryDependencies ++= Seq(
       "org.scalatest"    %%% "scalatest"   % "3.2.19" % "test",
       "com.lihaoyi"      %%% "pprint"      % "0.9.0"  % "test",
