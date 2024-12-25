@@ -46,9 +46,17 @@ def action: String          = "action"
 def cols: String            = "cols"
 def rows: String            = "rows"
 def htmlFor: String         = "for"
+def min: String             = "min"
+def max: String             = "max"
 
 def key: String   = "key"
 def key_ : String = "key"
+
+def viewBox: String     = "viewBox"
+def fill: String        = "fill"
+def stroke: String      = "stroke"
+def strokeWidth: String = "strokeWidth"
+def points: String      = "points"
 
 // Event helpers
 def onClick: String       = "onClick"
@@ -207,3 +215,5 @@ def svg(contents: Any*): ElementNode =
 def circle(contents: Any*): ElementNode = createElementInNamespace("circle", "http://www.w3.org/2000/svg", contents*)
 def rect(contents: Any*): ElementNode   = createElementInNamespace("rect", "http://www.w3.org/2000/svg", contents*)
 def path(contents: Any*): ElementNode   = createElementInNamespace("path", "http://www.w3.org/2000/svg", contents*)
+def polyline(contents: Any*): ElementNode =
+  createElementInNamespace("polyline", "http://www.w3.org/2000/svg", contents*)
