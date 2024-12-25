@@ -1,3 +1,5 @@
+import org.scalajs.linker.interface.ModuleSplitStyle
+
 ThisBuild / licenses += "ISC"  -> url("https://opensource.org/licenses/ISC")
 ThisBuild / versionScheme      := Some("semver-spec")
 ThisBuild / evictionErrorLevel := Level.Warn
@@ -38,6 +40,8 @@ lazy val fluxus = project
 //    ),
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    scalaJSLinkerConfig ~= { _.withModuleSplitStyle(ModuleSplitStyle.SmallestModules) },
+    scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     publishMavenStyle      := true,
     Test / publishArtifact := false,
   )
