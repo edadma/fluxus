@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.examples
 
-import io.github.edadma.fluxus._
+import io.github.edadma.fluxus.*
 
 object DemoApp:
   def App: FluxusNode =
