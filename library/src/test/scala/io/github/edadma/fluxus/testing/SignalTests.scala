@@ -46,9 +46,9 @@ class SignalTests extends AsyncDOMSpec {
     }
   }
 
-  it should "allow multiple components to share state" in withDebugLogging(
+  it should "allow multiple components to share state" in /*withDebugLogging(
     "allow multiple components to share state",
-  ) {
+  )*/ {
     import com.raquo.airstream.state.Var
 
     val container     = getContainer

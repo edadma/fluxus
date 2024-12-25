@@ -3,7 +3,7 @@
 module.exports = {
   // Specify the paths to all of your template files
   content: [
-    './target/scala-3.6.2/fluxus-fastopt/**/*.js', // Your Scala.js source files
+    './examples/target/scala-3.6.2/fluxus-examples-fastopt/**/*.js', // Your Scala.js source files
     './index.html',         // Your HTML files
   ],
   daisyui: {

@@ -16,6 +16,9 @@ lazy val commonSettings = Seq(
     "-unchecked",
     "-Xfatal-warnings",
   ),
+  scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+  scalaJSLinkerConfig ~= { _.withModuleSplitStyle(ModuleSplitStyle.SmallestModules) },
+  scalaJSLinkerConfig ~= { _.withSourceMap(false) },
 )
 
 lazy val library = project
@@ -40,11 +43,8 @@ lazy val library = project
     Test / scalaJSUseMainModuleInitializer := false,
     Test / scalaJSUseTestModuleInitializer := true,
     Test / parallelExecution               := false,
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-    scalaJSLinkerConfig ~= { _.withModuleSplitStyle(ModuleSplitStyle.SmallestModules) },
-    scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-    publishMavenStyle      := true,
-    Test / publishArtifact := false,
+    publishMavenStyle                      := true,
+    Test / publishArtifact                 := false,
   )
 
 lazy val examples = project

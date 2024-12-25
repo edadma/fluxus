@@ -1,0 +1,35 @@
+/* tailwind.css */
+
+/* Tailwind base styles */
+@tailwind base;
+
+/* Tailwind components */
+@tailwind components;
+
+/* Tailwind utilities */
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: 'SevenSegment';
+    src: url('fonts/SevenSegment.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'DSEG7Modern';
+    src: url('fonts/DSEG7Modern-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'DSEG7ModernMini';
+    src: url('fonts/DSEG7ModernMini-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+  }
+}
+
+/* DaisyUI components (optional, as DaisyUI registers components automatically) */
