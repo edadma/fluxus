@@ -20,8 +20,23 @@ implicits.scala
 MockServer.scala
 package.scala
 render.scala
+useContext.scala
 useFetch.scala
 useSignal.scala
+
+# unit testing
+./library/src/test/scala/io/github/edadma/fluxus/testing
+BatchSchedulerTests.scala
+ComponentInstanceTests.scala
+ContextTests.scala
+DiffTests.scala
+DOMSpec.scala
+DOMTests.scala
+EffectTests.scala
+FetchTests.scala
+ReconcilerTests.scala
+RenderingTests.scala
+StateTests.scala
 
 # example apps
 ./examples/src/main/scala/io/github/edadma/fluxus/examples
@@ -33,19 +48,6 @@ MockServerTestApp.scala
 SignalDemoApp.scala
 TimerApp.scala
 TodoApp.scala
-
-# unit testing
-./library/src/test/scala/io/github/edadma/fluxus/testing
-BatchSchedulerTests.scala
-ComponentInstanceTests.scala
-DiffTests.scala
-DOMSpec.scala
-DOMTests.scala
-EffectTests.scala
-FetchTests.scala
-ReconcilerTests.scala
-RenderingTests.scala
-StateTests.scala
 
 # build files
 ./
