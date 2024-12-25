@@ -20,7 +20,6 @@ implicits.scala
 MockServer.scala
 package.scala
 render.scala
-useContext.scala
 useFetch.scala
 useSignal.scala
 

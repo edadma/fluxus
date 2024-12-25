@@ -76,6 +76,9 @@ def useState[T](initial: T): (T, T => Unit, (T => T) => Unit) = {
       logger.debug("Creating new hook", category = "Hooks")
 
       createHook()
+    case Some(_: ContextHook[_]) =>
+      throw new Error(s"Hook mismatch: expected StateHook but found ContextHook at index ${instance.hookIndex}")
+
   }
 
   instance.hookIndex += 1
@@ -145,4 +148,62 @@ def useEffect(effect: () => (() => Unit) | Unit, deps: Seq[Any] = null): Unit = 
   hook.deps = deps
 
   instance.hookIndex += 1
+}
+
+case class Context[T](defaultValue: T) {
+  case class ProviderProps(value: T, children: FluxusNode)
+
+  def Provider: ProviderProps => FluxusNode = props => {
+    def ContextProvider(p: ProviderProps): FluxusNode = {
+      val instance = ComponentInstance.current.getOrElse(
+        throw new Error("Provider must be rendered within a component"),
+      )
+
+      // Create or update context hook
+      val hook = instance.hooks.lift(instance.hookIndex) match {
+        case Some(h: ContextHook[T] @unchecked) =>
+          h.copy(value = p.value)
+        case None =>
+          val hook = ContextHook(this, p.value)
+          instance.hooks = instance.hooks :+ hook
+          hook
+        case Some(h) =>
+          throw new Error(s"Hook mismatch at index ${instance.hookIndex}")
+      }
+
+      instance.hookIndex += 1
+
+      // Render children with context value available through hook
+      p.children
+    }
+
+    ContextProvider <> props
+  }
+}
+
+case class ContextHook[T](
+    context: Context[T],
+    value: T,
+) extends Hook
+
+def createContext[T](defaultValue: T): Context[T] = Context(defaultValue)
+
+def useContext[T](context: Context[T]): T = {
+  val instance = ComponentInstance.current.getOrElse(
+    throw new Error("useContext must be called within component render"),
+  )
+
+  // Get existing or create new hook
+  val hook = instance.hooks.lift(instance.hookIndex) match {
+    case Some(h: ContextHook[T] @unchecked) => h
+    case None =>
+      val hook = ContextHook(context, context.defaultValue)
+      instance.hooks = instance.hooks :+ hook
+      hook
+    case Some(h) =>
+      throw new Error(s"Hook mismatch at index ${instance.hookIndex}")
+  }
+
+  instance.hookIndex += 1
+  hook.value
 }
