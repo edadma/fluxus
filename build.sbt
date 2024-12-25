@@ -7,7 +7,7 @@ ThisBuild / scalaVersion       := "3.6.2"
 ThisBuild / organization       := "io.github.edadma"
 ThisBuild / version            := "0.0.1"
 
-publish / skip := true
+//publish / skip := true
 
 lazy val commonSettings = Seq(
   scalacOptions ++= Seq(
@@ -20,7 +20,7 @@ lazy val commonSettings = Seq(
   scalaJSLinkerConfig ~= { _.withModuleSplitStyle(ModuleSplitStyle.SmallestModules) },
   scalaJSLinkerConfig ~= { _.withSourceMap(false) },
   githubOwner      := "edadma",
-  githubRepository := name.value,
+  githubRepository := "fluxus",
 )
 
 lazy val library = project
@@ -28,7 +28,7 @@ lazy val library = project
   .settings(commonSettings)
 //  .enablePlugins(ScalablyTypedConverterPlugin)
   .settings(
-    name := "fluxus-library",
+    name := "fluxus",
     libraryDependencies ++= Seq(
       "org.scalatest"    %%% "scalatest"   % "3.2.19" % "test",
       "com.lihaoyi"      %%% "pprint"      % "0.9.0"  % "test",
