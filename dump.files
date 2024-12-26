@@ -51,6 +51,7 @@ TodoApp.scala
 # build files
 ./
 build.sbt
+main.js
 package.json
 tailwind.config.js
 vite.config.js
