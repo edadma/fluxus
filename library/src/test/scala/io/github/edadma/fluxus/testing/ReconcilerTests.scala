@@ -4,6 +4,7 @@ import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{
   AddProps,
   InsertNode,
+  ReplaceNode,
   RemoveEvent,
   RemoveNode,
   RerenderComponent,
@@ -17,6 +18,28 @@ import org.scalajs.dom
 import pprint.pprintln
 
 class ReconcilerTests extends AnyDOMSpec {
+  "RawNode reconciliation" should "only replace when element reference changes" in {
+    val container = getContainer
+    val svg1      = dom.document.createElementNS("http://www.w3.org/2000/svg", "svg")
+    val svg2      = dom.document.createElementNS("http://www.w3.org/2000/svg", "svg")
+
+    val oldNode  = RawNode(svg1)
+    val sameNode = RawNode(svg1)
+    val newNode  = RawNode(svg2)
+
+    createDOM(oldNode, container)
+
+    // Same reference - no operations
+    val sameOps = diff(Some(oldNode), Some(sameNode))
+    sameOps shouldBe empty
+
+    // Different reference - replace
+    val diffOps = diff(Some(oldNode), Some(newNode))
+    diffOps should matchPattern {
+      case Seq(ReplaceNode(_, _)) =>
+    }
+  }
+
   "diff" should "handle optional content insertion correctly" in {
     val container = getContainer
 

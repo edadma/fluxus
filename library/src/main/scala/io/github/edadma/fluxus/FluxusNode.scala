@@ -18,8 +18,17 @@ sealed trait FluxusNode {
       s"TextNode($text)"
     case ComponentNode(component, props, _, _, key, _) =>
       s"ComponentNode(${props.getClass.getSimpleName}, key=$key)"
+    case RawNode(element, _, _, key) =>
+      s"RawNode(${element.tagName}, key=$key)"
   }
 }
+
+case class RawNode(
+    element: dom.Element,
+    parent: Option[FluxusNode] = None,
+    var domNode: Option[Node] = None,
+    key: Option[String] = None,
+) extends FluxusNode
 
 case class ElementNode(
     tag: String,

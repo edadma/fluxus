@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{ComponentNode, ElementNode, FluxusNode, TextNode, logger}
+import io.github.edadma.fluxus.{ComponentNode, ElementNode, FluxusNode, RawNode, TextNode, logger}
 import org.scalajs.dom
 
 import scala.collection.mutable
@@ -30,7 +30,7 @@ def diff(
       Seq(InsertNode(node, parent.getOrElse(node), None))
 
     case (Some(old), Some(next)) if !sameNodeType(old, next) =>
-      Seq(Replace(old, next))
+      Seq(ReplaceNode(old, next))
 
     case (Some(old), Some(next)) =>
       diffSameType(old, next)
@@ -42,13 +42,22 @@ private def sameNodeType(a: FluxusNode, b: FluxusNode): Boolean =
     case (_: TextNode, _: TextNode)           => true
     case (e1: ElementNode, e2: ElementNode)   => e1.tag == e2.tag
     case (_: ComponentNode, _: ComponentNode) => true
+    case (r1: RawNode, r2: RawNode)           => r1.element.tagName == r2.element.tagName
     case (_: TextNode, _)                     => false
     case (_: ElementNode, _)                  => false
     case (_: ComponentNode, _)                => false
+    case (_: RawNode, _)                      => false
   }
 
 private def diffSameType(oldNode: FluxusNode, newNode: FluxusNode): Seq[DOMOperation] = {
   (oldNode, newNode) match {
+    case (old: RawNode, next: RawNode) =>
+      // Transfer DOM node reference
+      next.domNode = old.domNode
+
+      if (old.element ne next.element) {
+        Seq(ReplaceNode(old, next))
+      } else Nil
     case (old: TextNode, next: TextNode) =>
       // Transfer DOM reference to new node
       next.domNode = old.domNode
@@ -78,7 +87,7 @@ private def diffSameType(oldNode: FluxusNode, newNode: FluxusNode): Seq[DOMOpera
         false,
         s"diffSameType called with incompatible nodes: ${oldNode.getClass.getSimpleName} and ${newNode.getClass.getSimpleName}",
       )
-      Seq(Replace(oldNode, newNode))
+      Seq(ReplaceNode(oldNode, newNode))
   }
 }
 
@@ -350,6 +359,6 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
     } else Nil
   } else {
     // Different keys or component types means treat as different components
-    Seq(Replace(old, next))
+    Seq(ReplaceNode(old, next))
   }
 }

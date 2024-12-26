@@ -33,6 +33,7 @@ DOMSpec.scala
 DOMTests.scala
 EffectTests.scala
 FetchTests.scala
+IconTests.scala
 ReconcilerTests.scala
 RenderingTests.scala
 StateTests.scala

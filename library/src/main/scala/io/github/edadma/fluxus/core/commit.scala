@@ -35,7 +35,7 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
           }
         }
       }
-    case Replace(oldNode, newNode) =>
+    case ReplaceNode(oldNode, newNode) =>
       oldNode.domNode.foreach { old =>
         val dom = createDOMNode(newNode)
         old.parentNode.replaceChild(dom, old)

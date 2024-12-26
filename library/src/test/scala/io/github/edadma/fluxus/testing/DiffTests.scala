@@ -1,7 +1,7 @@
 package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.*
-import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, diff, reconcile, InsertNode, Replace, UpdateText}
+import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, diff, reconcile, InsertNode, ReplaceNode, UpdateText}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -26,7 +26,7 @@ class DiffTests extends AnyFlatSpec with Matchers {
     val ops = diff(Some(oldTree), Some(newTree))
 
     ops should contain theSameElementsInOrderAs Seq(
-      Replace(oldTree, newTree),
+      ReplaceNode(oldTree, newTree),
     )
   }
 }

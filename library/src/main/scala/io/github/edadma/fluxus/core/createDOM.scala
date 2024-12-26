@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{ComponentNode, ElementNode, FluxusNode, TextNode, logger}
+import io.github.edadma.fluxus.{ComponentNode, ElementNode, FluxusNode, RawNode, TextNode, logger}
 import org.scalajs.dom
 import org.scalajs.dom.{Element, Event, Node, document}
 
@@ -16,6 +16,10 @@ def createDOMNode(node: FluxusNode): Node = {
   )
 
   val domNode = node match
+    case raw: RawNode =>
+      // Just use the provided element directly
+      node.domNode = Some(raw.element)
+      raw.element
     case TextNode(text, _, _) =>
       logger.debug("Creating text node", category = "DOM", opId = 1, Map("text" -> text))
       document.createTextNode(text)
