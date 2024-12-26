@@ -8,7 +8,7 @@ class FetchTests extends AsyncDOMSpec {
   val mockServer = MockServer(
     MockEndpoint(
       path = "/api/items",
-      response = () => Right("""[
+      response = (_, _) => Right("""[
         {"id": 1, "name": "First Item"},
         {"id": 2, "name": "Second Item"},
         {"id": 3, "name": "Third Item"}
@@ -16,11 +16,11 @@ class FetchTests extends AsyncDOMSpec {
     ),
     MockEndpoint(
       path = "/api/not-found",
-      response = () => Left(MockError(404, "Not Found")),
+      response = (_, _) => Left(MockError(404, "Not Found")),
     ),
     MockEndpoint(
       path = "/api/server-error",
-      response = () => {
+      response = (_, _) => {
         attempts += 1
         if (attempts <= 2) Left(MockError(500, "Internal Server Error"))
         else Right("""[{"id": 1, "name": "Success after retry"}]""")

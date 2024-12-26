@@ -9,7 +9,7 @@ import scala.scalajs.js.JSConverters.*
 case class MockEndpoint(
     path: String,
     method: String = "GET",
-    response: () => Either[MockError, String] = () => Right("{}"),
+    response: (Map[String, String], Map[String, String]) => Either[MockError, String] = (_, _) => Right("{}"),
     responseDelay: Int = 0,
 )
 
@@ -70,7 +70,7 @@ class MockServer(endpoints: MockEndpoint*):
           ),
         )
 
-        endpoint.response() match
+        endpoint.response(Map(), Map()) match
           case Right(body) =>
             Future.successful(
               new dom.Response(

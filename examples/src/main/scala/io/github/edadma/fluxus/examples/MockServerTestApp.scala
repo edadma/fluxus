@@ -14,7 +14,7 @@ object MockServerTestApp:
     MockEndpoint(
       path = "/api/users",
       response =
-        () =>
+        (_, _) =>
           Right(
             List(
               User(1, "John Doe", "john@example.com"),
@@ -24,7 +24,7 @@ object MockServerTestApp:
     ),
     MockEndpoint(
       path = "/api/error",
-      response = () => Left(MockError(500, "Internal Server Error")),
+      response = (_, _) => Left(MockError(500, "Internal Server Error")),
     ),
   )
 
