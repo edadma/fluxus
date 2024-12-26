@@ -17,7 +17,7 @@ lazy val commonSettings = Seq(
     "-Xfatal-warnings",
   ),
   scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-  scalaJSLinkerConfig ~= { _.withModuleSplitStyle(ModuleSplitStyle.SmallestModules) },
+//  scalaJSLinkerConfig ~= { _.withModuleSplitStyle(ModuleSplitStyle.SmallestModules) },
   scalaJSLinkerConfig ~= { _.withSourceMap(false) },
   githubOwner      := "edadma",
   githubRepository := "fluxus",
