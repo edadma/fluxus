@@ -17,6 +17,7 @@ createElement.scala
 FluxusNode.scala
 Hook.scala
 implicits.scala
+LucideIcons.scala
 MockServer.scala
 package.scala
 render.scala
