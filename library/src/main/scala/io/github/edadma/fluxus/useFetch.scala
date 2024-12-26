@@ -87,7 +87,8 @@ def useFetch[T: JsonDecoder](
         }
       }
       .onComplete {
-        case Success(data) if !isCancelled => setState(FetchState.Success(data))
+        case Success(data) if !isCancelled =>
+          setState(FetchState.Success(data))
         case Failure(error: FetchError) if !isCancelled =>
           if (remainingRetries > 0 && shouldRetry(error)) {
             js.timers.setTimeout(options.retryDelay) {

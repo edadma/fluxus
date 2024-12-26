@@ -29,11 +29,13 @@ case class MockRequest(
 // Response builder for chaining
 class MockResponse {
   private var responseStatus: Int          = 200
+  private var responseStatusText: String   = ""
   private var responseHeaders              = Map.empty[String, String]
   private var responseBody: Option[String] = None
 
-  def status(code: Int): MockResponse = {
+  def status(code: Int, text: String = ""): MockResponse = {
     responseStatus = code
+    responseStatusText = text
     this
   }
 
@@ -59,10 +61,14 @@ class MockResponse {
       responseBody.getOrElse(""),
       js.Dynamic.literal(
         status = responseStatus, // Now using our renamed field
+        statusText = responseStatusText,
         headers = scalajs.js.Dictionary(responseHeaders.toSeq*),
       ).asInstanceOf[dom.ResponseInit],
     )
   }
+
+  override def toString: String =
+    s"MockResponse(status = $responseStatus, headers = $responseHeaders, body = $responseBody"
 }
 
 case class MockEndpoint(
@@ -125,6 +131,7 @@ class MockServer(endpoints: MockEndpoint*) {
         )
 
         val response = endpoint.handler(request)
+        println(response)
         Future.successful(response.toDOMResponse)
 
       case None =>

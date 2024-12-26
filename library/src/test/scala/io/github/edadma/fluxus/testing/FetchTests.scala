@@ -17,13 +17,13 @@ class FetchTests extends AsyncDOMSpec {
     ),
     MockEndpoint(
       path = "/api/not-found",
-      handler = _ => new MockResponse().status(404).send("Not Found"),
+      handler = _ => new MockResponse().status(404, "Not Found"),
     ),
     MockEndpoint(
       path = "/api/server-error",
       handler = _ => {
         attempts += 1
-        if (attempts <= 2) new MockResponse().status(500).send("Internal Server Error")
+        if (attempts <= 2) new MockResponse().status(500, "Internal Server Error")
         else new MockResponse().status(200).send("""[{"id": 1, "name": "Success after retry"}]""")
       },
     ),
