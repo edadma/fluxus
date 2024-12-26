@@ -52,7 +52,7 @@ lazy val examples = project
   .dependsOn(library)
   .settings(commonSettings)
   .settings(
-    name                            := "fluxus-examples",
+    name                            := "examples",
     scalaJSUseMainModuleInitializer := true,
   )
 
