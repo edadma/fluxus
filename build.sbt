@@ -5,9 +5,7 @@ ThisBuild / versionScheme      := Some("semver-spec")
 ThisBuild / evictionErrorLevel := Level.Warn
 ThisBuild / scalaVersion       := "3.6.2"
 ThisBuild / organization       := "io.github.edadma"
-ThisBuild / version            := "0.0.1"
-
-//publish / skip := true
+ThisBuild / version            := "0.0.2"
 
 lazy val commonSettings = Seq(
   scalacOptions ++= Seq(
@@ -54,6 +52,8 @@ lazy val examples = project
   .settings(
     name                            := "examples",
     scalaJSUseMainModuleInitializer := true,
+    publish / skip                  := true,
+    publishLocal / skip             := true,
   )
 
 lazy val root = project
