@@ -8,8 +8,7 @@ class RouteParserTests extends AnyFlatSpec with Matchers {
   "RouteParser" should "parse complete URLs with path and query parameters" in {
     val pattern = "/api/users/:userId/posts/:postId"
     val url     = "/api/users/123/posts/456?sort=desc&limit=10"
-
-    val result = RouteParser.parse(pattern, url)
+    val result  = RouteParser.parse(pattern, url)
 
     result shouldBe defined
     result.get.pathParams should contain allOf (

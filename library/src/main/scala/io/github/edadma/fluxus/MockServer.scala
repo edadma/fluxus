@@ -78,6 +78,17 @@ case class MockError(
 )
 
 class MockServer(endpoints: MockEndpoint*) {
+  def overrideFetch(): Unit =
+    js.Dynamic.global.fetch =
+      (url: String, init: dom.RequestInit) =>
+        logger.debug(
+          "Mock fetch called",
+          category = "Test",
+          Map("url" -> url),
+        )
+
+        handle(url, init).toJSPromise
+
   def handle(url: String, init: dom.RequestInit): Future[dom.Response] = {
     // Find matching endpoint
     endpoints.find { endpoint =>
