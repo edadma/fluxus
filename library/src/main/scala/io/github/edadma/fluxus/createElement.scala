@@ -231,13 +231,6 @@ def tr(contents: Any*): ElementNode       = createElement("tr", contents*)
 def ul(contents: Any*): ElementNode       = createElement("ul", contents*)
 def figure(contents: Any*): ElementNode   = createElement("figure", contents*)
 
-//def svg(contents: Any*): ElementNode    = createElementInNamespace("svg", "http://www.w3.org/2000/svg", contents*)
-//def circle(contents: Any*): ElementNode = createElementInNamespace("circle", "http://www.w3.org/2000/svg", contents*)
-//def rect(contents: Any*): ElementNode   = createElementInNamespace("rect", "http://www.w3.org/2000/svg", contents*)
-//def path(contents: Any*): ElementNode   = createElementInNamespace("path", "http://www.w3.org/2000/svg", contents*)
-//def polyline(contents: Any*): ElementNode =
-//  createElementInNamespace("polyline", "http://www.w3.org/2000/svg", contents*)
-
 def svg(contents: Any*): ElementNode      = createElement("svg", contents*)
 def circle(contents: Any*): ElementNode   = createElement("circle", contents*)
 def rect(contents: Any*): ElementNode     = createElement("rect", contents*)
