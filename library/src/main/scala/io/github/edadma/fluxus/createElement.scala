@@ -57,6 +57,8 @@ def fill: String        = "fill"
 def stroke: String      = "stroke"
 def strokeWidth: String = "strokeWidth"
 def points: String      = "points"
+def xmlns: String       = "xmlns"
+def d: String           = "d"
 
 // Event helpers
 def onClick: String       = "onClick"
@@ -132,10 +134,14 @@ def createElementInNamespace(tag: String, namespace: String, contents: Any*): El
 
 def createElementNode(tag: String, namespace: Option[String], contents: Any*): ElementNode = {
   val (attrs, events, children) = processMixedContent(contents)
+  val key                       = attrs.get("key").map(_.toString)
+  val attrsWithoutKey           = attrs - "key"
 
-  // Extract key from attrs and remove it
-  val key             = attrs.get("key").map(_.toString)
-  val attrsWithoutKey = attrs - "key"
+  // Automatically use SVG namespace for SVG elements
+  val finalNamespace = namespace.orElse {
+    if (isSvgElement(tag)) Some("http://www.w3.org/2000/svg")
+    else None
+  }
 
   ElementNode(
     tag = tag,
@@ -145,9 +151,28 @@ def createElementNode(tag: String, namespace: Option[String], contents: Any*): E
     children = children,
     parent = None,
     domNode = None,
-    namespace = namespace,
+    namespace = finalNamespace,
     ref = None,
   )
+}
+
+// Add helper to identify SVG elements
+private def isSvgElement(tag: String): Boolean = {
+  val svgElements = Set(
+    "svg",
+    "path",
+    "circle",
+    "rect",
+    "line",
+    "polyline",
+    "polygon",
+    "text",
+    "g",
+    "defs",
+    "use",
+    "symbol",
+  )
+  svgElements.contains(tag.toLowerCase)
 }
 
 // Element creation helpers
