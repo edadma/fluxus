@@ -131,9 +131,8 @@ class MockServer(endpoints: MockEndpoint*) {
         )
 
         val response = endpoint.handler(request)
-        println(response)
-        Future.successful(response.toDOMResponse)
 
+        Future.successful(response.toDOMResponse)
       case None =>
         Future.successful(new MockResponse().status(404)
           .send("Not Found")
