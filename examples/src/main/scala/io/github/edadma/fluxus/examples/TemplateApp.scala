@@ -1,6 +1,7 @@
 package io.github.edadma.fluxus.examples
 
 import io.github.edadma.fluxus.*
+import io.github.edadma.fluxus.icons.BookOpen
 import org.scalajs.dom
 import org.scalajs.dom.document
 
@@ -91,7 +92,7 @@ object TemplateApp:
       ),
       p(
         cls := "text-base-content/60 flex items-center gap-2",
-        Icon(BookOpen)(),
+        BookOpen(),
         "Click on the Vite, Fluxus, and DaisyUI logos to learn more",
       ),
     )

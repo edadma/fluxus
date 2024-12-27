@@ -11,13 +11,17 @@ DOMOperation.scala
 IdGenerator.scala
 reconcile.scala
 
+# Lucide icons integration
+././library/src/main/scala/io/github/edadma/fluxus/icons
+createIcon.scala
+BookOpen.scala
+
 # ergonomic api
 ./library/src/main/scala/io/github/edadma/fluxus
 createElement.scala
 FluxusNode.scala
 Hook.scala
 implicits.scala
-LucideIcons.scala
 MockServer.scala
 package.scala
 render.scala
