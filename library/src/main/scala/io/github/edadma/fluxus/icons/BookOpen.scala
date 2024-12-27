@@ -8,4 +8,5 @@ import io.github.edadma.fluxus.RawNode
 @JSImport("lucide/dist/esm/icons/book-open", JSImport.Default)
 private object BookOpenIcon extends js.Array[js.Any]
 
-def BookOpen(color: String = "currentColor", size: Int = 24): RawNode = createIcon(BookOpenIcon, color, size)
+def BookOpen(size: Int = 24, color: String = "currentColor"): RawNode =
+  createIcon(BookOpenIcon, color, size)

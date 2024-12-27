@@ -1,7 +1,7 @@
 package io.github.edadma.fluxus.examples
 
 import io.github.edadma.fluxus.*
-import io.github.edadma.fluxus.icons.BookOpen
+import io.github.edadma.fluxus.icons.*
 import org.scalajs.dom
 import org.scalajs.dom.document
 

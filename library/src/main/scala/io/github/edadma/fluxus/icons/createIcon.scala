@@ -8,7 +8,7 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
-@JSImport("lucide/dist/esm/createElement", JSImport.Default)
+@JSImport("lucide/dist/esm/createElement.js", JSImport.Default)
 private object lucideCreateElement extends js.Object {
   def apply(arr: js.Array[js.Any]): dom.Element = js.native
 }
