@@ -41,12 +41,14 @@ StateTests.scala
 
 # example apps
 ./examples/src/main/scala/io/github/edadma/fluxus/examples
+ButtonApp.scala
 CountersApp.scala
 DemoApp.scala
 JSONPlaceholderApp.scala
 main.scala
 MockServerTestApp.scala
 SignalDemoApp.scala
+TemplateApp.scala
 TimerApp.scala
 TodoApp.scala
 
