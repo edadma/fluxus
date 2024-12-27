@@ -1,22 +1,31 @@
 {
   "name": "fluxus",
-  "version": "1.0.0",
-  "description": "Fluxus: (Not) The Ultimate App Framework",
-  "main": "index.js",
+  "version": "0.0.1",
+  "description": "A minimalist UI framework inspired by component-based design, built with Scala.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build:tailwind": "tailwindcss -i ./src/main/resources/styles/tailwind.css -o ./public/output.css --minify",
-    "watch:tailwind": "tailwindcss -i ./src/main/resources/styles/tailwind.css -o ./public/output.css --watch"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "tailwind:build": "tailwindcss -i ./examples/src/main/resources/styles/tailwind.css -o ./output.css --minify",
+    "tailwind:watch": "tailwindcss -i ./examples/src/main/resources/styles/tailwind.css -o ./output.css --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@scala-js/vite-plugin-scalajs": "^1.0.0",
     "@tailwindcss/typography": "^0.5.15",
     "autoprefixer": "^10.4.20",
     "daisyui": "^4.12.14",
+    "iconv-lite": "^0.6.3",
     "jsdom": "^25.0.1",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.15"
+    "safer-buffer": "^2.1.2",
+    "tailwindcss": "^3.4.15",
+    "vite": "^6.0.5"
+  },
+  "dependencies": {
+    "lucide": "^0.469.0"
   }
 }

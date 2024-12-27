@@ -1,0 +1,75 @@
+; Fluxus project sources
+
+# core
+./library/src/main/scala/io/github/edadma/fluxus/core
+BatchScheduler.scala
+commit.scala
+ComponentInstance.scala
+createDOM.scala
+diff.scala
+DOMOperation.scala
+IdGenerator.scala
+reconcile.scala
+
+# Lucide icons integration
+././library/src/main/scala/io/github/edadma/fluxus/icons
+IconCodeGenerator.scala
+createIcon.scala
+; BookOpen is one of 1565 generated icon files
+BookOpen.scala
+
+# ergonomic api
+./library/src/main/scala/io/github/edadma/fluxus
+createElement.scala
+FluxusNode.scala
+Hook.scala
+implicits.scala
+MockServer.scala
+package.scala
+render.scala
+useFetch.scala
+useSignal.scala
+
+# unit testing
+./library/src/test/scala/io/github/edadma/fluxus/testing
+BatchSchedulerTests.scala
+ComponentInstanceTests.scala
+ContextTests.scala
+DiffTests.scala
+DOMSpec.scala
+DOMTests.scala
+EffectTests.scala
+FetchTests.scala
+IconTests.scala
+ReconcilerTests.scala
+RenderingTests.scala
+StateTests.scala
+
+# example apps
+./examples/src/main/scala/io/github/edadma/fluxus/examples
+ButtonApp.scala
+CountersApp.scala
+DemoApp.scala
+JSONPlaceholderApp.scala
+main.scala
+MockServerTestApp.scala
+SignalDemoApp.scala
+TemplateApp.scala
+TimerApp.scala
+TodoApp.scala
+
+# build files
+./
+build.sbt
+main.js
+package.json
+tailwind.config.js
+vite.config.js
+./project
+plugins.sbt
+
+# support for running test apps
+./
+index.html
+./library/src/main/resources/styles
+tailwind.css

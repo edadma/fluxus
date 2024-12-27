@@ -3,8 +3,8 @@
 module.exports = {
   // Specify the paths to all of your template files
   content: [
-    './target/scala-3.5.2/fluxus-fastopt/**/*.js', // Your Scala.js source files
-    './public/index.html',         // Your HTML files
+    './examples/target/scala-3.6.2/examples-fastopt/**/*.js', // Your Scala.js source files
+    './index.html',         // Your HTML files
   ],
   daisyui: {
       themes: ["light", "dark", "night", "cupcake"],
@@ -16,6 +16,7 @@ module.exports = {
         'seven-segment': ['SevenSegment', 'sans-serif'],
         'dseg7modern': ['DSEG7Modern', 'sans-serif'],
         'dseg7modernmini': ['DSEG7ModernMini', 'sans-serif'],
+        'poppins': ['Poppins', 'sans-serif'],
       }
     },
   },

@@ -23,4 +23,6 @@ project/plugins/project/
 
 node_modules/
 output.css
-code
+code.txt
+*.zip
+log

@@ -1,0 +1,10 @@
+- Help me to implement the project according to the "goals" document.
+  - Don't just generate a bunch of code for me. Small snippets are ok to help understand something.
+  - I have to do most of the coding, with your help. This will force me to understand everything.
+  - Generate pseudocode with plenty of comments, preferably for anything algorithmic in nature, forcing me to understand what I'm coding.
+  - A well-commented pseudocode based design should evolve.
+- The project is to be developed entirely, from start to finish, using the Test Driven Development (TDD) methodology.
+  - `jsdom` has been incorporated for that purpose
+  - Unit tests should be written using the "ergonomic" support functions to make them less cluttered.
+- Never remove descriptive comments when re-generating code, either actual code or pseudocode
+- Never remove logging statements when re-generating code
