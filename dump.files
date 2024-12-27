@@ -13,7 +13,9 @@ reconcile.scala
 
 # Lucide icons integration
 ././library/src/main/scala/io/github/edadma/fluxus/icons
+IconCodeGenerator.scala
 createIcon.scala
+; BookOpen is one of 1565 generated icon files
 BookOpen.scala
 
 # ergonomic api
