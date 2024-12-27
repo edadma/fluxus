@@ -7,18 +7,6 @@ import org.scalajs.dom.document
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
-@js.native
-@JSImport("lucide", JSImport.Default)
-object Lucide extends js.Object {
-  val Camera: js.Function1[js.Dynamic, dom.SVGElement] = js.native
-}
-
-def Icon(iconFn: js.Function1[js.Dynamic, dom.SVGElement])(props: (String, Any)*): RawNode = {
-  val jsProps = js.Dynamic.literal()
-  props.foreach { case (k, v) => jsProps.updateDynamic(k)(v.asInstanceOf[js.Any]) }
-  RawNode(iconFn(jsProps))
-}
-
 object TemplateApp:
   def App: FluxusNode = {
     val (count, setCount, _) = useState(0)
@@ -31,7 +19,7 @@ object TemplateApp:
     }
 
     div(
-      Icon(Lucide.Camera)("size" -> 48, "color" -> "#FF00CC"),
+      Icon(Camera)("size" -> 32),
       cls := "min-h-screen flex flex-col items-center justify-center gap-16 bg-base-100",
       // Theme switcher
       div(

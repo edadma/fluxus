@@ -4,7 +4,7 @@ import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.*
 
 class IconTests extends AnyDOMSpec {
-  "Icon component" should "render a Lucide icon correctly" in {
+  "Icon component" should "render a Lucide icon correctly" in withDebugLogging("render a Lucide icon correctly") {
     val container = getContainer
 
     // Test with Camera icon from Lucide
