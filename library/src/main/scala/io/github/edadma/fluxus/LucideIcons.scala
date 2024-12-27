@@ -9,12 +9,8 @@ import scala.scalajs.js.annotation.JSImport
 type IconElement = js.Array[js.Any]
 
 @js.native
-@JSImport("lucide/dist/esm/icons/camera", JSImport.Default)
-object Camera extends IconElement
-
-@js.native
-@JSImport("lucide/dist/esm/icons/circle-dot", JSImport.Default)
-object CircleDot extends IconElement
+@JSImport("lucide/dist/esm/icons/book-open", JSImport.Default)
+object BookOpen extends IconElement
 
 object Icon {
   def apply(iconArray: IconElement)(props: (String, Any)*): RawNode = {

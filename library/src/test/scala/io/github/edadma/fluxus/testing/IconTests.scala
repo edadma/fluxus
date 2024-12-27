@@ -8,7 +8,7 @@ class IconTests extends AnyDOMSpec {
     val container = getContainer
 
     // Test with Camera icon from Lucide
-    val node = Icon(LucideIcons.Camera)("size" -> 48, "color" -> "#FF00CC")
+    val node = Icon(Camera)("size" -> 48, "color" -> "#FF00CC")
     createDOM(node, container)
 
     // Verify SVG was created with correct attributes

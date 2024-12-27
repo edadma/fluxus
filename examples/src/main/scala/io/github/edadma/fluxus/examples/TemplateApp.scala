@@ -19,7 +19,6 @@ object TemplateApp:
     }
 
     div(
-      Icon(Camera)("size" -> 32),
       cls := "min-h-screen flex flex-col items-center justify-center gap-16 bg-base-100",
       // Theme switcher
       div(
@@ -92,7 +91,7 @@ object TemplateApp:
       ),
       p(
         cls := "text-base-content/60 flex items-center gap-2",
-        i("data-lucide" := "book-open"),
+        Icon(BookOpen)(),
         "Click on the Vite, Fluxus, and DaisyUI logos to learn more",
       ),
     )
