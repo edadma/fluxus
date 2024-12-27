@@ -5,7 +5,7 @@ ThisBuild / versionScheme      := Some("semver-spec")
 ThisBuild / evictionErrorLevel := Level.Warn
 ThisBuild / scalaVersion       := "3.6.2"
 ThisBuild / organization       := "io.github.edadma"
-ThisBuild / version            := "0.0.3"
+ThisBuild / version            := "0.0.1"
 
 lazy val commonSettings = Seq(
   scalacOptions ++= Seq(
