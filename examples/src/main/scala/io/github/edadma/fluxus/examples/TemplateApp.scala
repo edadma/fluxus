@@ -70,7 +70,7 @@ object TemplateApp:
         ),
       ),
       h1(
-        cls := "text-5xl font-bold text-base-content",
+        cls := "text-5xl font-poppins font-bold text-base-content",
         "Vite + Fluxus + DaisyUI",
       ),
       div(
