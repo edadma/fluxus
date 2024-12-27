@@ -56,7 +56,7 @@ lazy val examples = project
     publishLocal / skip             := true,
   )
 
-lazy val root = project
+lazy val fluxus = project
   .in(file("."))
   .aggregate(library, examples)
   .settings(
