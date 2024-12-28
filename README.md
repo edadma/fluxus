@@ -1,22 +1,20 @@
-<div style="text-align: center">
+<p align="center">
   <img src="public/fluxus.png" width="200" alt="Fluxus Logo">
-</div>
+</p>
 
-<div style="text-align: center">
-  <h1>Fluxus</h1>
-</div>
+<h1 align="center">Fluxus</h1>
 
-<div style="text-align: center">
-  <p>A minimalist UI framework inspired by component-based design, built with Scala.js</p>
-</div>
+<p align="center">
+  A minimalist UI framework inspired by component-based design, built with Scala.js
+</p>
 
-<div style="text-align: center">
+<p align="center">
   <a href="https://www.npmjs.com/package/fluxus"><img src="https://img.shields.io/github/v/release/edadma/fluxus?include_prereleases&sort=semver" alt="Version"></a>
   <a href="https://opensource.org/licenses/ISC"><img src="https://img.shields.io/badge/License-ISC-blue.svg" alt="License: ISC"></a>
   <img src="https://img.shields.io/badge/Scala.js-1.17.0-blue.svg" alt="Scala.js: 1.17.0">
   <img src="https://img.shields.io/badge/TailwindCSS-3.4-blue.svg" alt="TailwindCSS: 3.4">
   <img src="https://img.shields.io/badge/DaisyUI-4.12-blue.svg" alt="DaisyUI: 4.12">
-</div>
+</p>
 
 ## Features
 
