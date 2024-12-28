@@ -3,7 +3,6 @@ package io.github.edadma.fluxus.testing
 import io.github.edadma.logger.{FileHandler, LogLevel}
 import io.github.edadma.fluxus.logger
 import org.scalajs.dom
-import org.scalatest.concurrent.Eventually
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatest.flatspec.{AnyFlatSpec, AsyncFlatSpec}
