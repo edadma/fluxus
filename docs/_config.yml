@@ -2,6 +2,10 @@ remote_theme: just-the-docs/just-the-docs
 title: Fluxus
 description: A minimalist UI framework inspired by component-based design, built with Scala.js
 
+# Logo settings
+logo: "/assets/images/fluxus.png"
+favicon_png: "/assets/images/fluxus.png"  # Using the same PNG for both
+
 # Enable search
 search_enabled: true
 
