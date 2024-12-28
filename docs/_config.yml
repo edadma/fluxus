@@ -1,0 +1,24 @@
+remote_theme: just-the-docs/just-the-docs
+title: Fluxus
+description: A minimalist UI framework inspired by component-based design, built with Scala.js
+
+# Enable search
+search_enabled: true
+
+# Enable dark mode
+color_scheme: dark
+
+# Navigation structure
+nav:
+  - Tutorials: "/tutorials"
+  - Guides: "/guides"
+  - API: "/api"
+  - Releases: "/releases"
+
+# Additional configuration for Just-the-Docs
+aux_links:
+  "Fluxus on GitHub":
+    - "https://github.com/edadma/fluxus"
+
+# Footer content
+footer_content: "Copyright &copy; 2024 edadma. Distributed under an ISC license."
