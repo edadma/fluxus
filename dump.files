@@ -80,5 +80,5 @@ README.md
 ./docs
 _config.yml
 index.md
-./releases
+./docs/releases
 0.0.1.md
