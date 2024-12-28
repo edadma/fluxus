@@ -9,8 +9,9 @@ favicon_ico: "/assets/images/favicon.ico"  # Using the same PNG for both
 # Enable search
 search_enabled: true
 
-# Enable dark mode
-color_scheme: dark
+# Enable dark/light mode
+color_scheme: dark  # Default theme
+enable_theme_switcher: true
 
 # Navigation structure
 nav:
