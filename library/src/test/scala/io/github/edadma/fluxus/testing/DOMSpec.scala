@@ -104,8 +104,8 @@ trait JSEventually extends PatienceConfiguration {
 class AsyncDOMSpec extends AsyncFlatSpec with DOMSpec with JSEventually {
 
   // Use JS execution context for all async operations
-  import scala.scalajs.concurrent.JSExecutionContext
-  implicit override def executionContext: ExecutionContext = JSExecutionContext.queue
+  import org.scalajs.macrotaskexecutor.MacrotaskExecutor
+  implicit override def executionContext: ExecutionContext = MacrotaskExecutor
 
   // Provide reasonable default patience config
   implicit override val patienceConfig: PatienceConfig = PatienceConfig(

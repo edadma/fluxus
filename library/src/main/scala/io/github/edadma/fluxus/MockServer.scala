@@ -4,7 +4,7 @@ import io.github.edadma.fluxus.core.RouteParser
 import org.scalajs.dom
 import zio.json.*
 
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*

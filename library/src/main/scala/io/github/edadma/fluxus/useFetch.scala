@@ -5,7 +5,7 @@ import zio.json.*
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
 import scala.util.{Success, Failure}
 
 enum FetchError extends Throwable:
