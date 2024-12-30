@@ -103,7 +103,6 @@ trait JSEventually extends PatienceConfiguration {
 // Base class for async DOM tests
 class AsyncDOMSpec extends AsyncFlatSpec with DOMSpec with JSEventually {
 
-  // Use JS execution context for all async operations
   import org.scalajs.macrotaskexecutor.MacrotaskExecutor
   implicit override def executionContext: ExecutionContext = MacrotaskExecutor
 
