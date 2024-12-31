@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/fluxus"><img src="https://img.shields.io/github/v/release/edadma/fluxus?include_prereleases&sort=semver" alt="Version"></a>
+  <a href="https://github.com/edadma/fluxus"><img src="https://img.shields.io/github/v/release/edadma/fluxus?include_prereleases&sort=semver" alt="Version"></a>
   <a href="https://opensource.org/licenses/ISC"><img src="https://img.shields.io/badge/License-ISC-blue.svg" alt="License: ISC"></a>
   <img src="https://img.shields.io/badge/Scala.js-1.17.0-blue.svg" alt="Scala.js: 1.17.0">
   <img src="https://img.shields.io/badge/TailwindCSS-3.4-blue.svg" alt="TailwindCSS: 3.4">
