@@ -36,7 +36,7 @@ The easiest way to start a new Fluxus project is to use the [fluxus-template](ht
 
 ## Documentation
 
-For detailed documentation and guides, please visit [docs.fluxus.dev](https://docs.fluxus.dev) (coming soon).
+For detailed documentation and guides, please visit [edadma.github.io/fluxus](https://edadma.github.io/fluxus/).
 
 ## Template Repository
 
