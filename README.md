@@ -10,10 +10,11 @@
 
 <p align="center">
   <a href="https://github.com/edadma/fluxus"><img src="https://img.shields.io/github/v/release/edadma/fluxus?include_prereleases&sort=semver" alt="Version"></a>
-  <a href="https://opensource.org/licenses/ISC"><img src="https://img.shields.io/badge/License-ISC-blue.svg" alt="License: ISC"></a>
-  <a href="https://www.scala-js.org/"><img src="https://img.shields.io/badge/Scala.js-1.17.0-blue.svg" alt="Scala.js: 1.17.0"></a>
-  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/TailwindCSS-3.4-blue.svg" alt="TailwindCSS: 3.4"></a>
-  <a href="https://daisyui.com/"><img src="https://img.shields.io/badge/DaisyUI-4.12-blue.svg" alt="DaisyUI: 4.12"></a>
+  <a href="https://central.sonatype.com/artifact/io.github.edadma/fluxus_sjs1_3"><img src="https://img.shields.io/maven-central/v/io.github.edadma/fluxus_sjs1_3" alt="Maven Central"></a>
+  <a href="https://github.com/edadma/fluxus/releases"><img src="https://img.shields.io/github/release-date-pre/edadma/fluxus" alt="Release Date"></a>
+  <a href="https://github.com/edadma/fluxus/commits"><img src="https://img.shields.io/github/last-commit/edadma/fluxus" alt="Last Commit"></a>
+  <a href="https://opensource.org/licenses/ISC"><img src="https://img.shields.io/badge/license-ISC-blue.svg" alt="License: ISC"></a>
+  <a href="https://www.scala-js.org"><img src="https://img.shields.io/badge/scala.js-1.17.0-blue.svg" alt="Scala.js: 1.17.0"></a>
 </p>
 
 ## Features
