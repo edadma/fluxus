@@ -61,7 +61,8 @@ lazy val library = project
   .settings(commonSettings)
 //  .enablePlugins(ScalablyTypedConverterPlugin)
   .settings(
-    name := "fluxus",
+    name        := "fluxus",
+    description := "A minimalist UI framework inspired by component-based design, built with Scala.js",
     libraryDependencies ++= Seq(
       "org.scalatest"    %%% "scalatest"                   % "3.2.19" % "test",
       "com.lihaoyi"      %%% "pprint"                      % "0.9.0"  % "test",
