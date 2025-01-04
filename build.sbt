@@ -44,6 +44,7 @@ ThisBuild / publishTo := {
 }
 ThisBuild / publishMavenStyle := true
 
+
 lazy val commonSettings = Seq(
   scalacOptions ++= Seq(
     "-deprecation",
@@ -85,7 +86,7 @@ lazy val library = project
 
 lazy val examples = project
   .enablePlugins(ScalaJSPlugin)
-  .dependsOn(library)
+  .dependsOn(library % "compile->compile;test->test")
   .settings(commonSettings)
   .settings(
     name                            := "examples",

@@ -24,6 +24,8 @@ case class MockRequest(
   def param(name: String): Option[String] = params.get(name)
 
   def header(name: String): Option[String] = headers.get(name)
+
+  def jsonBody[T: JsonDecoder]: Option[T] = body.flatMap(b => b.fromJson[T].toOption)
 }
 
 // Response builder for chaining
@@ -128,6 +130,7 @@ class MockServer(endpoints: MockEndpoint*) {
               }
             }
             .getOrElse(Map.empty),
+          body = Option(init).flatMap(i => Option(i.body)).map(_.toString),
         )
 
         val response = endpoint.handler(request)

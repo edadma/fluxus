@@ -42,8 +42,11 @@ DOMTests.scala
 EffectTests.scala
 FetchTests.scala
 IconTests.scala
+MockServerTests.scala
 ReconcilerTests.scala
 RenderingTests.scala
+RouteParserTests.scala
+SignalTests.scala
 StateTests.scala
 
 # example apps
