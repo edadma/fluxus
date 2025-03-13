@@ -1,9 +1,7 @@
-//import org.scalajs.linker.interface.ModuleSplitStyle
-
 ThisBuild / licenses += "ISC"      -> url("https://opensource.org/licenses/ISC")
 ThisBuild / versionScheme          := Some("semver-spec")
 ThisBuild / evictionErrorLevel     := Level.Warn
-ThisBuild / scalaVersion           := "3.6.2"
+ThisBuild / scalaVersion           := "3.6.4"
 ThisBuild / organization           := "io.github.edadma"
 ThisBuild / organizationName       := "edadma"
 ThisBuild / organizationHomepage   := Some(url("https://github.com/edadma"))
@@ -44,7 +42,6 @@ ThisBuild / publishTo := {
 }
 ThisBuild / publishMavenStyle := true
 
-
 lazy val commonSettings = Seq(
   scalacOptions ++= Seq(
     "-deprecation",
@@ -60,7 +57,6 @@ lazy val commonSettings = Seq(
 lazy val library = project
   .enablePlugins(ScalaJSPlugin)
   .settings(commonSettings)
-//  .enablePlugins(ScalablyTypedConverterPlugin)
   .settings(
     name        := "fluxus",
     description := "A minimalist UI framework inspired by component-based design, built with Scala.js",
@@ -69,8 +65,8 @@ lazy val library = project
       "com.lihaoyi"      %%% "pprint"                      % "0.9.0"  % "test",
       "org.scala-js"     %%% "scalajs-dom"                 % "2.8.0",
       "io.github.edadma" %%% "logger"                      % "0.0.6",
-      "dev.zio"          %%% "zio-json"                    % "0.7.3",
-      "com.raquo"        %%% "airstream"                   % "16.0.0",
+      "dev.zio"          %%% "zio-json"                    % "0.7.39",
+      "com.raquo"        %%% "airstream"                   % "17.2.0",
       "org.scala-js"     %%% "scala-js-macrotask-executor" % "1.1.1",
     ),
     jsEnv                           := new org.scalajs.jsenv.nodejs.NodeJSEnv(),
