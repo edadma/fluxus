@@ -42,6 +42,7 @@ DOMSpec.scala
 DOMTests.scala
 EffectTests.scala
 FetchTests.scala
+I18nTests.scala
 IconTests.scala
 MockServerTests.scala
 ReconcilerTests.scala

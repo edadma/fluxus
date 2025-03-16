@@ -81,3 +81,23 @@ object I18n {
     }
   }
 }
+
+// Add this to the same file
+
+/** Hook to use translations in components
+  * @return
+  *   A function that translates keys and handles parameter substitution
+  */
+def useTranslation(): (String, (String, String)*) => String = {
+  val currentTranslations = useSignal(I18n.translations)
+
+  // Return translation function that handles string templating
+  (key, params) => {
+    val template = currentTranslations.getOrElse(key, key)
+
+    // Replace {varName} patterns with values from params
+    params.foldLeft(template) { case (text, (name, value)) =>
+      text.replace(s"{$name}", value)
+    }
+  }
+}
