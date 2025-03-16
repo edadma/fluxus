@@ -1,1 +1,1 @@
-node ../files/files dump.files code.txt
+node ../files/files files.txt code.txt
