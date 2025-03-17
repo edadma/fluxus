@@ -22,7 +22,7 @@
 - 🚀 Built on Scala.js for type-safe, performant applications
 - 🎨 Seamless integration with TailwindCSS and DaisyUI
 - 🔄 Simple yet powerful state management
-- 📦 Small bundle size with minimal runtime dependencies (Lucide)
+- 📦 Small bundle size with minimal runtime dependencies
 - 🧪 Comprehensive test suite with jsdom
 
 ## Getting Started
