@@ -86,13 +86,18 @@ object I18n {
   * @return
   *   A function that translates keys and handles parameter substitution
   */
-def useTranslation(): (String, Seq[(String, String)]) => String = {
+def useTranslation(): TranslationFunction = {
   // Get current translations from signal
   val currentLang  = useSignal(I18n.currentLanguage)
   val translations = I18n.translationData.getOrElse(currentLang, Map.empty)
 
-  // Return a function that takes a key and optional parameters
-  (key: String, params: Seq[(String, String)]) => {
+  new TranslationFunction(translations)
+}
+
+/** Class to handle translations with a nice varargs interface */
+class TranslationFunction(translations: Map[String, String]) {
+  // Main translation method with varargs
+  def apply(key: String, params: (String, String)*): String = {
     val template = translations.getOrElse(key, key)
 
     // Apply parameter substitutions

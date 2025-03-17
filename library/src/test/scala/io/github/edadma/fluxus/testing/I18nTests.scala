@@ -31,8 +31,8 @@ class I18nTests extends AsyncDOMSpec {
 
       div(
         cls := "i18n-test",
-        h1(t("greeting", Nil)),
-        p(t("user.welcome", Seq("name" -> "John"))),
+        h1(t("greeting")),
+        p(t("user.welcome", "name" -> "John")),
         button(
           cls     := "switch-lang",
           onClick := (() => I18n.setLanguage("fr")),
