@@ -9,18 +9,16 @@ class I18nTests extends AsyncDOMSpec {
 
     // Define test translations
     val enYaml = """
-greeting: Hello
-farewell: Goodbye
-user:
-  welcome: "Welcome, {name}!"
-"""
+                   |greeting: Hello
+                   |farewell: Goodbye
+                   |user:
+                   |  welcome: "Welcome, {name}!"""".stripMargin
 
     val frYaml = """
-greeting: Bonjour
-farewell: Au revoir
-user:
-  welcome: "Bienvenue, {name}!"
-"""
+                   |greeting: Bonjour
+                   |farewell: Au revoir
+                   |user:
+                   |  welcome: "Bienvenue, {name}!"""".stripMargin
 
     // Load translations
     I18n.loadTranslation("en", enYaml)
@@ -33,8 +31,8 @@ user:
 
       div(
         cls := "i18n-test",
-        h1(t("greeting")),
-        p(t("user.welcome", "name" -> "John")),
+        h1(t("greeting", Nil)),
+        p(t("user.welcome", Seq("name" -> "John"))),
         button(
           cls     := "switch-lang",
           onClick := (() => I18n.setLanguage("fr")),
