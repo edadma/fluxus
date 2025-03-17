@@ -8,7 +8,7 @@ object I18n {
   val currentLanguage = Var[String]("en")
 
   // Translation data storage - flat maps with dot notation keys
-  private var translationData: Map[String, Map[String, String]] = Map.empty
+  private[fluxus] var translationData: Map[String, Map[String, String]] = Map.empty
 
   // Signal derived from current language that provides the current translations
   val translations = currentLanguage.signal.map(lang =>
@@ -82,20 +82,20 @@ object I18n {
   }
 }
 
-// Add this to the same file
-
 /** Hook to use translations in components
   * @return
   *   A function that translates keys and handles parameter substitution
   */
-def useTranslation(): (String, (String, String)*) => String = {
-  val currentTranslations = useSignal(I18n.translations)
+def useTranslation(): (String, Seq[(String, String)]) => String = {
+  // Get current translations from signal
+  val currentLang  = useSignal(I18n.currentLanguage)
+  val translations = I18n.translationData.getOrElse(currentLang, Map.empty)
 
-  // Return translation function that handles string templating
-  (key, params) => {
-    val template = currentTranslations.getOrElse(key, key)
+  // Return a function that takes a key and optional parameters
+  (key: String, params: Seq[(String, String)]) => {
+    val template = translations.getOrElse(key, key)
 
-    // Replace {varName} patterns with values from params
+    // Apply parameter substitutions
     params.foldLeft(template) { case (text, (name, value)) =>
       text.replace(s"{$name}", value)
     }
