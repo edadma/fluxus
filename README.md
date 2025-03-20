@@ -14,7 +14,7 @@
   <a href="https://github.com/edadma/fluxus/releases"><img src="https://img.shields.io/github/release-date-pre/edadma/fluxus" alt="Release Date"></a>
   <a href="https://github.com/edadma/fluxus/commits"><img src="https://img.shields.io/github/last-commit/edadma/fluxus" alt="Last Commit"></a>
   <a href="https://opensource.org/licenses/ISC"><img src="https://img.shields.io/badge/license-ISC-blue.svg" alt="License: ISC"></a>
-  <a href="https://www.scala-js.org"><img src="https://img.shields.io/badge/scala.js-1.17.0-blue.svg" alt="Scala.js: 1.17.0"></a>
+  <a href="https://www.scala-js.org"><img src="https://img.shields.io/badge/scala.js-1.17.0-blue.svg" alt="Scala.js: 1.18.2"></a>
 </p>
 
 ## Features
@@ -34,16 +34,8 @@ The easiest way to start a new Fluxus project is to use the [fluxus-template](ht
 - Development environment with Hot Module Reloading (HMR)
 - Optimized production build configuration
 
+The template includes everything you need to start building modern web applications with Fluxus.
+
 ## Documentation
 
 For detailed documentation and guides, please visit [edadma.github.io/fluxus](https://edadma.github.io/fluxus/).
-
-## Template Repository
-
-To create a new Fluxus project:
-
-1. Visit [github.com/edadma/fluxus-template](https://github.com/edadma/fluxus-template)
-2. Click "Use this template" to create your own repository
-3. Follow the setup instructions in the template's README
-
-The template includes everything you need to start building modern web applications with Fluxus.
