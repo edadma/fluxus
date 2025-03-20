@@ -14,8 +14,8 @@
   <a href="https://github.com/edadma/fluxus/releases"><img src="https://img.shields.io/github/release-date-pre/edadma/fluxus" alt="Release Date"></a>
   <a href="https://github.com/edadma/fluxus/commits"><img src="https://img.shields.io/github/last-commit/edadma/fluxus" alt="Last Commit"></a>
   <a href="https://opensource.org/licenses/ISC"><img src="https://img.shields.io/badge/license-ISC-blue.svg" alt="License: ISC"></a>
-  <a href="https://www.scala-js.org"><img src="https://img.shields.io/badge/scala.js-1.18.2-blue.svg" alt="Scala.js: 1.18.2"></a>
   <a href="https://www.scala-lang.org/"><img src="https://img.shields.io/badge/scala-3.6.4-red.svg" alt="Scala: 3.6.4"></a>
+  <a href="https://www.scala-js.org"><img src="https://img.shields.io/badge/scala.js-1.18.2-blue.svg" alt="Scala.js: 1.18.2"></a>
 </p>
 
 ## Features
