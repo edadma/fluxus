@@ -72,6 +72,8 @@ def useState[T](initial: T): (T, T => Unit, (T => T) => Unit) = {
       h.asInstanceOf[StateHook[T]]
     case Some(_: EffectHook) =>
       throw new Error(s"Hook mismatch: expected StateHook but found EffectHook at index ${instance.hookIndex}")
+    case Some(h: MemoHook[_]) =>
+      throw new Error(s"Hook mismatch: expected StateHook but found MemoHook at index ${instance.hookIndex}")
     case None =>
       logger.debug("Creating new hook", category = "Hooks")
 
@@ -145,4 +147,69 @@ def useEffect(effect: () => (() => Unit) | Unit, deps: Seq[Any] = null): Unit = 
   hook.deps = deps
 
   instance.hookIndex += 1
+}
+
+case class MemoHook[T](
+    var value: T,
+    var deps: Seq[Any],
+) extends Hook
+
+def useMemo[T](compute: () => T, deps: Seq[Any]): T = {
+  val instance = ComponentInstance.current.getOrElse(
+    throw new Error("Hooks must be called within component render"),
+  )
+
+  logger.debug(
+    "useMemo called",
+    category = "Hooks",
+    Map(
+      "instance"  -> instance.id,
+      "hookIndex" -> instance.hookIndex.toString,
+      "hasDeps"   -> (deps != null).toString,
+      "deps"      -> Option(deps).map(_.mkString(", ")).getOrElse("null"),
+    ),
+  )
+
+  val hook = instance.hooks.lift(instance.hookIndex) match {
+    case Some(h: MemoHook[_]) =>
+      logger.debug(
+        "Reusing existing memo hook",
+        category = "Hooks",
+        Map(
+          "lastDeps" -> Option(h.deps).map(_.mkString(", ")).getOrElse("null"),
+        ),
+      )
+      h.asInstanceOf[MemoHook[T]]
+    case None =>
+      logger.debug("Creating new memo hook", category = "Hooks")
+      val newHook = MemoHook(compute(), deps)
+      instance.hooks = instance.hooks :+ newHook
+      newHook
+    case Some(h) =>
+      throw new Error(
+        s"Hook mismatch at index ${instance.hookIndex}: expected MemoHook but found ${h.getClass.getSimpleName}",
+      )
+  }
+
+  // Check if dependencies have changed
+  val shouldRecompute = deps == null ||
+    hook.deps == null ||
+    deps.length != hook.deps.length ||
+    deps.zip(hook.deps).exists { case (a, b) => a != b }
+
+  if (shouldRecompute) {
+    logger.debug(
+      "Dependencies changed, recomputing value",
+      category = "Hooks",
+      Map(
+        "oldDeps" -> Option(hook.deps).map(_.mkString(", ")).getOrElse("null"),
+        "newDeps" -> Option(deps).map(_.mkString(", ")).getOrElse("null"),
+      ),
+    )
+    hook.value = compute()
+    hook.deps = deps
+  }
+
+  instance.hookIndex += 1
+  hook.value
 }
