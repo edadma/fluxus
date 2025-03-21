@@ -21,10 +21,14 @@
 ## Features
 
 - 🚀 Built on Scala.js for type-safe, performant applications
-- 🎨 Seamless integration with TailwindCSS and DaisyUI
-- 🔄 Simple yet powerful state management
-- 📦 Small bundle size with minimal runtime dependencies
-- 🧪 Comprehensive test suite with jsdom
+- 🧩 Component-based architecture for building modular UIs
+- 🔄 Efficient virtual DOM reconciliation for optimized updates
+- 🪝 Hook-based state management system (useState, useEffect)
+- 🔌 Powerful event handling for interactive applications
+- 📝 Ergonomic syntax using Scala's expressive type system
+- ⚡  Support for asynchronous data fetching with useFetch
+- 🔄 Application state management using FRP
+- 🔍 Comprehensive test suite with jsdom for TDD development
 
 ## Getting Started
 
