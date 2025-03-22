@@ -14,6 +14,19 @@ implicit class FunctionComponent[P <: Product](f: P => FluxusNode):
         .map(_._2.toString),
     )
 
+implicit class RefFunctionComponent[P <: Product](f: (P, RefHook) => FluxusNode):
+  def <>(propsWithRef: (P, RefHook)): ComponentNode =
+    ComponentNode(
+      component = (props: Any) => {
+        val (componentProps, forwardedRef) = props.asInstanceOf[(P, RefHook)]
+        f(componentProps, forwardedRef)
+      },
+      props = propsWithRef,
+      key = propsWithRef._1.productElementNames.zip(propsWithRef._1.productIterator)
+        .find(_._1 == "key")
+        .map(_._2.toString),
+    )
+
 implicit class ProplessComponent(f: () => FluxusNode):
   def <>(u: Unit): ComponentNode = noPropsComponentNode(f)
 

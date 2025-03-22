@@ -1,6 +1,7 @@
 package io.github.edadma.fluxus
 
 import org.scalajs.dom
+import org.scalajs.dom.Element
 
 import scala.scalajs.js
 
@@ -51,6 +52,7 @@ def max: String             = "max"
 
 def key: String   = "key"
 def key_ : String = "key"
+def ref: String   = "ref"
 
 def viewBox: String     = "viewBox"
 def fill: String        = "fill"
@@ -107,9 +109,9 @@ private def processContent(content: Any): Vector[FluxusNode] = content match {
 }
 
 private def processMixedContent(items: Seq[Any])
-    : (Map[String, Any], Map[String, js.Function1[dom.Event, Unit]], Vector[FluxusNode]) = {
+    : (Map[String, Any], Map[String, js.Function1[dom.Event, Unit]], Vector[FluxusNode], Option[Element => Unit]) = {
   val attrs = items.collect {
-    case Attribute(name, value) if !name.startsWith("on") => name -> value
+    case Attribute(name, value) if !name.startsWith("on") && name != "ref" => name -> value
   }.toMap
 
   val events = items.collect {
@@ -122,9 +124,13 @@ private def processMixedContent(items: Seq[Any])
       name -> wrapper
   }.toMap
 
+  val refCallback = items.collectFirst {
+    case Attribute("ref", callback: (Element => Unit) @unchecked) => callback
+  }
+
   val children = items.filterNot(_.isInstanceOf[Attribute]).flatMap(processContent).toVector
 
-  (attrs, events, children)
+  (attrs, events, children, refCallback)
 }
 
 def createElement(tag: String, contents: Any*): ElementNode = createElementNode(tag, None, contents*)
@@ -133,9 +139,9 @@ def createElementInNamespace(tag: String, namespace: String, contents: Any*): El
   createElementNode(tag, Some(namespace), contents*)
 
 def createElementNode(tag: String, namespace: Option[String], contents: Any*): ElementNode = {
-  val (attrs, events, children) = processMixedContent(contents)
-  val key                       = attrs.get("key").map(_.toString)
-  val attrsWithoutKey           = attrs - "key"
+  val (attrs, events, children, refCallback) = processMixedContent(contents)
+  val key                                    = attrs.get("key").map(_.toString)
+  val attrsWithoutKey                        = attrs - "key"
 
   // Automatically use SVG namespace for SVG elements
   val finalNamespace = namespace.orElse {
@@ -152,7 +158,7 @@ def createElementNode(tag: String, namespace: Option[String], contents: Any*): E
     parent = None,
     domNode = None,
     namespace = finalNamespace,
-    ref = None,
+    ref = refCallback,
   )
 }
 
