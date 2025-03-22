@@ -37,6 +37,7 @@ EffectTests.scala
 FetchTests.scala
 MockServerTests.scala
 ReconcilerTests.scala
+RefTests.scala
 RenderingTests.scala
 RouteParserTests.scala
 SignalTests.scala
@@ -51,6 +52,7 @@ DemoApp.scala
 JSONPlaceholderApp.scala
 main.scala
 MockServerTestApp.scala
+RefExampleApp.scala
 SignalDemoApp.scala
 TimerApp.scala
 TodoApp.scala
