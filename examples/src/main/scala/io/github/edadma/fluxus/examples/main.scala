@@ -2,4 +2,4 @@ package io.github.edadma.fluxus.examples
 
 import io.github.edadma.fluxus.render
 
-@main def run(): Unit = render(UseMemoDemo.App, "app")
+@main def run(): Unit = render(RefExampleApp.App, "app")

@@ -17,8 +17,23 @@ object RefExampleApp {
   case class FocusableFormProps(title: String)
 
   def FocusableForm(props: FocusableFormProps): FluxusNode = {
-    val nameInputRef    = useRef[dom.html.Input]()
-    val emailInputRef   = useRef[dom.html.Input]()
+    logger.debug(
+      "About to call first useRef in FocusableForm",
+      category = "RefExample",
+      Map("props" -> props.toString),
+    )
+    val nameInputRef = useRef[dom.html.Input]()
+    logger.debug(
+      "About to call second useRef in FocusableForm",
+      category = "RefExample",
+      Map("nameInputRef" -> nameInputRef.toString),
+    )
+    val emailInputRef = useRef[dom.html.Input]()
+    logger.debug(
+      "About to call third useRef in FocusableForm",
+      category = "RefExample",
+      Map("emailInputRef" -> emailInputRef.toString),
+    )
     val messageInputRef = useRef[dom.html.TextArea]()
 
     div(
