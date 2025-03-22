@@ -58,72 +58,72 @@ class UseMemoTests extends AsyncDOMSpec {
       }
   }
 
-//  it should "handle complex dependency objects correctly" in /*withDebugLogging(
-//    "handle complex dependency objects",
-//  )*/ {
-//    val container    = getContainer
-//    var computeCount = 0
-//
-//    case class ComplexDep(id: String, value: Int)
-//    case class ComplexProps(dep: ComplexDep, unrelated: String)
-//
-//    def ComplexTestComponent(props: ComplexProps): FluxusNode = {
-//      val computed = useMemo(
-//        () => {
-//          computeCount += 1
-//          s"${props.dep.id}-${props.dep.value * 2}"
-//        },
-//        Seq(props.dep), // Only depend on dep object
-//      )
-//
-//      div(
-//        cls := "complex-result",
-//        s"Computed: $computed, Unrelated: ${props.unrelated}",
-//      )
-//    }
-//
-//    // Initial render
-//    val initialDep  = ComplexDep("test", 5)
-//    val initialNode = ComplexTestComponent <> ComplexProps(initialDep, "first")
-//    createDOM(initialNode, container)
-//
-//    container.querySelector(".complex-result").textContent shouldBe "Computed: test-10, Unrelated: first"
-//    computeCount shouldBe 1
-//
-//    // Update unrelated prop
-//    val sameDepNode = ComplexTestComponent <> ComplexProps(initialDep, "second")
-//    reconcile(Some(initialNode), Some(sameDepNode), container)
-//
-//    eventually {
-//      // Value should be the same, not recomputed
-//      container.querySelector(".complex-result").textContent shouldBe "Computed: test-10, Unrelated: second"
-//      computeCount shouldBe 1 // Shouldn't have recomputed
-//    }
-//      .flatMap { _ =>
-//        // Update with different dep object but same values
-//        val sameDep          = ComplexDep("test", 5) // Same values but different object reference
-//        val differentDepNode = ComplexTestComponent <> ComplexProps(sameDep, "third")
-//        reconcile(Some(sameDepNode), Some(differentDepNode), container)
-//
-//        eventually {
-//          // Should recompute because object reference changed, even though values are the same
-//          container.querySelector(".complex-result").textContent shouldBe "Computed: test-10, Unrelated: third"
-//          computeCount shouldBe 2 // Should have recomputed due to object reference change
-//        }
-//          .flatMap { _ =>
-//            // Update with clearly different values
-//            val differentDep       = ComplexDep("other", 10)
-//            val differentValueNode = ComplexTestComponent <> ComplexProps(differentDep, "fourth")
-//            reconcile(Some(differentDepNode), Some(differentValueNode), container)
-//
-//            eventually {
-//              // Value should be updated and recomputed
-//              container.querySelector(".complex-result").textContent shouldBe "Computed: other-20, Unrelated: fourth"
-//              computeCount shouldBe 3 // Should have recomputed
-//            }
-//          }
-//      }
-//  }
+  it should "handle complex dependency objects correctly" in withDebugLogging(
+    "handle complex dependency objects",
+  ) {
+    val container    = getContainer
+    var computeCount = 0
+
+    case class ComplexDep(id: String, value: Int)
+    case class ComplexProps(dep: ComplexDep, unrelated: String)
+
+    def ComplexTestComponent(props: ComplexProps): FluxusNode = {
+      val computed = useMemo(
+        () => {
+          computeCount += 1
+          s"${props.dep.id}-${props.dep.value * 2}"
+        },
+        Seq(props.dep), // Only depend on dep object
+      )
+
+      div(
+        cls := "complex-result",
+        s"Computed: $computed, Unrelated: ${props.unrelated}",
+      )
+    }
+
+    // Initial render
+    val initialDep  = ComplexDep("test", 5)
+    val initialNode = ComplexTestComponent <> ComplexProps(initialDep, "first")
+    createDOM(initialNode, container)
+
+    container.querySelector(".complex-result").textContent shouldBe "Computed: test-10, Unrelated: first"
+    computeCount shouldBe 1
+
+    // Update unrelated prop
+    val sameDepNode = ComplexTestComponent <> ComplexProps(initialDep, "second")
+    reconcile(Some(initialNode), Some(sameDepNode), container)
+
+    eventually {
+      // Value should be the same, not recomputed
+      container.querySelector(".complex-result").textContent shouldBe "Computed: test-10, Unrelated: second"
+      computeCount shouldBe 1 // Shouldn't have recomputed
+    }
+      .flatMap { _ =>
+        // Update with different dep object but same values
+        val sameDep          = ComplexDep("test", 5) // Same values but different object reference
+        val differentDepNode = ComplexTestComponent <> ComplexProps(sameDep, "third")
+        reconcile(Some(sameDepNode), Some(differentDepNode), container)
+
+        eventually {
+          // Should recompute because object reference changed, even though values are the same
+          container.querySelector(".complex-result").textContent shouldBe "Computed: test-10, Unrelated: third"
+          computeCount shouldBe 2 // Should have recomputed due to object reference change
+        }
+          .flatMap { _ =>
+            // Update with clearly different values
+            val differentDep       = ComplexDep("other", 10)
+            val differentValueNode = ComplexTestComponent <> ComplexProps(differentDep, "fourth")
+            reconcile(Some(differentDepNode), Some(differentValueNode), container)
+
+            eventually {
+              // Value should be updated and recomputed
+              container.querySelector(".complex-result").textContent shouldBe "Computed: other-20, Unrelated: fourth"
+              computeCount shouldBe 3 // Should have recomputed
+            }
+          }
+      }
+  }
 
   it should "not recompute with empty deps array" in {
     val container    = getContainer
@@ -155,7 +155,7 @@ class UseMemoTests extends AsyncDOMSpec {
     computeCount shouldBe 1 // Should not recompute
   }
 
-  it should "recompute on every render with null deps" in withDebugLogging("recompute on every render with null deps") {
+  it should "recompute on every render with null deps" in /*withDebugLogging("recompute on every render with null deps")*/ {
     val container    = getContainer
     var computeCount = 0
 
