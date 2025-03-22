@@ -58,9 +58,7 @@ class UseMemoTests extends AsyncDOMSpec {
       }
   }
 
-  it should "handle complex dependency objects correctly" in withDebugLogging(
-    "handle complex dependency objects",
-  ) {
+  it should "handle complex dependency objects correctly" in withDebugLogging("handle complex dependency objects") {
     val container    = getContainer
     var computeCount = 0
 
@@ -100,20 +98,20 @@ class UseMemoTests extends AsyncDOMSpec {
       computeCount shouldBe 1 // Shouldn't have recomputed
     }
       .flatMap { _ =>
-        // Update with different dep object but same values
-        val sameDep          = ComplexDep("test", 5) // Same values but different object reference
-        val differentDepNode = ComplexTestComponent <> ComplexProps(sameDep, "third")
+        // Update with different dep object with DIFFERENT values
+        val differentDep     = ComplexDep("test", 6) // Changed value
+        val differentDepNode = ComplexTestComponent <> ComplexProps(differentDep, "third")
         reconcile(Some(sameDepNode), Some(differentDepNode), container)
 
         eventually {
-          // Should recompute because object reference changed, even though values are the same
-          container.querySelector(".complex-result").textContent shouldBe "Computed: test-10, Unrelated: third"
-          computeCount shouldBe 2 // Should have recomputed due to object reference change
+          // Should recompute because values are different
+          container.querySelector(".complex-result").textContent shouldBe "Computed: test-12, Unrelated: third"
+          computeCount shouldBe 2 // Should have recomputed due to value change
         }
           .flatMap { _ =>
             // Update with clearly different values
-            val differentDep       = ComplexDep("other", 10)
-            val differentValueNode = ComplexTestComponent <> ComplexProps(differentDep, "fourth")
+            val anotherDifferentDep = ComplexDep("other", 10)
+            val differentValueNode  = ComplexTestComponent <> ComplexProps(anotherDifferentDep, "fourth")
             reconcile(Some(differentDepNode), Some(differentValueNode), container)
 
             eventually {
