@@ -21,6 +21,7 @@ implicits.scala
 MockServer.scala
 package.scala
 render.scala
+useCallback.scala
 useFetch.scala
 useSignal.scala
 
