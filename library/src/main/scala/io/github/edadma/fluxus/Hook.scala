@@ -244,13 +244,69 @@ case class GenericRefHook[T](var current: T) extends RefHook {
   * @return
   *   A RefObject with a mutable .current property
   */
+//def useRef[T](initialValue: T = null.asInstanceOf[T]): RefHook & { type RefType = T } = {
+//  val instance = ComponentInstance.current.getOrElse(
+//    throw new Error("Hooks must be called within component render"),
+//  )
+//
+//  // During render, we should never try to access a hook index
+//  // that's beyond what we had in the previous render
+//  if (instance.hooks.nonEmpty && instance.hookIndex >= instance.hooks.length) {
+//    throw new Error(
+//      "Hook called conditionally. Hooks must be called in the exact same order on every render.",
+//    )
+//  }
+//
+//  // Create or reuse ref hook
+//  val hook = instance.hooks.lift(instance.hookIndex) match {
+//    case Some(h: RefHook) =>
+//      h.asInstanceOf[RefHook & { type RefType = T }]
+//
+//    case Some(h) =>
+//      throw new Error(
+//        s"Hook mismatch: expected RefHook but found ${h.getClass.getSimpleName} at index ${instance.hookIndex}",
+//      )
+//
+//    case None =>
+//      // Create a generic ref hook for any type
+//      val newHook = new RefHook {
+//        type RefType = T
+//        var current: T = initialValue
+//
+//        override def toString: String = s"RefHook($current)"
+//      }
+//      instance.hooks = instance.hooks :+ newHook
+//      newHook
+//  }
+//
+//  instance.hookIndex += 1
+//  hook
+//}
+
+/** Creates a mutable ref object that persists for the lifetime of the component.
+  *
+  * @param initialValue
+  *   The initial value for the ref (defaults to null)
+  * @return
+  *   A RefObject with a mutable .current property
+  */
 def useRef[T](initialValue: T = null.asInstanceOf[T]): RefHook & { type RefType = T } = {
   val instance = ComponentInstance.current.getOrElse(
     throw new Error("Hooks must be called within component render"),
   )
 
-  // During render, we should never try to access a hook index
-  // that's beyond what we had in the previous render
+  logger.debug(
+    "useRef called",
+    category = "Hooks",
+    Map(
+      "instance"     -> instance.id,
+      "hookIndex"    -> instance.hookIndex.toString,
+      "hooksLength"  -> instance.hooks.length.toString,
+      "initialValue" -> Option(initialValue).map(_.toString).getOrElse("null"),
+    ),
+  )
+
+  // Make sure check matches the one in useState
   if (instance.hooks.nonEmpty && instance.hookIndex >= instance.hooks.length) {
     throw new Error(
       "Hook called conditionally. Hooks must be called in the exact same order on every render.",
@@ -260,14 +316,36 @@ def useRef[T](initialValue: T = null.asInstanceOf[T]): RefHook & { type RefType 
   // Create or reuse ref hook
   val hook = instance.hooks.lift(instance.hookIndex) match {
     case Some(h: RefHook) =>
+      logger.debug(
+        "Reusing existing ref hook",
+        category = "Hooks",
+        Map(
+          "hookIndex"  -> instance.hookIndex.toString,
+          "refCurrent" -> Option(h.current).map(_.toString).getOrElse("null"),
+        ),
+      )
       h.asInstanceOf[RefHook & { type RefType = T }]
 
     case Some(h) =>
+      logger.error(
+        "Hook mismatch",
+        category = "Hooks",
+        Map(
+          "hookIndex"    -> instance.hookIndex.toString,
+          "foundType"    -> h.getClass.getSimpleName,
+          "expectedType" -> "RefHook",
+        ),
+      )
       throw new Error(
         s"Hook mismatch: expected RefHook but found ${h.getClass.getSimpleName} at index ${instance.hookIndex}",
       )
 
     case None =>
+      logger.debug(
+        "Creating new ref hook",
+        category = "Hooks",
+        Map("hookIndex" -> instance.hookIndex.toString),
+      )
       // Create a generic ref hook for any type
       val newHook = new RefHook {
         type RefType = T
