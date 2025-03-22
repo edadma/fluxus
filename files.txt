@@ -41,6 +41,7 @@ RenderingTests.scala
 RouteParserTests.scala
 SignalTests.scala
 StateTests.scala
+UseMemoTests.scala
 
 # example apps
 ./examples/src/main/scala/io/github/edadma/fluxus/examples
