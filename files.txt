@@ -53,6 +53,7 @@ MockServerTestApp.scala
 SignalDemoApp.scala
 TimerApp.scala
 TodoApp.scala
+UseMemoDemo.scala
 
 # build files
 ./
