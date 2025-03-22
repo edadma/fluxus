@@ -58,7 +58,7 @@ class UseMemoTests extends AsyncDOMSpec {
       }
   }
 
-  it should "handle complex dependency objects correctly" in withDebugLogging("handle complex dependency objects") {
+  it should "handle complex dependency objects correctly" in /*withDebugLogging("handle complex dependency objects")*/ {
     val container    = getContainer
     var computeCount = 0
 
