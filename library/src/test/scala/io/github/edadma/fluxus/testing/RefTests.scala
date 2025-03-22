@@ -3,9 +3,9 @@ package io.github.edadma.fluxus.testing
 import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.core.{createDOM, reconcile}
 import org.scalajs.dom
-import org.scalajs.dom.{Element, Node}
+import org.scalajs.dom.Element
 
-class RefTests extends AnyDOMSpec {
+class RefTests extends AsyncDOMSpec {
   "useRef hook" should "maintain a stable reference between renders" in {
     val container             = getContainer
     var capturedRef1: RefHook = null
