@@ -24,7 +24,7 @@ def createDOMNode(node: FluxusNode): Node = {
       logger.debug("Creating text node", category = "DOM", opId = 1, Map("text" -> text))
       document.createTextNode(text)
 
-    case ElementNode(tag, attrs, events, children, _, _, namespace, _, _) =>
+    case ElementNode(tag, attrs, events, children, _, _, namespace, ref, _) =>
       logger.debug(
         "Creating element node",
         category = "DOM",
@@ -75,6 +75,19 @@ def createDOMNode(node: FluxusNode): Node = {
         }
 
         elem.addEventListener(domEventName, handler)
+      }
+
+      ref.foreach { refCallback =>
+        logger.debug(
+          "Applying ref callback to element",
+          category = "DOM",
+          opId = 1,
+          Map(
+            "tag"         -> tag,
+            "refCallback" -> refCallback.toString,
+          ),
+        )
+        refCallback(elem)
       }
 
       children foreach { child =>

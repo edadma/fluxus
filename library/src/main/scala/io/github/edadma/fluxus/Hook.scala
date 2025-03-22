@@ -1,6 +1,7 @@
 package io.github.edadma.fluxus
 
 import io.github.edadma.fluxus.core.{BatchScheduler, ComponentInstance}
+import org.scalajs.dom
 
 sealed trait Hook
 case class StateHook[T](
@@ -72,8 +73,10 @@ def useState[T](initial: T): (T, T => Unit, (T => T) => Unit) = {
       h.asInstanceOf[StateHook[T]]
     case Some(_: EffectHook) =>
       throw new Error(s"Hook mismatch: expected StateHook but found EffectHook at index ${instance.hookIndex}")
-    case Some(h: MemoHook[_]) =>
+    case Some(_: MemoHook[_]) =>
       throw new Error(s"Hook mismatch: expected StateHook but found MemoHook at index ${instance.hookIndex}")
+    case Some(_: RefHook) =>
+      throw new Error(s"Hook mismatch: expected StateHook but found RefHook at index ${instance.hookIndex}")
     case None =>
       logger.debug("Creating new hook", category = "Hooks")
 
@@ -215,3 +218,92 @@ def useMemo[T](compute: () => T, deps: Seq[Any]): T = {
   instance.hookIndex += 1
   hook.value
 }
+
+// Define RefObject as a trait to allow for different implementations
+trait RefHook extends Hook {
+  type RefType
+  var current: RefType
+}
+
+// RefObject implementation for DOM elements
+case class ElementRefHook[T <: dom.Element](var current: T = null.asInstanceOf[T]) extends RefHook {
+  type RefType = T
+  override def toString: String = s"ElementRefHook(${Option(current).map(_.tagName).getOrElse("null")})"
+}
+
+// Generic RefObject implementation for any type
+case class GenericRefHook[T](var current: T) extends RefHook {
+  type RefType = T
+  override def toString: String = s"GenericRefHook($current)"
+}
+
+/** Creates a mutable ref object that persists for the lifetime of the component.
+  *
+  * @param initialValue
+  *   The initial value for the ref (defaults to null)
+  * @return
+  *   A RefObject with a mutable .current property
+  */
+def useRef[T](initialValue: T = null.asInstanceOf[T]): RefHook & { type RefType = T } = {
+  val instance = ComponentInstance.current.getOrElse(
+    throw new Error("Hooks must be called within component render"),
+  )
+
+  // During render, we should never try to access a hook index
+  // that's beyond what we had in the previous render
+  if (instance.hooks.nonEmpty && instance.hookIndex >= instance.hooks.length) {
+    throw new Error(
+      "Hook called conditionally. Hooks must be called in the exact same order on every render.",
+    )
+  }
+
+  // Create or reuse ref hook
+  val hook = instance.hooks.lift(instance.hookIndex) match {
+    case Some(h: RefHook) =>
+      h.asInstanceOf[RefHook & { type RefType = T }]
+
+    case Some(h) =>
+      throw new Error(
+        s"Hook mismatch: expected RefHook but found ${h.getClass.getSimpleName} at index ${instance.hookIndex}",
+      )
+
+    case None =>
+      // Create a generic ref hook for any type
+      val newHook = new RefHook {
+        type RefType = T
+        var current: T = initialValue
+
+        override def toString: String = s"RefHook($current)"
+      }
+      instance.hooks = instance.hooks :+ newHook
+      newHook
+  }
+
+  instance.hookIndex += 1
+  hook
+}
+
+/** Creates a callback ref that can be passed to a component or element
+  *
+  * @param ref
+  *   The ref object to assign the element to
+  * @return
+  *   A callback function that sets the ref's current property
+  */
+def createRef[T <: dom.Element](ref: RefHook & { type RefType <: T }): T => Unit = {
+  element =>
+    {
+      logger.debug(
+        "Setting ref current value",
+        category = "Hooks",
+        Map(
+          "element" -> Option(element).map(_.tagName).getOrElse("null"),
+        ),
+      )
+      // This cast is necessary to match the exact type expected by RefType
+      ref.current = element.asInstanceOf[ref.RefType]
+    }
+}
+
+// Method to forward a ref to an element node
+def forwardRef[P <: Product](render: (P, RefHook) => FluxusNode): (P, RefHook) => FluxusNode = render
