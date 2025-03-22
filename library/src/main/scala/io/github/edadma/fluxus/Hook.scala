@@ -179,7 +179,28 @@ def useMemo[T](compute: () => T, deps: Seq[Any]): T = {
           "lastDeps" -> Option(h.deps).map(_.mkString(", ")).getOrElse("null"),
         ),
       )
-      h.asInstanceOf[MemoHook[T]]
+      val hook = h.asInstanceOf[MemoHook[T]]
+
+      // Check if dependencies have changed
+      val shouldRecompute = deps == null ||
+        hook.deps == null ||
+        deps.length != hook.deps.length ||
+        deps.zip(hook.deps).exists { case (a, b) => a != b }
+
+      if (shouldRecompute) {
+        logger.debug(
+          "Dependencies changed, recomputing value",
+          category = "Hooks",
+          Map(
+            "oldDeps" -> Option(hook.deps).map(_.mkString(", ")).getOrElse("null"),
+            "newDeps" -> Option(deps).map(_.mkString(", ")).getOrElse("null"),
+          ),
+        )
+        hook.value = compute()
+        hook.deps = deps
+      }
+
+      hook
     case None =>
       logger.debug("Creating new memo hook", category = "Hooks")
       val newHook = MemoHook(compute(), deps)
@@ -189,25 +210,6 @@ def useMemo[T](compute: () => T, deps: Seq[Any]): T = {
       throw new Error(
         s"Hook mismatch at index ${instance.hookIndex}: expected MemoHook but found ${h.getClass.getSimpleName}",
       )
-  }
-
-  // Check if dependencies have changed
-  val shouldRecompute = deps == null ||
-    hook.deps == null ||
-    deps.length != hook.deps.length ||
-    deps.zip(hook.deps).exists { case (a, b) => a != b }
-
-  if (shouldRecompute) {
-    logger.debug(
-      "Dependencies changed, recomputing value",
-      category = "Hooks",
-      Map(
-        "oldDeps" -> Option(hook.deps).map(_.mkString(", ")).getOrElse("null"),
-        "newDeps" -> Option(deps).map(_.mkString(", ")).getOrElse("null"),
-      ),
-    )
-    hook.value = compute()
-    hook.deps = deps
   }
 
   instance.hookIndex += 1

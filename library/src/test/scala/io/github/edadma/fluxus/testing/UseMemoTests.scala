@@ -1,7 +1,7 @@
 package io.github.edadma.fluxus.testing
 
 import io.github.edadma.fluxus.*
-import io.github.edadma.fluxus.core.{createDOM, reconcile}
+import io.github.edadma.fluxus.core.{ComponentInstance, createDOM, reconcile}
 import org.scalajs.dom
 
 class UseMemoTests extends AsyncDOMSpec {
@@ -124,82 +124,148 @@ class UseMemoTests extends AsyncDOMSpec {
 //          }
 //      }
 //  }
-//
-//  it should "handle empty or null dependencies correctly" in withDebugLogging(
-//    "handle empty or null dependencies correctly",
-//  ) {
-//    val container             = getContainer
-//    var emptyDepsComputeCount = 0
-//    var nullDepsComputeCount  = 0
-//
-//    case class DepsTestProps(value: Int)
-//
-//    def EmptyDepsComponent(props: DepsTestProps): FluxusNode = {
-//      // Use empty deps array: should recompute on every render
-//      val computed = useMemo(
-//        () => {
-//          emptyDepsComputeCount += 1
-//          props.value * 2
-//        },
-//        Seq(), // Empty deps array
-//      )
-//
-//      div(
-//        cls := "empty-deps",
-//        s"Computed with empty deps: $computed",
-//      )
-//    }
-//
-//    def NullDepsComponent(props: DepsTestProps): FluxusNode = {
-//      // Use null deps: should recompute on every render
-//      val computed = useMemo(
-//        () => {
-//          nullDepsComputeCount += 1
-//          props.value * 3
-//        },
-//        null, // Null deps
-//      )
-//
-//      div(
-//        cls := "null-deps",
-//        s"Computed with null deps: $computed",
-//      )
-//    }
-//
-//    // Test with empty deps
-//    val emptyDepsNode = EmptyDepsComponent <> DepsTestProps(5)
-//    createDOM(emptyDepsNode, container)
-//
-//    emptyDepsComputeCount shouldBe 1
-//    container.querySelector(".empty-deps").textContent shouldBe "Computed with empty deps: 10"
-//
-//    // Re-render with same props
-//    val emptyDepsNode2 = EmptyDepsComponent <> DepsTestProps(5)
-//    reconcile(Some(emptyDepsNode), Some(emptyDepsNode2), container)
-//
-//    eventually {
-//      emptyDepsComputeCount shouldBe 1 // Shouldn't recompute with empty deps array
-//    }
-//      .flatMap { _ =>
-//        // Clean up
-//        container.innerHTML = ""
-//
-//        // Test with null deps
-//        val nullDepsNode = NullDepsComponent <> DepsTestProps(5)
-//        createDOM(nullDepsNode, container)
-//
-//        nullDepsComputeCount shouldBe 1
-//        container.querySelector(".null-deps").textContent shouldBe "Computed with null deps: 15"
-//
-//        // Re-render with same props
-//        val nullDepsNode2 = NullDepsComponent <> DepsTestProps(5)
-//        reconcile(Some(nullDepsNode), Some(nullDepsNode2), container)
-//
-//        eventually {
-//          nullDepsComputeCount shouldBe 2 // Should recompute with null deps
-//        }
-//      }
-//  }
+
+  it should "not recompute with empty deps array" in {
+    val container    = getContainer
+    var computeCount = 0
+
+    case class EmptyDepsTestProps(value: Int)
+
+    def EmptyDepsComponent(props: EmptyDepsTestProps): FluxusNode = {
+      val computed = useMemo(
+        () => {
+          computeCount += 1
+          props.value * 2
+        },
+        Seq(), // Empty deps array
+      )
+      div(cls := "empty-deps", s"Computed with empty deps: $computed")
+    }
+
+    // Initial render
+    val node = EmptyDepsComponent <> EmptyDepsTestProps(5)
+    createDOM(node, container)
+
+    computeCount shouldBe 1
+
+    // Re-render with same props
+    val node2 = EmptyDepsComponent <> EmptyDepsTestProps(5)
+    reconcile(Some(node), Some(node2), container)
+
+    computeCount shouldBe 1 // Should not recompute
+  }
+
+  it should "recompute on every render with null deps" in withDebugLogging("recompute on every render with null deps") {
+    val container    = getContainer
+    var computeCount = 0
+
+    case class NullDepsTestProps()
+
+    def NullDepsComponent(props: NullDepsTestProps): FluxusNode = {
+      // State to force re-renders
+      val (counter, setCounter, _) = useState(0)
+
+      logger.debug(
+        "Rendering NullDepsComponent",
+        category = "Test",
+        Map(
+          "counter"      -> counter.toString,
+          "computeCount" -> computeCount.toString,
+          "instance"     -> ComponentInstance.current.map(_.id).getOrElse("none"),
+        ),
+      )
+
+      // This memo should recompute on every render with null deps
+      val computed = useMemo(
+        () => {
+          logger.debug(
+            "Computing value in useMemo with null deps",
+            category = "Test",
+            Map(
+              "computeCount" -> computeCount.toString,
+              "counter"      -> counter.toString,
+            ),
+          )
+          computeCount += 1
+          5 * 3 // Fixed computation
+        },
+        null, // Null deps - should recompute on every render
+      )
+
+      div(
+        cls := "null-deps-test",
+        div(cls := "computed-value", s"Computed with null deps: $computed"),
+        div(cls := "counter-value", s"Counter: $counter"),
+        button(
+          cls := "increment-button",
+          onClick := (() => {
+            logger.debug(
+              "Button clicked",
+              category = "Test",
+              Map("counter" -> counter.toString),
+            )
+            setCounter(counter + 1)
+          }),
+          "Increment Counter",
+        ),
+      )
+    }
+
+    // Using render directly instead of createDOM
+    render(NullDepsComponent <> NullDepsTestProps(), container)
+
+    // Wait for initial render and check
+    eventually {
+      computeCount shouldBe 1
+      // Verify the button exists before trying to click it
+      val button = container.querySelector(".increment-button")
+      button should not be null
+    }.flatMap { _ =>
+      // Get a fresh reference to the button
+      val button = container.querySelector(".increment-button")
+
+      logger.debug(
+        "Before button click",
+        category = "Test",
+        Map(
+          "computeCount" -> computeCount.toString,
+          "buttonExists" -> (button != null).toString,
+        ),
+      )
+
+      // Now click the button to trigger a re-render
+      click(button)
+
+      logger.debug(
+        "After button click",
+        category = "Test",
+        Map("computeCount" -> computeCount.toString),
+      )
+
+      // Wait for the re-render
+      eventually {
+        logger.debug(
+          "In eventually block",
+          category = "Test",
+          Map("computeCount" -> computeCount.toString),
+        )
+
+        // Get updated DOM content to verify re-render happened
+        val counterValue = container.querySelector(".counter-value").textContent
+        logger.debug(
+          "Current counter value",
+          category = "Test",
+          Map("counterValue" -> counterValue),
+        )
+
+        // The counter should be updated to 1
+        counterValue shouldBe "Counter: 1"
+
+        // With null deps, the useMemo should recompute on every render
+        computeCount shouldBe 2
+      }
+    }
+  }
 
   it should "handle multiple useMemo calls in the same component" in /*withDebugLogging(
     "handle multiple useMemo calls",
