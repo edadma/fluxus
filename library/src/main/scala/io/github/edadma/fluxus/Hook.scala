@@ -307,7 +307,7 @@ def useRef[T](initialValue: T = null.asInstanceOf[T]): RefHook & { type RefType 
   )
 
   // Make sure check matches the one in useState
-  if (instance.hooks.nonEmpty && instance.hookIndex >= instance.hooks.length) {
+  if (instance.hooks.nonEmpty && instance.hookIndex > instance.hooks.length) {
     throw new Error(
       "Hook called conditionally. Hooks must be called in the exact same order on every render.",
     )
