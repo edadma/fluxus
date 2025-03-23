@@ -24,7 +24,7 @@ class RefTests extends AsyncDOMSpec {
 
       // Use "ref" as attribute name and pass the createRef function
       div(
-        Attribute("ref", createRef(ref.asInstanceOf[RefHook & { type RefType <: dom.Element }])),
+        "ref" := ref,
         s"Counter: ${props.counter}",
       )
     }
@@ -61,8 +61,8 @@ class RefTests extends AsyncDOMSpec {
 
       div(
         button(
-          Attribute("ref", createRef(ref.asInstanceOf[RefHook & { type RefType <: dom.Element }])),
-          cls := "test-button",
+          "ref" := ref,
+          cls   := "test-button",
           "Click me",
         ),
         button(
@@ -115,7 +115,7 @@ class RefTests extends AsyncDOMSpec {
       input(
         typ         := "text",
         placeholder := props.placeholder,
-        Attribute("ref", createRef(ref.asInstanceOf[RefHook & { type RefType <: dom.Element }])),
+        "ref"       := ref,
       )
     }
 

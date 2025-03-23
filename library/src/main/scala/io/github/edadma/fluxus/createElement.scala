@@ -109,7 +109,7 @@ private def processContent(content: Any): Vector[FluxusNode] = content match {
 }
 
 private def processMixedContent(items: Seq[Any])
-    : (Map[String, Any], Map[String, js.Function1[dom.Event, Unit]], Vector[FluxusNode], Option[Element => Unit]) = {
+    : (Map[String, Any], Map[String, js.Function1[dom.Event, Unit]], Vector[FluxusNode], Option[RefHook]) = {
   val attrs = items.collect {
     case Attribute(name, value) if !name.startsWith("on") && name != "ref" => name -> value
   }.toMap
@@ -124,13 +124,13 @@ private def processMixedContent(items: Seq[Any])
       name -> wrapper
   }.toMap
 
-  val refCallback = items.collectFirst {
-    case Attribute("ref", callback: (Element => Unit) @unchecked) => callback
+  val refHook = items.collectFirst {
+    case Attribute("ref", hook: RefHook) => hook
   }
 
   val children = items.filterNot(_.isInstanceOf[Attribute]).flatMap(processContent).toVector
 
-  (attrs, events, children, refCallback)
+  (attrs, events, children, refHook)
 }
 
 def createElement(tag: String, contents: Any*): ElementNode = createElementNode(tag, None, contents*)

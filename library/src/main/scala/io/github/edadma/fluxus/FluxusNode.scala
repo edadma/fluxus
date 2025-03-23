@@ -38,7 +38,7 @@ case class ElementNode(
     parent: Option[FluxusNode],
     var domNode: Option[Node],
     namespace: Option[String] = None,
-    ref: Option[Element => Unit] = None,
+    ref: Option[RefHook] = None,
     key: Option[String] = None,
 ) extends FluxusNode {
   // Override hashCode to exclude parent

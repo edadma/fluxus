@@ -48,7 +48,7 @@ object RefExampleApp {
             typ         := "text",
             cls         := "input input-bordered w-full",
             placeholder := "Your name",
-            ref         := createRef(nameInputRef),
+            ref         := nameInputRef,
           ),
         ),
         div(
@@ -58,7 +58,7 @@ object RefExampleApp {
             typ         := "email",
             cls         := "input input-bordered w-full",
             placeholder := "Your email",
-            ref         := createRef(emailInputRef),
+            ref         := emailInputRef,
           ),
         ),
         div(
@@ -67,7 +67,7 @@ object RefExampleApp {
           textarea(
             cls         := "textarea textarea-bordered w-full h-24",
             placeholder := "Your message",
-            ref         := createRef(messageInputRef),
+            ref         := messageInputRef,
           ),
         ),
         div(
@@ -125,7 +125,7 @@ object RefExampleApp {
         typ         := props.typ,
         cls         := "input input-bordered w-full",
         placeholder := props.placeholder,
-        "ref"       := createRef(ref.asInstanceOf[RefHook & { type RefType <: dom.html.Input }]),
+        "ref"       := ref.asInstanceOf[RefHook & { type RefType <: dom.html.Input }],
       ),
     )
   }
@@ -183,7 +183,7 @@ object RefExampleApp {
         h2(cls := "card-title", "Measure DOM elements"),
         p(cls  := "mb-4", "This example shows how to measure DOM elements using refs."),
         div(
-          ref := createRef(boxRef),
+          ref := boxRef,
           cls := s"bg-primary text-primary-content p-4 rounded-lg transition-all ${
               if showBig then "w-64 h-32" else "w-32 h-16"
             }",

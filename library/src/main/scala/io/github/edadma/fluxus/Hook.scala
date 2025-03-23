@@ -225,18 +225,6 @@ trait RefHook extends Hook {
   var current: RefType
 }
 
-// RefObject implementation for DOM elements
-case class ElementRefHook[T <: dom.Element](var current: T = null.asInstanceOf[T]) extends RefHook {
-  type RefType = T
-  override def toString: String = s"ElementRefHook(${Option(current).map(_.tagName).getOrElse("null")})"
-}
-
-// Generic RefObject implementation for any type
-case class GenericRefHook[T](var current: T) extends RefHook {
-  type RefType = T
-  override def toString: String = s"GenericRefHook($current)"
-}
-
 /** Creates a mutable ref object that persists for the lifetime of the component.
   *
   * @param initialValue
@@ -361,27 +349,5 @@ def useRef[T](initialValue: T = null.asInstanceOf[T]): RefHook & { type RefType 
   hook
 }
 
-/** Creates a callback ref that can be passed to a component or element
-  *
-  * @param ref
-  *   The ref object to assign the element to
-  * @return
-  *   A callback function that sets the ref's current property
-  */
-def createRef[T <: dom.Element](ref: RefHook & { type RefType <: T }): T => Unit = {
-  element =>
-    {
-      logger.debug(
-        "Setting ref current value",
-        category = "Hooks",
-        Map(
-          "element" -> Option(element).map(_.tagName).getOrElse("null"),
-        ),
-      )
-      // This cast is necessary to match the exact type expected by RefType
-      ref.current = element.asInstanceOf[ref.RefType]
-    }
-}
-
-// Method to forward a ref to an element node
+// Function to forward a ref to an element node
 def forwardRef[P <: Product](render: (P, RefHook) => FluxusNode): (P, RefHook) => FluxusNode = render

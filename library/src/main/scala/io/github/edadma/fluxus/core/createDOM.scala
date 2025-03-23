@@ -77,17 +77,29 @@ def createDOMNode(node: FluxusNode): Node = {
         elem.addEventListener(domEventName, handler)
       }
 
-      ref.foreach { refCallback =>
+      ref.foreach { refHook =>
         logger.debug(
-          "Applying ref callback to element",
+          "Setting ref.current to element",
           category = "DOM",
-          opId = 1,
-          Map(
-            "tag"         -> tag,
-            "refCallback" -> refCallback.toString,
-          ),
+          Map("tag" -> tag, "refType" -> refHook.getClass.getSimpleName),
         )
-        refCallback(elem)
+        try {
+          refHook.current = elem.asInstanceOf[refHook.RefType]
+        } catch {
+          case e: ClassCastException =>
+            logger.error(
+              "Ref type mismatch",
+              category = "DOM",
+              Map(
+                "elementType"  -> elem.nodeName,
+                "expectedType" -> refHook.getClass.getName,
+                "error"        -> e.getMessage,
+              ),
+            )
+            throw new Error(
+              s"Ref type mismatch: Cannot assign ${elem.nodeName} to ref of type ${refHook.getClass.getName}",
+            )
+        }
       }
 
       children foreach { child =>
