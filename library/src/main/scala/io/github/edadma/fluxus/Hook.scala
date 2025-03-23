@@ -232,52 +232,6 @@ trait RefHook extends Hook {
   * @return
   *   A RefObject with a mutable .current property
   */
-//def useRef[T](initialValue: T = null.asInstanceOf[T]): RefHook & { type RefType = T } = {
-//  val instance = ComponentInstance.current.getOrElse(
-//    throw new Error("Hooks must be called within component render"),
-//  )
-//
-//  // During render, we should never try to access a hook index
-//  // that's beyond what we had in the previous render
-//  if (instance.hooks.nonEmpty && instance.hookIndex >= instance.hooks.length) {
-//    throw new Error(
-//      "Hook called conditionally. Hooks must be called in the exact same order on every render.",
-//    )
-//  }
-//
-//  // Create or reuse ref hook
-//  val hook = instance.hooks.lift(instance.hookIndex) match {
-//    case Some(h: RefHook) =>
-//      h.asInstanceOf[RefHook & { type RefType = T }]
-//
-//    case Some(h) =>
-//      throw new Error(
-//        s"Hook mismatch: expected RefHook but found ${h.getClass.getSimpleName} at index ${instance.hookIndex}",
-//      )
-//
-//    case None =>
-//      // Create a generic ref hook for any type
-//      val newHook = new RefHook {
-//        type RefType = T
-//        var current: T = initialValue
-//
-//        override def toString: String = s"RefHook($current)"
-//      }
-//      instance.hooks = instance.hooks :+ newHook
-//      newHook
-//  }
-//
-//  instance.hookIndex += 1
-//  hook
-//}
-
-/** Creates a mutable ref object that persists for the lifetime of the component.
-  *
-  * @param initialValue
-  *   The initial value for the ref (defaults to null)
-  * @return
-  *   A RefObject with a mutable .current property
-  */
 def useRef[T](initialValue: T = null.asInstanceOf[T]): RefHook & { type RefType = T } = {
   val instance = ComponentInstance.current.getOrElse(
     throw new Error("Hooks must be called within component render"),
