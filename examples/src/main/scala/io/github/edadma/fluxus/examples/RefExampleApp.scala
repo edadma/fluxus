@@ -159,9 +159,9 @@ object RefExampleApp {
   case class MeasureExampleProps()
 
   def MeasureExample(props: MeasureExampleProps): FluxusNode = {
-    val boxRef                               = useRef[dom.html.Div]()
-    val (size, setSize, _)                   = useState("Measure me")
-    val (showBig, setShowBig, updateShowBig) = useState(false)
+    val boxRef                      = useRef[dom.html.Div]()
+    val (size, setSize, _)          = useState("Measure me")
+    val (showBig, _, updateShowBig) = useState(false)
 
     // Measure the element when size changes
     useEffect(
