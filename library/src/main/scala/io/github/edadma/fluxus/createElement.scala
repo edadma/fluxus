@@ -64,6 +64,8 @@ def strokeWidth: String = "strokeWidth"
 def points: String      = "points"
 def xmlns: String       = "xmlns"
 def d: String           = "d"
+def width: String       = "width"
+def height: String      = "height"
 
 // Event helpers
 def onClick: String       = "onClick"
