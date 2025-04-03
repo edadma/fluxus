@@ -52,6 +52,7 @@ def max: String             = "max"
 def accept: String          = "accept"
 def multiple: String        = "multiple"
 def step: String            = "step"
+def autofocus: String       = "autofocus"
 
 def key: String   = "key"
 def key_ : String = "key"
