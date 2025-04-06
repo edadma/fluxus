@@ -15,7 +15,7 @@ object DemoApp:
       Footer <> (),
     )
 
-  def Navbar: () => FluxusNode = () =>
+  val Navbar: () => FluxusNode = () =>
     div(
       cls := "navbar bg-base-100 shadow-lg",
       div(
@@ -34,7 +34,7 @@ object DemoApp:
 
   case class MainContentProps(title: String)
 
-  def MainContent: MainContentProps => FluxusNode =
+  val MainContent: MainContentProps => FluxusNode =
     case MainContentProps(title) =>
       div(
         cls := "hero bg-base-100 rounded-lg shadow-xl my-8",
@@ -58,7 +58,7 @@ object DemoApp:
       icon: String,
   )
 
-  def FeatureCard: FeatureCardProps => FluxusNode =
+  val FeatureCard: FeatureCardProps => FluxusNode =
     case FeatureCardProps(title, description, icon) =>
       div(
         cls := "card w-96 bg-base-100 shadow-xl",
@@ -78,7 +78,7 @@ object DemoApp:
       )
 
   // And update the card grid to use proper Hero Icon names
-  def CardGrid: () => FluxusNode = () =>
+  val CardGrid: () => FluxusNode = () =>
     div(
       cls := "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-8",
       Vector(
@@ -100,7 +100,7 @@ object DemoApp:
       ).map(props => FeatureCard <> props),
     )
 
-  def Footer: () => FluxusNode = () =>
+  val Footer: () => FluxusNode = () =>
     footer(
       cls := "footer footer-center p-10 bg-base-100 text-base-content rounded",
       div(

@@ -34,7 +34,7 @@ object JSONPlaceholderApp:
       UsersTable <> (),
     )
 
-  def UsersTable: () => FluxusNode = () => {
+  val UsersTable: () => FluxusNode = () => {
     val (users, retry) = useFetch[List[User]](
       url = "https://jsonplaceholder.typicode.com/users",
       options = FetchOptions(
