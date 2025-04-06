@@ -335,6 +335,10 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
 
   // Reuse instance if keys match (or both have no key) and component types match
   if (oldKey == newKey && sameType) {
+    val ops = if (old.props != next.props) {
+      Seq(RerenderComponent(old, next))
+    } else Nil
+
     // Transfer the instance and maintain all its state
     old.instance.foreach { instance =>
       next.instance = Some(instance)
@@ -350,13 +354,11 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
       Map(
         "oldInstanceId" -> old.instance.map(_.id).getOrElse("none"),
         "newInstanceId" -> next.instance.map(_.id).getOrElse("none"),
-        "sameInstance"  -> old.instance.zip(next.instance).map(_._1 eq _._2).getOrElse(false).toString,
+        "sameInstance"  -> old.instance.zip(next.instance).exists(_._1 eq _._2).toString,
       ),
     )
 
-    if (old.props != next.props) {
-      Seq(RerenderComponent(old, next))
-    } else Nil
+    ops
   } else {
     // Different keys or component types means treat as different components
     Seq(ReplaceNode(old, next))
