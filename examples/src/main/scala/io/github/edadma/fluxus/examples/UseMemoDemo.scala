@@ -18,7 +18,7 @@ object UseMemoDemo {
     )
   }
 
-  def FibonacciCalculator: () => FluxusNode = () => {
+  val FibonacciCalculator: () => FluxusNode = () => {
     // State for the input number
     val (number, setNumber, _) = useState(35)
 
