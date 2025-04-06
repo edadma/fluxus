@@ -12,6 +12,7 @@ implicit class FunctionComponent[P <: Product](f: P => FluxusNode):
       key = props.productElementNames.zip(props.productIterator)
         .find(_._1 == "key")
         .map(_._2.toString),
+      componentHash = System.identityHashCode(f),
     )
 
 implicit class RefFunctionComponent[P <: Product](f: (P, RefHook) => FluxusNode):
@@ -25,6 +26,7 @@ implicit class RefFunctionComponent[P <: Product](f: (P, RefHook) => FluxusNode)
       key = propsWithRef._1.productElementNames.zip(propsWithRef._1.productIterator)
         .find(_._1 == "key")
         .map(_._2.toString),
+      componentHash = System.identityHashCode(f),
     )
 
 implicit class ProplessComponent(f: () => FluxusNode):
@@ -34,4 +36,5 @@ def noPropsComponentNode(f: () => FluxusNode) =
   ComponentNode(
     component = _ => f(), // Ignore the Any parameter and just call f
     props = noProps,
+    componentHash = System.identityHashCode(f),
   )

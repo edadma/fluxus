@@ -108,7 +108,7 @@ def createDOMNode(node: FluxusNode): Node = {
 
       elem
 
-    case comp @ ComponentNode(component, props, _, _, _, _) =>
+    case comp @ ComponentNode(component, props, _, _, _, _, hash) =>
       logger.debug(
         "Creating component node",
         category = "DOM",
@@ -116,6 +116,7 @@ def createDOMNode(node: FluxusNode): Node = {
         Map(
           "componentType" -> props.getClass.getSimpleName,
           "props"         -> props.toString,
+          "hash"          -> hash,
         ),
       )
 

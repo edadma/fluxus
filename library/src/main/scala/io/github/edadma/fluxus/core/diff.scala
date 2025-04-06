@@ -317,12 +317,12 @@ private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOper
   val oldKey = old.key
   val newKey = next.key
   println((
-    old.component.hashCode(),
-    System.identityHashCode(old.component).toString,
-    next.component.hashCode(),
-    System.identityHashCode(next.component).toString,
+    old.componentHash,
+    next.componentHash,
   ))
-  val sameType = old.component.getClass == next.component.getClass
+  val sameType = old.componentHash != 0 &&
+    next.componentHash != 0 &&
+    old.componentHash == next.componentHash
 
   logger.debug(
     "Diffing components",
