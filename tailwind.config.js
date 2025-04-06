@@ -3,7 +3,7 @@
 module.exports = {
   // Specify the paths to all of your template files
   content: [
-    './examples/target/scala-3.6.4/examples-fastopt/**/*.js', // Your Scala.js source files
+    './examples/target/**/*.js', // Your Scala.js source files
     './index.html',         // Your HTML files
   ],
   daisyui: {
