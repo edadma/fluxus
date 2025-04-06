@@ -155,7 +155,7 @@ class StateTests extends AsyncDOMSpec {
     val container = getContainer
     case class TestProps()
 
-    def TestComponent(props: TestProps): FluxusNode = {
+    val TestComponent = (props: TestProps) => {
       val (count, _, _) = useState(0)
       div(count.toString)
     }
@@ -174,7 +174,7 @@ class StateTests extends AsyncDOMSpec {
 
     case class TestProps(trigger: Int)
 
-    def TestComponent(props: TestProps): FluxusNode = {
+    val TestComponent = (props: TestProps) => {
       renderCount += 1
       val currentInstance = ComponentInstance.current
 
@@ -186,7 +186,7 @@ class StateTests extends AsyncDOMSpec {
           "trigger"            -> props.trigger.toString,
           "instanceId"         -> currentInstance.map(_.id).getOrElse("none"),
           "previousInstanceId" -> lastInstance.map(_.id).getOrElse("none"),
-          "sameInstance"       -> currentInstance.zip(lastInstance).map(_._1 eq _._2).getOrElse(false).toString,
+          "sameInstance"       -> currentInstance.zip(lastInstance).exists(_._1 eq _._2).toString,
         ),
       )
 
@@ -234,7 +234,7 @@ class StateTests extends AsyncDOMSpec {
 
     case class StabilityTestProps(value: Int)
 
-    def StabilityTestComponent(props: StabilityTestProps): FluxusNode = {
+    val StabilityTestComponent = (props: StabilityTestProps) => {
       logger.debug(
         "Rendering StabilityTestComponent",
         category = "Test",
@@ -289,7 +289,7 @@ class StateTests extends AsyncDOMSpec {
 
     case class CounterProps()
 
-    def Counter(props: CounterProps): FluxusNode = {
+    val Counter = (props: CounterProps) => {
       renderCount += 1
       val (count, _, updateCount) = useState(0)
 
@@ -324,7 +324,7 @@ class StateTests extends AsyncDOMSpec {
 
     case class MultiCounterProps()
 
-    def MultiCounterComponent(props: MultiCounterProps): FluxusNode = {
+    val MultiCounterComponent = (props: MultiCounterProps) => {
       renderCount += 1
       logger.debug(
         "Rendering MultiCounterComponent",
@@ -444,7 +444,7 @@ class StateTests extends AsyncDOMSpec {
 
     case class CounterProps()
 
-    def CounterComponent(props: CounterProps): FluxusNode = {
+    val CounterComponent = (props: CounterProps) => {
       renderCount += 1
       logger.debug(
         "Rendering CounterComponent",
@@ -509,7 +509,7 @@ class StateTests extends AsyncDOMSpec {
 
     case class ComplexUpdateProps()
 
-    def ComplexUpdateComponent(props: ComplexUpdateProps) = {
+    val ComplexUpdateComponent = (props: ComplexUpdateProps) => {
       val (count1, _, updateCount1) = useState(0)
       val (count2, _, updateCount2) = useState(10)
 
@@ -556,7 +556,7 @@ class StateTests extends AsyncDOMSpec {
       div()
     }
 
-    def ParentComponent(props: TrackedHookProps) = {
+    val ParentComponent = (props: TrackedHookProps) => {
       if (props.visible) {
         ChildWithHooks <> ()
       } else {
@@ -585,7 +585,7 @@ class StateTests extends AsyncDOMSpec {
   )*/ {
     val container = getContainer
 
-    def DynamicStateComponent = () => {
+    val DynamicStateComponent = () => {
       val (stats, setStats, _) = useState(Map[String, Double]())
 
       useEffect(

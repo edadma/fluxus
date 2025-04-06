@@ -24,7 +24,7 @@ class EffectTests extends AsyncDOMSpec {
 
     case class EffectTestProps()
 
-    def EffectTestComponent(props: EffectTestProps) = {
+    val EffectTestComponent = (props: EffectTestProps) => {
       logger.debug(
         "Rendering EffectTestComponent",
         category = "Test",
@@ -87,7 +87,7 @@ class EffectTests extends AsyncDOMSpec {
     // Props with a value that we'll change
     case class DependencyTestProps(value: Int)
 
-    def DependencyTestComponent(props: DependencyTestProps): FluxusNode = {
+    val DependencyTestComponent = (props: DependencyTestProps) => {
       logger.debug(
         "Rendering DependencyTest component",
         category = "Test",
@@ -179,7 +179,7 @@ class EffectTests extends AsyncDOMSpec {
     val container      = getContainer
     var executionOrder = Vector[String]()
 
-    def MultiEffectComponent = () => {
+    val MultiEffectComponent = () => {
       useEffect(() => {
         executionOrder = executionOrder :+ "first"
         () => executionOrder = executionOrder :+ "cleanup first"
@@ -218,7 +218,7 @@ class EffectTests extends AsyncDOMSpec {
     val container      = getContainer
     var executionOrder = Vector[String]()
 
-    def ChildComponent = () => {
+    val ChildComponent = () => {
       useEffect(() => {
         executionOrder = executionOrder :+ "child"
         () => executionOrder = executionOrder :+ "cleanup child"
@@ -226,7 +226,7 @@ class EffectTests extends AsyncDOMSpec {
       div("child")
     }
 
-    def ParentComponent = () => {
+    val ParentComponent = () => {
       useEffect(() => {
         executionOrder = executionOrder :+ "parent"
         () => executionOrder = executionOrder :+ "cleanup parent"
@@ -243,20 +243,5 @@ class EffectTests extends AsyncDOMSpec {
       // Parent effects should run before child effects
       executionOrder shouldBe Vector("parent", "child")
     }
-//      .map { _ =>
-//        // Unmount
-//        reconcile(Some(ParentComponent <> ()), None, container)
-//      }
-//      .flatMap { _ =>
-//        eventually {
-//          // Cleanup should happen in reverse order
-//          executionOrder shouldBe Vector(
-//            "parent",
-//            "child",
-//            "cleanup child",
-//            "cleanup parent",
-//          )
-//        }
-//      }
   }
 }

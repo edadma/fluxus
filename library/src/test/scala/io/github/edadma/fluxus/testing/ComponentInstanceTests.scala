@@ -10,7 +10,7 @@ class ComponentInstanceTests extends AnyDOMSpec {
 
     case class Props(value: String)
 
-    def TestComponent(props: Props) = {
+    val TestComponent = (props: Props) => {
       // Capture the actual instance
       capturedInstance = ComponentInstance.current
 
@@ -42,12 +42,12 @@ class ComponentInstanceTests extends AnyDOMSpec {
     case class ChildProps(label: String)
     case class ParentProps(childLabel: String)
 
-    def ChildComponent(props: ChildProps) = {
+    val ChildComponent = (props: ChildProps) => {
       childId = ComponentInstance.current.map(_.id).getOrElse("none")
       div(props.label)
     }
 
-    def ParentComponent(props: ParentProps) = {
+    val ParentComponent = (props: ParentProps) => {
       parentId = ComponentInstance.current.map(_.id).getOrElse("none")
       div(
         "Parent",
@@ -90,6 +90,7 @@ class ComponentInstanceTests extends AnyDOMSpec {
 
     // Initial render
     val node = OuterComponent <> OuterProps(instance => outerCapture = Some(instance))
+
     createDOM(node, container)
 
     // Verify correct instance scoping
