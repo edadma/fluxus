@@ -13,7 +13,7 @@ class UseMemoTests extends AsyncDOMSpec {
 
     case class TestProps(value: Int, triggerRender: Int)
 
-    def TestComponent(props: TestProps): FluxusNode = {
+    val TestComponent = (props: TestProps) => {
       // Use memo to compute a value based on props.value
       val computed = useMemo(
         () => {
@@ -65,7 +65,7 @@ class UseMemoTests extends AsyncDOMSpec {
     case class ComplexDep(id: String, value: Int)
     case class ComplexProps(dep: ComplexDep, unrelated: String)
 
-    def ComplexTestComponent(props: ComplexProps): FluxusNode = {
+    val ComplexTestComponent = (props: ComplexProps) => {
       val computed = useMemo(
         () => {
           computeCount += 1
@@ -129,7 +129,7 @@ class UseMemoTests extends AsyncDOMSpec {
 
     case class EmptyDepsTestProps(value: Int)
 
-    def EmptyDepsComponent(props: EmptyDepsTestProps): FluxusNode = {
+    val EmptyDepsComponent = (props: EmptyDepsTestProps) => {
       val computed = useMemo(
         () => {
           computeCount += 1
@@ -274,7 +274,7 @@ class UseMemoTests extends AsyncDOMSpec {
 
     case class MultiMemoProps(value1: Int, value2: String)
 
-    def MultiMemoComponent(props: MultiMemoProps): FluxusNode = {
+    val MultiMemoComponent = (props: MultiMemoProps) => {
       // First memo depending on value1
       val computed1 = useMemo(
         () => {
@@ -352,7 +352,7 @@ class UseMemoTests extends AsyncDOMSpec {
     case class ConditionalMemoProps(condition: Boolean, value: Int)
 
     // This should throw an error because hooks must be called in same order
-    def ConditionalMemoComponent(props: ConditionalMemoProps): FluxusNode = {
+    val ConditionalMemoComponent = (props: ConditionalMemoProps) => {
       // First hook (always present)
       val (state, setState, _) = useState(0)
 

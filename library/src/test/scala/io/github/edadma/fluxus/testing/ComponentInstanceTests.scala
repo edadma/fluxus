@@ -10,7 +10,7 @@ class ComponentInstanceTests extends AnyDOMSpec {
 
     case class Props(value: String)
 
-    def TestComponent(props: Props) = {
+    val TestComponent = (props: Props) => {
       // Capture the actual instance
       capturedInstance = ComponentInstance.current
 

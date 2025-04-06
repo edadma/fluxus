@@ -87,7 +87,7 @@ class EffectTests extends AsyncDOMSpec {
     // Props with a value that we'll change
     case class DependencyTestProps(value: Int)
 
-    def DependencyTestComponent(props: DependencyTestProps): FluxusNode = {
+    val DependencyTestComponent = (props: DependencyTestProps) => {
       logger.debug(
         "Rendering DependencyTest component",
         category = "Test",

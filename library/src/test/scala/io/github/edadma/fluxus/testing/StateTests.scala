@@ -174,7 +174,7 @@ class StateTests extends AsyncDOMSpec {
 
     case class TestProps(trigger: Int)
 
-    def TestComponent(props: TestProps): FluxusNode = {
+    val TestComponent = (props: TestProps) => {
       renderCount += 1
       val currentInstance = ComponentInstance.current
 
@@ -234,7 +234,7 @@ class StateTests extends AsyncDOMSpec {
 
     case class StabilityTestProps(value: Int)
 
-    def StabilityTestComponent(props: StabilityTestProps): FluxusNode = {
+    val StabilityTestComponent = (props: StabilityTestProps) => {
       logger.debug(
         "Rendering StabilityTestComponent",
         category = "Test",
