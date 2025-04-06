@@ -6,9 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "tailwind:build": "tailwindcss -i ./examples/src/main/resources/styles/tailwind.css -o ./output.css --minify",
-    "tailwind:watch": "tailwindcss -i ./examples/src/main/resources/styles/tailwind.css -o ./output.css --watch"
+    "preview": "vite preview"
   },
   "keywords": [],
   "author": "",
