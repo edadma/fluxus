@@ -16,7 +16,7 @@ object RefExampleApp {
   // Example 1: Form with focusable inputs
   case class FocusableFormProps(title: String)
 
-  def FocusableForm(props: FocusableFormProps): FluxusNode = {
+  val FocusableForm = (props: FocusableFormProps) => {
     logger.debug(
       "About to call first useRef in FocusableForm",
       category = "RefExample",
@@ -130,7 +130,7 @@ object RefExampleApp {
     )
   }
 
-  def AutofocusExample(props: AutofocusExampleProps): FluxusNode = {
+  val AutofocusExample = (props: AutofocusExampleProps) => {
     val inputRef = useRef[dom.html.Input]()
 
     // Focus the input on mount
@@ -158,7 +158,7 @@ object RefExampleApp {
   // Example 3: Measuring DOM elements
   case class MeasureExampleProps()
 
-  def MeasureExample(props: MeasureExampleProps): FluxusNode = {
+  val MeasureExample = (props: MeasureExampleProps) => {
     val boxRef                      = useRef[dom.html.Div]()
     val (size, setSize, _)          = useState("Measure me")
     val (showBig, _, updateShowBig) = useState(false)
