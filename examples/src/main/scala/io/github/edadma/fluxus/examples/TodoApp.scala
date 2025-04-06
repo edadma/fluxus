@@ -14,7 +14,7 @@ enum Filter:
 object TodoApp:
   def App: FluxusNode = TodoApp <> TodoProps()
 
-  def TodoApp(props: TodoProps): FluxusNode = {
+  val TodoApp = (props: TodoProps) => {
     // State hooks
     val (todos, _, updateTodos)      = useState(Vector[Todo]())
     val (newTodo, setNewTodo, _)     = useState("")

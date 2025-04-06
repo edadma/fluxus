@@ -5,4 +5,4 @@ import io.github.edadma.logger.LogLevel
 
 @main def run(): Unit =
 //  logger.setLogLevel(LogLevel.DEBUG)
-  render(SignalDemoApp.App, "app")
+  render(TodoApp.App, "app")
