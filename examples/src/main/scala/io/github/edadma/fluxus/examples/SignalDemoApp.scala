@@ -62,7 +62,7 @@ object SignalDemoApp {
       ),
     )
 
-  def Controls: () => FluxusNode = () => {
+  val Controls: () => FluxusNode = () => {
     val count = useSignal(counterSignal)
 
     div(
@@ -99,7 +99,7 @@ object SignalDemoApp {
     )
   }
 
-  def Stats: () => FluxusNode = () => {
+  val Stats: () => FluxusNode = () => {
     val count = useSignal(counterSignal)
 
     div(
@@ -129,7 +129,7 @@ object SignalDemoApp {
     )
   }
 
-  def MultiplyDisplay: () => FluxusNode = () => {
+  val MultiplyDisplay: () => FluxusNode = () => {
     val count      = useSignal(counterSignal)
     val multiplier = useSignal(multiplierSignal)
 
@@ -174,7 +174,7 @@ object SignalDemoApp {
     )
   }
 
-  def HistoryDisplay: () => FluxusNode = () => {
+  val HistoryDisplay: () => FluxusNode = () => {
     val count                               = useSignal(counterSignal)
     val (lastCount, setLastCount, _)        = useState(count)
     val (graphPoints, _, updateGraphPoints) = useState(Vector[Int]())
