@@ -83,9 +83,3 @@ _config.yml
 index.md
 ./docs/releases
 0.0.1.md
-
-# querystate library code (for debugging)
-./library/src/main/scala/io/github/edadma/fluxus/querystate
-QueryState.scala
-./examples/src/main/scala/io/github/edadma/fluxus/querystate/examples
-QueryStateApp.scala
