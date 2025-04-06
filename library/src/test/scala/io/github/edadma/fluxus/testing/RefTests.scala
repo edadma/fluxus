@@ -13,7 +13,7 @@ class RefTests extends AsyncDOMSpec {
 
     case class RefTestProps(counter: Int)
 
-    def RefTestComponent(props: RefTestProps): FluxusNode = {
+    val RefTestComponent = (props: RefTestProps) => {
       val ref = useRef[dom.Element]()
 
       if (props.counter == 1) {

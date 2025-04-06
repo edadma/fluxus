@@ -16,8 +16,8 @@ sealed trait FluxusNode {
       s"ElementNode($tag, attrs=$attrs, children=${children.length})"
     case TextNode(text, _, _) =>
       s"TextNode($text)"
-    case ComponentNode(component, props, _, _, key, _) =>
-      s"ComponentNode(${props.getClass.getSimpleName}, key=$key)"
+    case ComponentNode(component, props, _, _, key, _, hash) =>
+      s"ComponentNode(${props.getClass.getSimpleName}, key=$key, hash=$hash)"
     case RawNode(element, _, _, key) =>
       s"RawNode(${element.tagName}, key=$key)"
   }
@@ -74,6 +74,7 @@ case class ComponentNode(
     var domNode: Option[Node] = None,
     key: Option[String] = None,
     var instance: Option[ComponentInstance] = None,
+    componentHash: Int = 0, // Hash code for the original component function
 ) extends FluxusNode {
   override def hashCode: Int = {
     val prime  = 31
