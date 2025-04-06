@@ -2,6 +2,7 @@ package io.github.edadma.fluxus.querystate.examples
 
 import io.github.edadma.fluxus.*
 import io.github.edadma.fluxus.querystate.{QueryState, useQueryParam}
+import io.github.edadma.logger.LogLevel
 import org.scalajs.dom
 
 @main def run(): Unit = {
@@ -13,6 +14,8 @@ import org.scalajs.dom
       "sort"   -> "newest",
     ),
   )
+
+  logger.setLogLevel(LogLevel.DEBUG)
 
   // Render app to DOM
   render(App, "app")
