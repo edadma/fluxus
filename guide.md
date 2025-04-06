@@ -16,33 +16,124 @@ Fluxus is a minimalist UI framework built with Scala.js, inspired by component-b
 ### Key Components
 
 1. **Component Model**:
-   - Components are functions that take props and return `FluxusNode`
-   - Support for stateless and stateful components
-   - Component instances maintain state and lifecycle
+    - Components are functions that take props and return `FluxusNode`
+    - Support for stateless and stateful components
+    - Component instances maintain state and lifecycle
 
 2. **Virtual DOM**:
-   - `FluxusNode` hierarchy (ElementNode, TextNode, ComponentNode, RawNode)
-   - Efficient diffing algorithm to minimize DOM operations
-   - Keyed reconciliation for efficient list rendering
+    - `FluxusNode` hierarchy (ElementNode, TextNode, ComponentNode, RawNode)
+    - Efficient diffing algorithm to minimize DOM operations
+    - Keyed reconciliation for efficient list rendering
 
 3. **State Management**:
-   - Hook-based state system (`useState`, `useEffect`)
-   - Batched state updates for optimal performance
-   - Signal-based shared state with Airstream integration
+    - Hook-based state system (`useState`, `useEffect`)
+    - Batched state updates for optimal performance
+    - Signal-based shared state with Airstream integration
 
 4. **Event Handling**:
-   - DOM event binding with type-safe handlers
-   - Support for synthetic events
+    - DOM event binding with type-safe handlers
+    - Support for synthetic events
 
 5. **Data Fetching**:
-   - `useFetch` hook for declarative data fetching
-   - Support for loading, error, and success states
-   - Built-in retry logic
+    - `useFetch` hook for declarative data fetching
+    - Support for loading, error, and success states
+    - Built-in retry logic
 
 6. **Testing**:
-   - jsdom-based DOM simulation
-   - AsyncDOMSpec for asynchronous testing
-   - MockServer for backend API simulation
+    - jsdom-based DOM simulation
+    - AsyncDOMSpec for asynchronous testing
+    - MockServer for backend API simulation
+
+## Component Declaration and Usage
+
+### Component Patterns
+
+Fluxus has strict requirements for how components must be declared and used to ensure proper reconciliation and state management. There are two main patterns depending on whether a component needs props:
+
+#### 1. Components with Props
+
+Components that require props must be defined as functions that accept a props parameter and return a `FluxusNode`:
+
+```scala
+// Define a case class for props
+case class GreetingProps(name: String)
+
+// CORRECT: Define component as a function that takes props
+def Greeting = (props: GreetingProps) => {
+  div(s"Hello, ${props.name}!")
+}
+
+// Usage:
+Greeting <> GreetingProps("World")
+```
+
+#### 2. Components without Props
+
+Components that don't need props must be defined as functions that accept an empty tuple and return a `FluxusNode`:
+
+```scala
+// CORRECT: Define no-props component as a function that takes unit
+def SimpleComponent = () => {
+  div("Simple component")
+}
+
+// Usage:
+SimpleComponent <> ()
+```
+
+#### 3. Application Entry Point Exception
+
+The main application entry point component is the only exception to these patterns. For convenience, it can be defined as a method that returns a `FluxusNode`:
+
+```scala
+// CORRECT (only for app entry point): Define as a method returning FluxusNode
+def App: FluxusNode = {
+  div(
+    h1("Hello Fluxus!"),
+    SimpleComponent <> (),
+    Greeting <> GreetingProps("User")
+  )
+}
+
+// Initial rendering:
+render(App, "app") // Renders to element with id="app"
+```
+
+### Important: Incorrect Component Patterns to Avoid
+
+The following patterns will not work correctly with Fluxus's reconciliation engine:
+
+```scala
+// INCORRECT: Defining non-entry components as methods
+def WrongComponent(): FluxusNode = {
+  div("This won't work properly")
+}
+
+// INCORRECT: Using a method call instead of <> operator
+div(
+  WrongComponent() // This bypasses the reconciliation process
+)
+
+// INCORRECT: Missing the unit parameter for no-props components
+def AnotherWrongComponent = {
+  div("This won't work properly")
+}
+```
+
+### Why These Patterns Matter
+
+The Fluxus reconciliation engine relies on specific component declaration patterns to:
+
+1. **Track Component Identity**: The function reference is used to identify component types
+2. **Maintain Component State**: Hooks like `useState` and `useEffect` are tied to component instances
+3. **Optimize Rendering**: The diffing algorithm compares previous and current renders
+4. **Manage Component Lifecycle**: Mounting, updating, and unmounting events are triggered correctly
+
+Using incorrect patterns might lead to:
+- State reset between renders
+- Effects running more often than expected
+- Performance degradation
+- Unexpected UI behavior
 
 ## API Reference
 
@@ -70,7 +161,7 @@ div(), span(), h1(), p(), button(), input(), etc.
 // Defining a component with props
 case class GreetingProps(name: String)
 
-def Greeting(props: GreetingProps): FluxusNode = {
+def Greeting = (props: GreetingProps) => {
    div(s"Hello, ${props.name}!")
 }
 
@@ -503,9 +594,9 @@ def SearchComponent = () => {
 - For simple components that don't have expensive child renders, `useCallback` might not provide significant benefits
 - The memoization itself has a cost (comparing dependencies, storing references)
 - It's most valuable when:
-   - Passing callbacks to heavy child components that use memoization
-   - Working with complex dependency chains
-   - Integrating with code that expects stable references
+    - Passing callbacks to heavy child components that use memoization
+    - Working with complex dependency chains
+    - Integrating with code that expects stable references
 
 ### Fetch and Data
 
@@ -764,9 +855,9 @@ When `useMemo` is called:
 1. It first gets the current component instance
 2. It checks if a memo hook already exists at the current hook index
 3. If it exists:
-   - It compares the dependencies with the stored dependencies
-   - If they're the same, it returns the stored value
-   - If they're different, it recomputes the value and updates the hook
+    - It compares the dependencies with the stored dependencies
+    - If they're the same, it returns the stored value
+    - If they're different, it recomputes the value and updates the hook
 4. If it doesn't exist, it creates a new memo hook with the computed value
 5. The hook index is incremented
 
@@ -971,7 +1062,7 @@ def ParentComponent = () => {
 }
 
 // Child component that receives stable props
-def ItemList(props: ItemListProps): FluxusNode = {
+def ItemList = (props: ItemListProps) => {
   // This component will only re-render when its props change
   ul(
     cls := "item-list",
@@ -1123,65 +1214,65 @@ def ItemList = () => {
 ## Gotchas and Best Practices
 
 1. **Hook Rules**:
-   - Always call hooks at the top level, never in conditionals
-   - Maintain consistent hook order between renders
-   - Never call hooks outside of component functions
+    - Always call hooks at the top level, never in conditionals
+    - Maintain consistent hook order between renders
+    - Never call hooks outside of component functions
 
 2. **Component Props**:
-   - Use case classes for props
-   - Add `key` property for list items
-   - Consider making props immutable
+    - Use case classes for props
+    - Add `key` property for list items
+    - Consider making props immutable
 
 3. **Performance**:
-   - Use keys for list items
-   - Memoize expensive computations outside render functions
-   - Avoid creating new functions in render path
-   - Keep render functions pure
+    - Use keys for list items
+    - Memoize expensive computations outside render functions
+    - Avoid creating new functions in render path
+    - Keep render functions pure
 
 4. **Event Handling**:
-   - Remember DOM events use camelCase (onClick, onInput, etc.)
-   - For input elements, use `onInput` instead of `onChange` for immediate updates
-   - Prevent default browser behavior with `e.preventDefault()`
+    - Remember DOM events use camelCase (onClick, onInput, etc.)
+    - For input elements, use `onInput` instead of `onChange` for immediate updates
+    - Prevent default browser behavior with `e.preventDefault()`
 
 5. **Testing**:
-   - Use `eventually` for asynchronous assertions
-   - Mock API responses for deterministic tests
-   - Isolate tests with proper cleanup
+    - Use `eventually` for asynchronous assertions
+    - Mock API responses for deterministic tests
+    - Isolate tests with proper cleanup
 
 6. **Error Handling**:
-   - Handle fetch errors gracefully
-   - Provide retry mechanisms
-   - Use try/catch for error boundaries
+    - Handle fetch errors gracefully
+    - Provide retry mechanisms
+    - Use try/catch for error boundaries
 
 7. **Component Structure**:
-   - Keep components small and focused
-   - Extract reusable logic into custom hooks
-   - Follow a clear component hierarchy
+    - Keep components small and focused
+    - Extract reusable logic into custom hooks
+    - Follow a clear component hierarchy
 
 8. **Using Refs Properly**:
-   - Don't overuse refs - prefer declarative approaches when possible
-   - Clean up refs in useEffect's cleanup function
-   - Be careful with ref.current in render functions
-   - Ensure proper type safety when using refs
+    - Don't overuse refs - prefer declarative approaches when possible
+    - Clean up refs in useEffect's cleanup function
+    - Be careful with ref.current in render functions
+    - Ensure proper type safety when using refs
 
 9. **Optimization with useMemo and useCallback**:
-   - Only memoize values that are expensive to compute
-   - Ensure dependency arrays are complete and accurate
-   - Consider the cost of memoization itself
-   - Use callback memoization primarily for child component optimization
+    - Only memoize values that are expensive to compute
+    - Ensure dependency arrays are complete and accurate
+    - Consider the cost of memoization itself
+    - Use callback memoization primarily for child component optimization
 
 10. **Dependency Array Management**:
-   - Include all dependencies that change over time
-   - Avoid putting objects or functions directly in dependency arrays
-   - Use primitive values when possible
-   - Consider extracting values from objects for more precise dependency tracking
+    - Include all dependencies that change over time
+    - Avoid putting objects or functions directly in dependency arrays
+    - Use primitive values when possible
+    - Consider extracting values from objects for more precise dependency tracking
 
 11. **Signal Management**:
-   - Always use Transactions when updating signals
-   - Initialize signals outside components for sharing
-   - Keep signal updates logic together
-   - Organize related signals in logical groupings or stores
-   - Remember that signals maintain their own subscription lifecycle
+    - Always use Transactions when updating signals
+    - Initialize signals outside components for sharing
+    - Keep signal updates logic together
+    - Organize related signals in logical groupings or stores
+    - Remember that signals maintain their own subscription lifecycle
 
 ## Dependencies and Integration
 

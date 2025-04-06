@@ -77,7 +77,6 @@ tailwind.css
 # docs
 ./
 README.md
-guide.md
 ./docs
 _config.yml
 index.md
