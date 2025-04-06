@@ -37,7 +37,7 @@ object MockServerTestApp:
       MockServerDemo <> (),
     )
 
-  def MockServerDemo: () => FluxusNode = () => {
+  val MockServerDemo: () => FluxusNode = () => {
     // Use state to manage different scenarios
     val (scenario, setScenario, _) = useState("idle")
 
