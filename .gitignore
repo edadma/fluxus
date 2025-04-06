@@ -22,7 +22,6 @@ project/plugins/project/
 .bsp/
 
 node_modules/
-output.css
 code.txt
 *.zip
 log
