@@ -10,7 +10,7 @@ object CountersApp:
       Counters <> (),
     )
 
-  def Counters: () => FluxusNode = () =>
+  private val Counters = () =>
     // Track collection of counters
     val (counters, _, updateCounters) = useState(Vector[(String, Int)]())
 
@@ -51,8 +51,8 @@ object CountersApp:
               li(s"Total counters: ${counters.length}"),
               li(s"Sum of all counts: ${counters.map(_._2).sum}"),
               li(s"Average count: ${counters.map(_._2).sum.toDouble / counters.length}"),
-              li(s"Max count: ${counters.max}"),
-              li(s"Min count: ${counters.min}"),
+              li(s"Max count: ${counters.map(_._2).max}"),
+              li(s"Min count: ${counters.map(_._2).min}"),
             ),
           ),
         )
@@ -95,7 +95,7 @@ object CountersApp:
       onRemove: () => Unit,
   )
 
-  def Counter: CounterProps => FluxusNode = props =>
+  private val Counter = (props: CounterProps) =>
     // Local state for hover effect needs to be declared outside the JSX-like structure
     val (isHovering, setHovering, _) = useState(false)
 
