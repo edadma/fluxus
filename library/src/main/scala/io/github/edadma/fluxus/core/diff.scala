@@ -314,15 +314,9 @@ private def diffChildren(
 }
 
 private def diffComponents(old: ComponentNode, next: ComponentNode): Seq[DOMOperation] = {
-  val oldKey = old.key
-  val newKey = next.key
-  println((
-    old.componentHash,
-    next.componentHash,
-  ))
-  val sameType = old.componentHash != 0 &&
-    next.componentHash != 0 &&
-    old.componentHash == next.componentHash
+  val oldKey   = old.key
+  val newKey   = next.key
+  val sameType = old.componentHash != 0 && next.componentHash != 0 && old.componentHash == next.componentHash
 
   logger.debug(
     "Diffing components",
