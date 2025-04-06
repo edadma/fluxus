@@ -159,7 +159,7 @@ class UseMemoTests extends AsyncDOMSpec {
 
     case class NullDepsTestProps()
 
-    def NullDepsComponent(props: NullDepsTestProps): FluxusNode = {
+    val NullDepsComponent = (props: NullDepsTestProps) => {
       // State to force re-renders
       val (counter, setCounter, _) = useState(0)
 
