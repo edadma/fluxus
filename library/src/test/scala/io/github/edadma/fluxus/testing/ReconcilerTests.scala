@@ -171,7 +171,7 @@ class ReconcilerTests extends AnyDOMSpec {
 
     case class Props(value: String)
 
-    def SimpleText(props: Props) = TextNode(props.value, None, None)
+    val SimpleText = (props: Props) => TextNode(props.value, None, None)
 
     val oldNode = SimpleText <> Props("old")
     val newNode = SimpleText <> Props("new")
@@ -196,7 +196,7 @@ class ReconcilerTests extends AnyDOMSpec {
 
     case class Props(value: String)
 
-    def SimpleText(props: Props) = TextNode(props.value, None, None)
+    val SimpleText = (props: Props) => TextNode(props.value, None, None)
 
     val oldNode = SimpleText <> Props("same")
     val newNode = SimpleText <> Props("same")
