@@ -65,7 +65,6 @@ lazy val library = project
       "com.lihaoyi"      %%% "pprint"                      % "0.9.0"  % "test",
       "org.scala-js"     %%% "scalajs-dom"                 % "2.8.0",
       "io.github.edadma" %%% "logger"                      % "0.0.6",
-      "io.github.edadma" %%% "yaml"                        % "0.0.1",
       "dev.zio"          %%% "zio-json"                    % "0.7.39",
       "com.raquo"        %%% "airstream"                   % "17.2.0",
       "org.scala-js"     %%% "scala-js-macrotask-executor" % "1.1.1",
