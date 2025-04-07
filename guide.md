@@ -59,7 +59,7 @@ Components that require props must be defined as functions that accept a props p
 case class GreetingProps(name: String)
 
 // CORRECT: Define component as a function that takes props
-def Greeting = (props: GreetingProps) => {
+val Greeting = (props: GreetingProps) => {
   div(s"Hello, ${props.name}!")
 }
 
@@ -73,7 +73,7 @@ Components that don't need props must be defined as functions that accept an emp
 
 ```scala
 // CORRECT: Define no-props component as a function that takes unit
-def SimpleComponent = () => {
+val SimpleComponent = () => {
   div("Simple component")
 }
 
@@ -114,9 +114,9 @@ div(
   WrongComponent() // This bypasses the reconciliation process
 )
 
-// INCORRECT: Missing the unit parameter for no-props components
-def AnotherWrongComponent = {
-  div("This won't work properly")
+// INCORRECT: Defining components as methods (use val instead)
+def WrongComponent = (props: Props) => {
+   div("This won't work properly")
 }
 ```
 
@@ -134,6 +134,10 @@ Using incorrect patterns might lead to:
 - Effects running more often than expected
 - Performance degradation
 - Unexpected UI behavior
+
+> **Note:** Using `val` instead of `def` to declare components is critical for maintaining stable hash codes.
+> Components defined with `def` may create new function instances on each render, breaking reconciliation
+> and causing unexpected state resets or performance issues.
 
 ## API Reference
 
