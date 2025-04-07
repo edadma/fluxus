@@ -134,7 +134,7 @@ Using incorrect patterns might lead to:
 - Effects running more often than expected
 - Performance degradation
 - Unexpected UI behavior
-
+777
 > **Note:** Using `val` instead of `def` to declare components is critical for maintaining stable hash codes.
 > Components defined with `def` may create new function instances on each render, breaking reconciliation
 > and causing unexpected state resets or performance issues.
@@ -165,7 +165,7 @@ div(), span(), h1(), p(), button(), input(), etc.
 // Defining a component with props
 case class GreetingProps(name: String)
 
-def Greeting = (props: GreetingProps) => {
+val Greeting = (props: GreetingProps) => {
    div(s"Hello, ${props.name}!")
 }
 
@@ -173,7 +173,8 @@ def Greeting = (props: GreetingProps) => {
 Greeting <> GreetingProps("World")
 
 // Component without props
-def SimpleComponent = () => div("Simple component")
+val SimpleComponent = () => div("Simple component")
+
 SimpleComponent <> ()
 ```
 
@@ -300,7 +301,7 @@ Transaction { _ =>
 val counterSignal = Var[Int](0)
 
 // Component A - displays and increments counter
-def CounterDisplay = () => {
+val CounterDisplay = () => {
   val count = useSignal(counterSignal)
   
   div(
@@ -313,7 +314,7 @@ def CounterDisplay = () => {
 }
 
 // Component B - also displays counter and can reset it
-def CounterReset = () => {
+val CounterReset = () => {
   val count = useSignal(counterSignal)
   
   div(
@@ -400,7 +401,7 @@ val CustomInput = forwardRef[InputProps] { (props, ref) =>
 }
 
 // In parent component
-def ParentComponent = () => {
+val ParentComponent = () => {
   val inputRef = useRef[dom.html.Input]()
   
   div(
@@ -559,7 +560,7 @@ def useCallback[T](callback: T, deps: Seq[Any]): T =
 
 **Example: Combined with Other Hooks**:
 ```scala
-def SearchComponent = () => {
+val SearchComponent = () => {
   val (query, setQuery, _) = useState("")
   val (results, setResults, _) = useState(List[Result]())
   
@@ -880,7 +881,7 @@ It leverages the same memoization logic but specifically for function references
 ### Form Handling
 
 ```scala
-def FormComponent = () => {
+val FormComponent = () => {
   val (formData, setFormData, updateFormData) = useState(Map[String, String]())
   
   def handleChange(e: dom.Event) = {
@@ -908,7 +909,7 @@ def FormComponent = () => {
 ### Data Loading
 
 ```scala
-def DataComponent = () => {
+val DataComponent = () => {
   val (data, retry) = useFetch[List[Item]]("/api/items")
   
   div(
@@ -927,7 +928,7 @@ def DataComponent = () => {
 ### Derived State
 
 ```scala
-def DerivedStateComponent = () => {
+val DerivedStateComponent = () => {
   val (items, setItems, _) = useState(List[Item]())
   
   // Derived state
@@ -967,7 +968,7 @@ def useWindowSize(): (Int, Int) = {
 }
 
 // Use custom hook
-def ResponsiveComponent = () => {
+val ResponsiveComponent = () => {
   val (width, height) = useWindowSize()
   
   div(s"Window size: $width x $height")
@@ -977,7 +978,7 @@ def ResponsiveComponent = () => {
 ### Using Refs to Integrate with Third-party Libraries
 
 ```scala
-def ThirdPartyIntegration = () => {
+val ThirdPartyIntegration = () => {
   val chartRef = useRef[dom.html.Div]()
   val chartInstanceRef = useRef[Any](null) // Store the library instance
   
@@ -1028,7 +1029,7 @@ def ThirdPartyIntegration = () => {
 ### Optimizing Child Renders with useCallback and useMemo
 
 ```scala
-def ParentComponent = () => {
+val ParentComponent = () => {
   val (items, setItems, _) = useState(List[Item]())
   val (query, setQuery, _) = useState("")
   
@@ -1066,7 +1067,7 @@ def ParentComponent = () => {
 }
 
 // Child component that receives stable props
-def ItemList = (props: ItemListProps) => {
+val ItemList = (props: ItemListProps) => {
   // This component will only re-render when its props change
   ul(
     cls := "item-list",
@@ -1085,7 +1086,7 @@ def ItemList = (props: ItemListProps) => {
 ### Measuring DOM Elements with useRef and useEffect
 
 ```scala
-def MeasurementComponent = () => {
+val MeasurementComponent = () => {
   val elementRef = useRef[dom.html.Div]()
   val (dimensions, setDimensions, _) = useState(Map[String, Double]())
   
@@ -1166,7 +1167,7 @@ object AppState {
 }
 
 // Using the signals in components
-def Header = () => {
+val Header = () => {
   val isLoggedIn = useSignal(AppState.isLoggedIn)
   val user = useSignal(AppState.currentUser)
   
@@ -1189,7 +1190,7 @@ def Header = () => {
   )
 }
 
-def ItemList = () => {
+val ItemList = () => {
   val items = useSignal(AppState.items)
   val selectedId = useSignal(AppState.selectedItemId)
   
