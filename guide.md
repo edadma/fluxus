@@ -159,6 +159,97 @@ div(), span(), h1(), p(), button(), input(), etc.
         svg(), circle(), rect(), path(), etc.
 ```
 
+### ARIA Attributes
+
+Fluxus provides built-in support for WAI-ARIA (Web Accessibility Initiative - Accessible Rich Internet Applications) attributes to help create accessible web applications. These attributes help assistive technologies like screen readers understand the purpose and state of UI elements.
+
+ARIA attributes in Fluxus are implemented with an underscore prefix (`aria_`) to maintain Scala naming conventions while clearly identifying them as accessibility attributes.
+
+```scala
+// Using ARIA attributes
+button(
+  aria_label := "Close dialog",
+  aria_expanded := isExpanded.toString,
+  onClick := (() => closeModal()),
+  "×"
+)
+
+// ARIA with dynamic values
+div(
+  role := "checkbox",
+  aria_checked := isSelected.toString,
+  onClick := (() => toggleSelection()),
+  checkboxLabel
+)
+```
+
+#### Common ARIA Attributes
+
+Fluxus supports these high-priority ARIA attributes:
+
+```scala
+// Essential attributes
+aria_label := "Description"            // Provides text label for elements without visible text
+aria_labelledby := "element-id"        // References another element that labels this element
+aria_describedby := "description-id"   // References elements that describe this element
+aria_hidden := "true"                  // Hides element from assistive technology
+
+// State indicators
+aria_expanded := "false"               // Indicates if a control is expanded or collapsed
+aria_checked := "true"                 // Indicates checked state (checkboxes, radios, etc.)
+aria_selected := "true"                // Indicates selected state of selectable elements
+aria_disabled := "true"                // Indicates element is perceivably disabled
+aria_required := "true"                // Indicates user input is required
+aria_invalid := "true"                 // Indicates input value is invalid
+
+// Relationships
+aria_controls := "element-id"          // Identifies elements controlled by current element
+aria_haspopup := "menu"                // Indicates element triggers a popup
+aria_live := "polite"                  // Indicates region will update (values: off, polite, assertive)
+```
+
+#### Using with Custom Components
+
+ARIA attributes work seamlessly with custom components:
+
+```scala
+// Custom accessible dropdown component
+val Dropdown = (props: DropdownProps) => {
+  val (isOpen, setOpen, _) = useState(false)
+  
+  div(
+    cls := "dropdown",
+    button(
+      onClick := (() => setOpen(!isOpen)),
+      aria_haspopup := "listbox",
+      aria_expanded := isOpen.toString,
+      props.buttonText
+    ),
+    ul(
+      role := "listbox",
+      aria_hidden := (!isOpen).toString,
+      aria_labelledby := props.labelId,
+      props.options.map(option => 
+        li(
+          key := option.id,
+          role := "option",
+          aria_selected := (option.value == props.selectedValue).toString,
+          onClick := (() => props.onSelect(option.value)),
+          option.label
+        )
+      )
+    )
+  )
+}
+```
+
+#### Best Practices
+
+1. **Use semantic HTML elements** when possible before relying on ARIA attributes
+2. **Keep ARIA attributes up-to-date** with component state changes
+3. **Test with screen readers** to verify accessibility implementations
+4. **Consider keyboard navigation** alongside ARIA attributes for complete accessibility
+
 ### Components
 
 ```scala
