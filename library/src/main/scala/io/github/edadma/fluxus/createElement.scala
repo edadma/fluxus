@@ -71,6 +71,7 @@ def strokeLinejoin: String = "strokeLinejoin"
 def cx: String             = "cx"
 def cy: String             = "cy"
 def r: String              = "r"
+def polygon: String        = "polygon"
 
 def aria_label: String            = "aria-label"
 def aria_labelledby: String       = "aria-labelledby"
@@ -270,6 +271,7 @@ def th(contents: Any*): ElementNode       = createElement("th", contents*)
 def thead(contents: Any*): ElementNode    = createElement("thead", contents*)
 def tr(contents: Any*): ElementNode       = createElement("tr", contents*)
 def ul(contents: Any*): ElementNode       = createElement("ul", contents*)
+def caption(contents: Any*): ElementNode  = createElement("caption", contents*)
 
 def svg(contents: Any*): ElementNode      = createElement("svg", contents*)
 def circle(contents: Any*): ElementNode   = createElement("circle", contents*)
