@@ -57,6 +57,9 @@ def rowSpan: String         = "rowSpan"
 def scope: String           = "scope"
 def headers: String         = "headers"
 def abbr: String            = "abbr"
+def readOnly: String        = "readOnly"
+def `for`: String           = "for"
+def for_ : String           = "for"
 
 def key: String   = "key"
 def key_ : String = "key"
@@ -109,6 +112,7 @@ def aria_atomic: String           = "aria-atomic"
 def aria_relevant: String         = "aria-relevant"
 def aria_autocomplete: String     = "aria-autocomplete"
 def aria_level: String            = "aria-level"
+def aria_orientation: String      = "aria-orientation"
 
 // Event helpers
 def onClick: String       = "onClick"
