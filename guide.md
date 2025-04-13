@@ -99,6 +99,131 @@ def App: FluxusNode = {
 render(App, "app") // Renders to element with id="app"
 ```
 
+#### Pattern Matching in Component Definition
+
+Fluxus supports using Scala's pattern matching capabilities when defining components, which offers an elegant way to both destructure props and handle conditional rendering based on prop values.
+
+##### Basic Prop Destructuring
+
+The simplest form uses a partial function with case pattern matching to destructure props:
+
+```scala
+case class UserProfileProps(name: String, email: String, role: String)
+
+// Using pattern matching for prop destructuring
+val UserProfile: UserProfileProps => FluxusNode = {
+  case UserProfileProps(name, email, role) =>
+    div(
+      h2(name),
+      p(email),
+      p(s"Role: $role")
+    )
+}
+
+// Usage remains the same
+UserProfile <> UserProfileProps("John Doe", "john@example.com", "Admin")
+```
+
+This approach eliminates the need to prefix props with `props.` throughout your component, making the code cleaner and more readable.
+
+##### Advanced Pattern Matching for Conditional Rendering
+
+Pattern matching becomes even more powerful when used for different rendering paths based on prop values:
+
+```scala
+case class MessageProps(type: String, content: String, isPriority: Boolean, onDismiss: Option[() => Unit] = None)
+
+// Using multiple cases for conditional rendering
+val Message: MessageProps => FluxusNode = {
+  // Error message with priority
+  case MessageProps("error", content, true, onDismiss) =>
+    div(
+      cls := "message error priority",
+      i(cls := "icon-error"),
+      span(content),
+      onDismiss.map(dismiss => 
+        button(onClick := dismiss, "×")
+      )
+    )
+  
+  // Regular error message
+  case MessageProps("error", content, false, onDismiss) =>
+    div(
+      cls := "message error",
+      span(content),
+      onDismiss.map(dismiss => 
+        button(onClick := dismiss, "×")
+      )
+    )
+  
+  // Success message
+  case MessageProps("success", content, isPriority, onDismiss) =>
+    div(
+      cls := s"message success ${if (isPriority) "priority" else ""}",
+      i(cls := "icon-success"),
+      span(content),
+      onDismiss.map(dismiss => 
+        button(onClick := dismiss, "×")
+      )
+    )
+  
+  // Default for any other type
+  case MessageProps(_, content, isPriority, onDismiss) =>
+    div(
+      cls := s"message ${if (isPriority) "priority" else ""}",
+      span(content),
+      onDismiss.map(dismiss => 
+        button(onClick := dismiss, "×")
+      )
+    )
+}
+```
+
+This pattern matching approach provides several benefits:
+
+1. **Self-documenting code**: Each case clearly shows what kind of component variant it handles
+2. **Type safety**: The compiler ensures all cases are handled
+3. **Separation of concerns**: Each rendering path is cleanly separated
+4. **Elimination of nested conditionals**: Replaces complex if/else trees with declarative cases
+
+When working with complex components that have multiple visual states or variations based on props, this pattern matching approach can greatly improve code readability and maintainability.
+
+##### Combining with Type-Safe Prop Variants
+
+For even more type safety, you can use sealed traits for your props:
+
+```scala
+sealed trait ButtonProps {
+  def onClick: () => Unit
+}
+
+case class PrimaryButtonProps(text: String, onClick: () => Unit) extends ButtonProps
+case class SecondaryButtonProps(text: String, onClick: () => Unit) extends ButtonProps
+case class IconButtonProps(icon: String, label: String, onClick: () => Unit) extends ButtonProps
+
+val Button: ButtonProps => FluxusNode = {
+  case PrimaryButtonProps(text, onClick) =>
+    button(cls := "btn btn-primary", onClick := onClick, text)
+    
+  case SecondaryButtonProps(text, onClick) =>
+    button(cls := "btn btn-secondary", onClick := onClick, text)
+    
+  case IconButtonProps(icon, label, onClick) =>
+    button(
+      cls := "btn btn-icon", 
+      onClick := onClick,
+      aria_label := label,
+      i(cls := s"icon-$icon")
+    )
+}
+
+// Usage
+Button <> PrimaryButtonProps("Save", () => saveData())
+Button <> IconButtonProps("trash", "Delete item", () => deleteItem())
+```
+
+This approach combines the power of Scala's type system with pattern matching to create highly expressive and type-safe component definitions.
+
 ### Important: Incorrect Component Patterns to Avoid
 
 The following patterns will not work correctly with Fluxus's reconciliation engine:
@@ -253,15 +378,21 @@ val Dropdown = (props: DropdownProps) => {
 ### Components
 
 ```scala
-// Defining a component with props
+// Defining a component with props - standard approach
 case class GreetingProps(name: String)
 
 val Greeting = (props: GreetingProps) => {
    div(s"Hello, ${props.name}!")
 }
 
-// Using a component
+// Alternative: Using prop destructuring with pattern matching
+val GreetingWithDestructuring: GreetingProps => FluxusNode = {
+   case GreetingProps(name) => div(s"Hello, $name!")
+}
+
+// Using components - same for both approaches
 Greeting <> GreetingProps("World")
+GreetingWithDestructuring <> GreetingProps("World")
 
 // Component without props
 val SimpleComponent = () => div("Simple component")
