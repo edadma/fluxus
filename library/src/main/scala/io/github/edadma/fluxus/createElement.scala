@@ -57,6 +57,7 @@ def rowSpan: String         = "rowSpan"
 def scope: String           = "scope"
 def headers: String         = "headers"
 def abbr: String            = "abbr"
+def readOnly: String        = "readOnly"
 
 def key: String   = "key"
 def key_ : String = "key"
