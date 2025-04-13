@@ -58,6 +58,8 @@ def scope: String           = "scope"
 def headers: String         = "headers"
 def abbr: String            = "abbr"
 def readOnly: String        = "readOnly"
+def `for`: String           = "for"
+def for_ : String           = "for"
 
 def key: String   = "key"
 def key_ : String = "key"
