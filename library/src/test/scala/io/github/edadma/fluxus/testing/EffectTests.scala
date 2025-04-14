@@ -80,7 +80,7 @@ class EffectTests extends AsyncDOMSpec {
       }
   }
 
-  it should "re-run effect when dependencies change" in withDebugLogging("re-run effect when dependencies change") {
+  it should "re-run effect when dependencies change" in /*withDebugLogging("re-run effect when dependencies change")*/ {
     val container   = getContainer
     var effectCount = 0
 
@@ -107,7 +107,7 @@ class EffectTests extends AsyncDOMSpec {
           )
 
           effectCount += 1
-          () => () // Empty cleanup to test only effect execution
+          ()
         },
         Seq(props.value),
       )
@@ -117,7 +117,7 @@ class EffectTests extends AsyncDOMSpec {
 
     // Initial render
     val node = DependencyTestComponent <> DependencyTestProps(1)
-    createDOM(node, container)
+    render(node, container)
 
     eventually {
       // Effect should run once after initial render
@@ -175,7 +175,7 @@ class EffectTests extends AsyncDOMSpec {
       }
   }
 
-  it should "handle multiple effects in correct order" in {
+  it should "handle multiple effects in correct order" in withDebugLogging("handle multiple effects in correct order") {
     val container      = getContainer
     var executionOrder = Vector[String]()
 

@@ -7,8 +7,14 @@ def render(app: => FluxusNode, container: Element): Unit = {
   // Create initial DOM tree
   createDOM(noPropsComponentNode(() => app), container)
 
+  logger.debug(
+    "About to flush effects after initial render",
+    category = "Render",
+    Map("pendingEffectsCount" -> BatchScheduler.pendingEffects.size.toString),
+  )
+
   // Now that entire tree is mounted, process effects
   BatchScheduler.flushEffects()
 }
 
-def render(app: => FluxusNode, id: String): Unit = render(app, document.getElementById("app"))
+def render(app: => FluxusNode, id: String): Unit = render(app, document.getElementById(id))

@@ -10,7 +10,7 @@ import scala.scalajs.js
 /** Handles batching of state updates to prevent unnecessary re-renders and ensure consistent state updates.
   */
 object BatchScheduler {
-  private var pendingEffects = Set[ComponentInstance]()
+  private[fluxus] var pendingEffects = Set[ComponentInstance]()
 
   def scheduleEffects(instance: ComponentInstance): Unit = {
     logger.debug(
@@ -22,6 +22,12 @@ object BatchScheduler {
   }
 
   def flushEffects(): Unit = {
+    logger.debug(
+      "flushEffects called",
+      category = "BatchScheduler",
+      Map("pendingEffectsCount" -> pendingEffects.size.toString),
+    )
+
     if (pendingEffects.nonEmpty) {
       logger.debug(
         "Flushing effects",
@@ -439,13 +445,17 @@ object BatchScheduler {
             val shouldRun = !hook.hasRun || hook.deps == null || hook.deps != hook.lastDeps
 
             logger.debug(
-              "Checking effect dependencies",
+              "Effect run condition details",
               category = "BatchScheduler",
               Map(
-                "lastDeps"  -> Option(hook.lastDeps).map(_.mkString(", ")).getOrElse("null"),
-                "newDeps"   -> Option(hook.deps).map(_.mkString(", ")).getOrElse("null"),
-                "areEqual"  -> (hook.lastDeps == hook.deps).toString,
-                "shouldRun" -> shouldRun.toString,
+                "instanceId"    -> instance.id,
+                "hasRun"        -> hook.hasRun.toString,
+                "depsNull"      -> (hook.deps == null).toString,
+                "lastDepsNull"  -> (hook.lastDeps == null).toString,
+                "depsValue"     -> Option(hook.deps).map(_.mkString(",")).getOrElse("null"),
+                "lastDepsValue" -> Option(hook.lastDeps).map(_.mkString(",")).getOrElse("null"),
+                "depsEquals"    -> (hook.deps == hook.lastDeps).toString,
+                "shouldRun"     -> shouldRun.toString,
               ),
             )
 

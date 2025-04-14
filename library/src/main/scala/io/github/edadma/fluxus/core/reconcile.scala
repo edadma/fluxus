@@ -7,5 +7,6 @@ def reconcile(oldNode: Option[FluxusNode], newNode: Option[FluxusNode], containe
   val ops = diff(oldNode, newNode)
 
   commit(ops, container)
+  BatchScheduler.flushEffects()
   ops
 }
