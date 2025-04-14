@@ -10,12 +10,13 @@ def createDOMNode(node: FluxusNode): Node = {
     category = "DOM",
     opId = 1,
     Map(
-      "nodeType"    -> node.getClass.getSimpleName,
-      "nodeDetails" -> node.toString,
+      "nodeType"    -> (if node == null then "null" else node.getClass.getSimpleName),
+      "nodeDetails" -> (if node == null then "null" else node.toString),
     ),
   )
 
   val domNode = node match
+    case null         => document.createComment("empty")
     case raw: RawNode =>
       // Just use the provided element directly
       node.domNode = Some(raw.element)
@@ -146,7 +147,8 @@ def createDOMNode(node: FluxusNode): Node = {
     case EmptyNode => document.createComment("empty")
 
   // Store the created DOM node
-  node.domNode = Some(domNode)
+  if node ne null then node.domNode = Some(domNode)
+
   logger.debug(
     "DOM node created",
     category = "DOM",
