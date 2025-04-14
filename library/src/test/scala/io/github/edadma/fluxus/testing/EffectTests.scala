@@ -195,7 +195,7 @@ class EffectTests extends AsyncDOMSpec {
 
     val node = MultiEffectComponent <> ()
 
-    createDOM(node, container)
+    render(node, container)
 
     eventually {
       executionOrder shouldBe Vector("first", "second")
