@@ -20,6 +20,7 @@ sealed trait FluxusNode {
       s"ComponentNode(${props.getClass.getSimpleName}, key=$key, hash=$hash)"
     case RawNode(element, _, _, key) =>
       s"RawNode(${element.tagName}, key=$key)"
+    case EmptyNode => "EmptyNode()"
   }
 }
 
@@ -119,4 +120,12 @@ case class TextNode(
       key == that.key
     case _ => false
   }
+}
+
+case object EmptyNode extends FluxusNode {
+  val parent: Option[FluxusNode]            = None
+  var domNode: Option[org.scalajs.dom.Node] = None
+  val key: Option[String]                   = None
+
+  override def toString: String = "EmptyNode"
 }

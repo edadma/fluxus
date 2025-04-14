@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{ComponentNode, ElementNode, FluxusNode, RawNode, TextNode, logger}
+import io.github.edadma.fluxus.{ComponentNode, ElementNode, EmptyNode, FluxusNode, RawNode, TextNode, logger}
 import org.scalajs.dom
 import org.scalajs.dom.{Element, Event, Node, document}
 
@@ -143,6 +143,7 @@ def createDOMNode(node: FluxusNode): Node = {
       BatchScheduler.scheduleEffects(instance)
 
       compNode
+    case EmptyNode => document.createComment("empty")
 
   // Store the created DOM node
   node.domNode = Some(domNode)

@@ -41,4 +41,13 @@ def noPropsComponentNode(f: () => FluxusNode) =
     componentHash = System.identityHashCode(f),
   )
 
-implicit def stringToTextNode(s: String): TextNode = TextNode(s, None, None)
+implicit def stringToTextNode(s: String): TextNode         = TextNode(s, None, None)
+implicit def nullToEmptyNode(n: Null): FluxusNode          = EmptyNode
+implicit def booleanToEmptyNode(b: Boolean): FluxusNode    = EmptyNode
+implicit def unitToEmptyNode(u: Unit): FluxusNode          = EmptyNode
+implicit def intToTextNode(n: Int): TextNode               = TextNode(n.toString, None, None)
+implicit def longToTextNode(n: Long): TextNode             = TextNode(n.toString, None, None)
+implicit def doubleToTextNode(n: Double): TextNode         = TextNode(n.toString, None, None)
+implicit def floatToTextNode(n: Float): TextNode           = TextNode(n.toString, None, None)
+implicit def bigDecimalToTextNode(n: BigDecimal): TextNode = TextNode(n.toString, None, None)
+implicit def bigIntToTextNode(n: BigInt): TextNode         = TextNode(n.toString, None, None)

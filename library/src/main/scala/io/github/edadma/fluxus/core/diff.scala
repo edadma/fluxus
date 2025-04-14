@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{ComponentNode, ElementNode, FluxusNode, RawNode, TextNode, logger}
+import io.github.edadma.fluxus.{ComponentNode, ElementNode, EmptyNode, FluxusNode, RawNode, TextNode, logger}
 import org.scalajs.dom
 
 import scala.collection.mutable
@@ -47,6 +47,8 @@ private def sameNodeType(a: FluxusNode, b: FluxusNode): Boolean =
     case (_: ElementNode, _)                  => false
     case (_: ComponentNode, _)                => false
     case (_: RawNode, _)                      => false
+    case (EmptyNode, EmptyNode)               => true
+    case (EmptyNode, _)                       => false
   }
 
 private def diffSameType(oldNode: FluxusNode, newNode: FluxusNode): Seq[DOMOperation] = {
@@ -73,6 +75,7 @@ private def diffSameType(oldNode: FluxusNode, newNode: FluxusNode): Seq[DOMOpera
       propChanges ++ childChanges
 
     case (old: ComponentNode, next: ComponentNode) => diffComponents(old, next)
+    case (EmptyNode, EmptyNode)                    => Nil
     case _ =>
       logger.error(
         "Invalid node combination in diffSameType",
