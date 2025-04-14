@@ -103,6 +103,7 @@ case class EffectHook(
     var deps: Seq[Any],                    // Dependencies (null means run every time)
     var cleanup: Option[() => Unit],       // Last cleanup function if any
     var lastDeps: Seq[Any],                // Previous deps for comparison
+    var hasRun: Boolean = false,
 ) extends Hook:
   override def toString: String = "EffectHook"
 

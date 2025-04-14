@@ -414,9 +414,7 @@ object BatchScheduler {
       // First collect all hooks that need cleanup
       val hooksNeedingCleanup = instance.hooks.collect {
         case hook: EffectHook
-            if hook.lastDeps != null &&
-              hook.deps != hook.lastDeps &&
-              hook.cleanup.isDefined => hook
+            if hook.hasRun && hook.lastDeps != null && hook.deps != hook.lastDeps && hook.cleanup.isDefined => hook
       }
 
       // Run cleanups in reverse order
@@ -438,9 +436,7 @@ object BatchScheduler {
               ),
             )
 
-            val shouldRun = hook.deps == null ||
-              hook.lastDeps != hook.deps ||
-              hook.cleanup.isEmpty
+            val shouldRun = !hook.hasRun || hook.deps == null || hook.deps != hook.lastDeps
 
             logger.debug(
               "Checking effect dependencies",
@@ -479,6 +475,7 @@ object BatchScheduler {
                 case _                     => None
               }
               hook.lastDeps = hook.deps
+              hook.hasRun = true
 
               logger.debug(
                 "Effect complete",

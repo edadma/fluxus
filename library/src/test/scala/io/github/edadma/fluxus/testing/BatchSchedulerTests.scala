@@ -77,14 +77,14 @@ class BatchSchedulerTests extends AsyncDOMSpec {
 
     case class Props(onUnmount: () => Unit)
 
-    def TestComponent(props: Props) = {
-      val (count, setCount, _) = useState(0)
+    val TestComponent = (props: Props) => {
+      val (count, _, updateCount) = useState(0)
 
       useEffect(
         () => {
           // Schedule an update that will happen after unmount
           val timeout = js.timers.setTimeout(50) {
-            setCount(count + 1)
+            updateCount(count => count + 1)
           }
 
           // Cleanup
