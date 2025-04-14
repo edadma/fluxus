@@ -1,5 +1,7 @@
 package io.github.edadma.fluxus
 
+import scala.language.implicitConversions
+
 case class NoProps()
 
 val noProps = NoProps()
@@ -38,3 +40,5 @@ def noPropsComponentNode(f: () => FluxusNode) =
     props = noProps,
     componentHash = System.identityHashCode(f),
   )
+
+implicit def stringToTextNode(s: String): TextNode = TextNode(s, None, None)
