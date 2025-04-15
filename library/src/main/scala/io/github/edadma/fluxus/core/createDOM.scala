@@ -133,7 +133,8 @@ def createDOMNode(node: FluxusNode): Node = {
 
       // Call component function to get rendered node
       val rendered = ComponentInstance.withInstance(instance) {
-        component(props)
+        val result = component(props)
+        if (result == null) EmptyNode else result
       }
 
       instance.rendered = Some(rendered)

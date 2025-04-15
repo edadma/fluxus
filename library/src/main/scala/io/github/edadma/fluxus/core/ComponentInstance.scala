@@ -1,6 +1,6 @@
 package io.github.edadma.fluxus.core
 
-import io.github.edadma.fluxus.{ComponentNode, EffectHook, FluxusNode, Hook, logger}
+import io.github.edadma.fluxus.{ComponentNode, EffectHook, EmptyNode, FluxusNode, Hook, logger}
 
 object ComponentInstance:
   private var currentInstance: Option[ComponentInstance] = None
@@ -109,7 +109,8 @@ case class ComponentInstance(
 
             // Get new tree from component
             val newNode = ComponentInstance.withInstance(this) {
-              node.component(node.props)
+              val result = node.component(node.props)
+              if (result == null) EmptyNode else result
             }
 
             logger.debug(
