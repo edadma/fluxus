@@ -114,6 +114,9 @@ def aria_autocomplete: String     = "aria-autocomplete"
 def aria_level: String            = "aria-level"
 def aria_orientation: String      = "aria-orientation"
 def aria_modal: String            = "aria-modal"
+def aria_valuenow: String         = "aria-valuenow"
+def aria_valuemin: String         = "aria-valuemin"
+def aria_valuemax: String         = "aria-valuemax"
 
 // Event helpers
 def onClick: String       = "onClick"
