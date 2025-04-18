@@ -80,19 +80,17 @@ case class ComponentNode(
   override def hashCode: Int = {
     val prime  = 31
     var result = 1
-    result = prime * result + component.hashCode // Include component function
+    result = prime * result + componentHash
     result = prime * result + props.hashCode
     result = prime * result + key.hashCode
-    // Note: component function is not included in hashCode as functions don't have reliable hash codes
     result
   }
 
   override def equals(other: Any): Boolean = other match {
     case that: ComponentNode =>
-      component == that.component && // Include component function
+      componentHash == that.componentHash &&
       props == that.props &&
       key == that.key
-    // Note: component function equality is not reliable
     case _ => false
   }
 
