@@ -194,9 +194,15 @@ private def diffProps(oldNode: ElementNode, newNode: ElementNode): Seq[DOMOperat
     oldNode.domNode.map { domNode =>
       val propName = key.substring(1) // Remove "=" prefix
       val currentValue = propName match {
-        case "checked"  => domNode.asInstanceOf[dom.html.Input].checked
-        case "value"    => domNode.asInstanceOf[dom.html.Input].value
+        case "checked" => domNode.asInstanceOf[dom.html.Input].checked
+        case "value" =>
+          domNode.nodeName.toLowerCase match {
+            case "input" | "textarea" => domNode.asInstanceOf[dom.html.Input].value
+            case "progress"           => domNode.asInstanceOf[dom.html.Progress].value
+            case _                    => domNode.asInstanceOf[dom.Element].getAttribute(propName) // Fallback
+          }
         case "selected" => domNode.asInstanceOf[dom.html.Option].selected
+        case _          => domNode.asInstanceOf[dom.Element].getAttribute(propName) // Handle unknown properties
       }
 
       // Compare new desired value against current DOM property value

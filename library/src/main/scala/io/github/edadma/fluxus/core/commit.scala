@@ -29,9 +29,34 @@ def commit(op: DOMOperation, container: dom.Element): Unit = {
             case "checked" =>
               element.asInstanceOf[dom.html.Input].checked = value.asInstanceOf[Boolean]
             case "value" =>
-              element.asInstanceOf[dom.html.Input].value = value.toString
+              element.nodeName.toLowerCase match {
+                case "input" | "textarea" =>
+                  element.asInstanceOf[dom.html.Input].value = value.toString
+                case "progress" =>
+                  // Handle progress value (expects a double between 0-1 or custom range)
+                  try {
+                    val numericValue = value match {
+                      case n: Number => n.doubleValue()
+                      case n: Int    => n.toDouble
+                      case n: Double => n
+                      case s: String => s.toDouble
+                      case _         => 0.0 // Default
+                    }
+                    element.asInstanceOf[dom.html.Progress].value = numericValue
+                  } catch {
+                    case _: Exception =>
+                      // Fallback if we can't convert to number
+                      element.setAttribute(propName, value.toString)
+                  }
+                case _ =>
+                  // For other elements, use setAttribute as fallback
+                  element.setAttribute(propName, value.toString)
+              }
             case "selected" =>
               element.asInstanceOf[dom.html.Option].selected = value.asInstanceOf[Boolean]
+            case _ =>
+              // For other properties, use setAttribute as fallback
+              element.setAttribute(propName, value.toString)
           }
         }
       }
