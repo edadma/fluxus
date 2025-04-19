@@ -55,7 +55,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val library = project
-  .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(ScalaJSPlugin, ParadoxSitePlugin, SitePreviewPlugin)
   .settings(commonSettings)
   .settings(
     name        := "fluxus",

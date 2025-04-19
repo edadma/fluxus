@@ -549,7 +549,7 @@ val CounterReset = () => {
 }
 
 // Parent component using both
-def App = () => {
+def App: FluxusNode = {
   div(
     h1("Shared Counter Demo"),
     CounterDisplay <> (),
