@@ -60,6 +60,7 @@ def abbr: String            = "abbr"
 def readOnly: String        = "readOnly"
 def `for`: String           = "for"
 def for_ : String           = "for"
+def open: String            = "open"
 
 def key: String   = "key"
 def key_ : String = "key"
@@ -155,6 +156,7 @@ def onDragLeave: String   = "onDragLeave"
 def onDragOver: String    = "onDragOver"
 def onDragStart: String   = "onDragStart"
 def onDrop: String        = "onDrop"
+def onToggle: String      = "onToggle"
 
 private def processContent(content: Any): Vector[FluxusNode] = content match {
   case node: FluxusNode                     => Vector(node)
@@ -294,6 +296,8 @@ def thead(contents: Any*): ElementNode    = createElement("thead", contents*)
 def tr(contents: Any*): ElementNode       = createElement("tr", contents*)
 def ul(contents: Any*): ElementNode       = createElement("ul", contents*)
 def caption(contents: Any*): ElementNode  = createElement("caption", contents*)
+def details(contents: Any*): ElementNode  = createElement("details", contents*)
+def summary(contents: Any*): ElementNode  = createElement("summary", contents*)
 
 def svg(contents: Any*): ElementNode      = createElement("svg", contents*)
 def circle(contents: Any*): ElementNode   = createElement("circle", contents*)
