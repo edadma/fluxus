@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<meta name="generator" content="Paradox, paradox-material-theme=0.7.0, mkdocs-material=3.0.3">
+
+<meta name="lang:clipboard.copy" content="Copy to clipboard">
+<meta name="lang:clipboard.copied" content="Copied to clipboard">
+<meta name="lang:search.language" content="">
+<meta name="lang:search.pipeline.stopwords" content="true">
+<meta name="lang:search.pipeline.trimmer" content="true">
+<meta name="lang:search.result.none" content="No matching documents">
+<meta name="lang:search.result.one" content="1 matching document">
+<meta name="lang:search.result.other" content="# matching documents">
+<meta name="lang:search.tokenizer" content="[\s\-]+">
+
+
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<link rel="shortcut icon" href="../assets/images/favicon.png">
+<title>useEffect · Fluxus</title>
+<link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="../lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="../lib/prettify/prettify.css">
+<script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+<style>
+body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
+code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
+</style>
+<link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="../assets/fonts/material-icons.css">
+<link rel="stylesheet" href="../assets/stylesheets/paradox-material-theme.css">
+</head>
+<body
+>
+<input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+<input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+<label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+<header class="md-header" data-md-component="header">
+<nav class="md-header-nav md-grid">
+<div class="md-flex">
+<div class="md-flex__cell md-flex__cell--shrink">
+<a href="../index.html" title="Fluxus" class="md-header-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch">
+<div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+<span class="md-header-nav__topic">
+Fluxus
+</span>
+<span class="md-header-nav__topic">
+useEffect
+</span>
+</div>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+<label class="md-icon md-search__icon" for="__search"></label>
+<button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">&#xE5CD;</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix>
+<div class="md-search-result" data-md-component="result">
+<div class="md-search-result__meta">
+Type to start searching
+</div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</nav>
+</header>
+
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner md-grid" data-md-component="container">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
+<label class="md-nav__title md-nav__title--site" for="drawer">
+<a href="../index.html" title="Fluxus" class="md-nav__button md-logo">
+<span class="md-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+<a href="../index.html" title="Fluxus">
+Fluxus
+</a>
+</label>
+<ul>
+  <li><a href="../getting-started.html" class="page">Getting Started with Fluxus</a></li>
+  <li><a href="../core-concepts/index.html" class="page">Core Concepts</a>
+  <ul>
+    <li><a href="../core-concepts/virtual-dom.html" class="page">Virtual DOM</a></li>
+    <li><a href="../core-concepts/components.html" class="page">Components</a></li>
+    <li><a href="../core-concepts/reconciliation.html" class="page">Reconciliation</a></li>
+    <li><a href="../core-concepts/hooks.html" class="page">Hooks</a></li>
+    <li><a href="../core-concepts/event-handling.html" class="page">Event Handling</a></li>
+  </ul></li>
+  <li><a href="../hooks/index.html" class="page">Hooks</a>
+  <ul>
+    <li><a href="../hooks/useState.html" class="page">useState</a></li>
+    <li><a href="../hooks/useEffect.html" class="active page">useEffect</a></li>
+    <li><a href="../hooks/useRef.html" class="page">useRef</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html" class="page">useMemo and useCallback Hooks</a></li>
+    <li><a href="../hooks/useFetch.html" class="page">useFetch Hook</a></li>
+    <li><a href="../hooks/useSignal.html" class="page">useSignal Hook</a></li>
+    <li><a href="../hooks/custom-hooks.html" class="page">Custom Hooks</a></li>
+  </ul></li>
+</ul>
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../hooks/useEffect.html#useeffect" class="header">useEffect</a>
+  <ul>
+    <li><a href="../hooks/useEffect.html#basic-usage" class="header">Basic Usage</a></li>
+    <li><a href="../hooks/useEffect.html#timing-of-effects" class="header">Timing of Effects</a></li>
+    <li><a href="../hooks/useEffect.html#types-of-effects" class="header">Types of Effects</a></li>
+    <li><a href="../hooks/useEffect.html#controlling-when-effects-run" class="header">Controlling When Effects Run</a></li>
+    <li><a href="../hooks/useEffect.html#examples" class="header">Examples</a></li>
+    <li><a href="../hooks/useEffect.html#common-patterns" class="header">Common Patterns</a></li>
+    <li><a href="../hooks/useEffect.html#implementation-details" class="header">Implementation Details</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</nav>
+<ul style="display: none">
+<li class="md-nav__item md-version" id="project.version">
+<label class="md-nav__link" for="__version">
+<i class="md-icon" title="Version">label_outline</i> 0.0.30
+</label>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../hooks/useEffect.html#useeffect" class="header">useEffect</a>
+  <ul>
+    <li><a href="../hooks/useEffect.html#basic-usage" class="header">Basic Usage</a></li>
+    <li><a href="../hooks/useEffect.html#timing-of-effects" class="header">Timing of Effects</a></li>
+    <li><a href="../hooks/useEffect.html#types-of-effects" class="header">Types of Effects</a></li>
+    <li><a href="../hooks/useEffect.html#controlling-when-effects-run" class="header">Controlling When Effects Run</a></li>
+    <li><a href="../hooks/useEffect.html#examples" class="header">Examples</a></li>
+    <li><a href="../hooks/useEffect.html#common-patterns" class="header">Common Patterns</a></li>
+    <li><a href="../hooks/useEffect.html#implementation-details" class="header">Implementation Details</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<div class="md-content__searchable">
+<h1><a href="#useeffect" name="useeffect" class="anchor"><span class="anchor-link"></span></a>useEffect</h1>
+<p>The <code>useEffect</code> hook lets you perform side effects in function components. It serves a similar purpose to lifecycle methods in class-based component systems, but unified into a single API.</p>
+<h2><a href="#basic-usage" name="basic-usage" class="anchor"><span class="anchor-link"></span></a>Basic Usage</h2>
+<pre class="prettyprint"><code class="language-scala">useEffect(() =&gt; {
+  // Side effect code
+  
+  // Optional cleanup function
+  () =&gt; {
+    // Cleanup code
+  }
+}, dependencies)
+</code></pre>
+<p>Where: - The first argument is a function that contains the side effect code - The function can optionally return a cleanup function - The second argument is an optional array of dependencies</p>
+<h2><a href="#timing-of-effects" name="timing-of-effects" class="anchor"><span class="anchor-link"></span></a>Timing of Effects</h2>
+<p>Effects run after the browser has painted, so they don&rsquo;t block the browser from updating the screen. This makes your app feel more responsive.</p>
+<h2><a href="#types-of-effects" name="types-of-effects" class="anchor"><span class="anchor-link"></span></a>Types of Effects</h2>
+<h3><a href="#effects-without-cleanup" name="effects-without-cleanup" class="anchor"><span class="anchor-link"></span></a>Effects Without Cleanup</h3>
+<p>Some effects don&rsquo;t require any cleanup:</p>
+<pre class="prettyprint"><code class="language-scala">val DocumentTitleComponent = (props: TitleProps) =&gt; {
+  useEffect(() =&gt; {
+    // Update the document title using the browser API
+    document.title = props.title
+  }, Seq(props.title))
+  
+  // ...
+}
+</code></pre>
+<p>In this example, the effect runs when the component mounts and whenever <code>props.title</code> changes. There&rsquo;s no need for cleanup because updating the document title doesn&rsquo;t create any persistent resources.</p>
+<h3><a href="#effects-with-cleanup" name="effects-with-cleanup" class="anchor"><span class="anchor-link"></span></a>Effects with Cleanup</h3>
+<p>Some effects create resources that need to be cleaned up:</p>
+<pre class="prettyprint"><code class="language-scala">val MouseTracker = () =&gt; {
+  val (position, setPosition, _) = useState((0, 0))
+  
+  useEffect(() =&gt; {
+    // Set up event listener
+    val handleMouseMove = (e: dom.MouseEvent) =&gt; {
+      setPosition((e.clientX, e.clientY))
+    }
+    
+    document.addEventListener(&quot;mousemove&quot;, handleMouseMove)
+    
+    // Return a cleanup function
+    () =&gt; {
+      document.removeEventListener(&quot;mousemove&quot;, handleMouseMove)
+    }
+  }, Seq())
+  
+  div(s&quot;Mouse position: ${position._1}, ${position._2}&quot;)
+}
+</code></pre>
+<p>The cleanup function will run: - Before the component unmounts - Before the effect runs again (if the dependencies change)</p>
+<h2><a href="#controlling-when-effects-run" name="controlling-when-effects-run" class="anchor"><span class="anchor-link"></span></a>Controlling When Effects Run</h2>
+<p>The dependencies array controls when the effect runs:</p>
+<ol>
+  <li>
+  <p><strong>No dependencies array</strong>: The effect runs after every render  <code>scala
+   useEffect(() =&gt; {
+ console.log(&quot;This runs after every render&quot;)
+   })
+</code></p></li>
+  <li>
+  <p><strong>Empty dependencies array</strong>: The effect runs only once after the initial render  <code>scala
+   useEffect(() =&gt; {
+ console.log(&quot;This runs only on mount&quot;)
+   }, Seq())
+</code></p></li>
+  <li>
+  <p><strong>Dependencies specified</strong>: The effect runs after the initial render and when any dependency changes  <code>scala
+   useEffect(() =&gt; {
+ console.log(s&quot;The count is now: $count&quot;)
+   }, Seq(count))
+</code></p></li>
+</ol>
+<h2><a href="#examples" name="examples" class="anchor"><span class="anchor-link"></span></a>Examples</h2>
+<h3><a href="#data-fetching" name="data-fetching" class="anchor"><span class="anchor-link"></span></a>Data Fetching</h3>
+<pre class="prettyprint"><code class="language-scala">val UserProfile = (props: UserProfileProps) =&gt; {
+  val (user, setUser, _) = useState(Option.empty[User])
+  val (loading, setLoading, _) = useState(true)
+  val (error, setError, _) = useState(Option.empty[String])
+  
+  useEffect(() =&gt; {
+    setLoading(true)
+    setError(None)
+    
+    // Fetch user data
+    fetchUser(props.userId)
+      .map(userData =&gt; {
+        setUser(Some(userData))
+        setLoading(false)
+      })
+      .recover {
+        case e: Exception =&gt;
+          setError(Some(e.getMessage))
+          setLoading(false)
+      }
+  }, Seq(props.userId))
+  
+  div(
+    if (loading) {
+      div(&quot;Loading...&quot;)
+    } else if (error.isDefined) {
+      div(s&quot;Error: ${error.get}&quot;)
+    } else if (user.isDefined) {
+      div(
+        h1(user.get.name),
+        p(user.get.email)
+      )
+    } else {
+      div(&quot;No user data&quot;)
+    }
+  )
+}
+</code></pre>
+<h3><a href="#subscriptions" name="subscriptions" class="anchor"><span class="anchor-link"></span></a>Subscriptions</h3>
+<pre class="prettyprint"><code class="language-scala">val ChatRoom = (props: ChatRoomProps) =&gt; {
+  val (messages, setMessages, updateMessages) = useState(Vector.empty[Message])
+  
+  useEffect(() =&gt; {
+    // Subscribe to chat room
+    val subscription = chatService.subscribe(props.roomId, message =&gt; {
+      updateMessages(prev =&gt; prev :+ message)
+    })
+    
+    // Cleanup: unsubscribe when component unmounts or roomId changes
+    () =&gt; subscription.unsubscribe()
+  }, Seq(props.roomId))
+  
+  // ...
+}
+</code></pre>
+<h3><a href="#dom-manipulation-with-refs" name="dom-manipulation-with-refs" class="anchor"><span class="anchor-link"></span></a>DOM Manipulation with Refs</h3>
+<pre class="prettyprint"><code class="language-scala">val AutoFocusInput = () =&gt; {
+  val inputRef = useRef[dom.html.Input]()
+  
+  useEffect(() =&gt; {
+    // Focus the input element after mounting
+    inputRef.current.focus()
+  }, Seq())
+  
+  input(
+    ref := inputRef,
+    typ := &quot;text&quot;,
+    placeholder := &quot;This input will be focused&quot;
+  )
+}
+</code></pre>
+<h3><a href="#timers" name="timers" class="anchor"><span class="anchor-link"></span></a>Timers</h3>
+<pre class="prettyprint"><code class="language-scala">val Timer = () =&gt; {
+  val (seconds, setSeconds, _) = useState(0)
+  
+  useEffect(() =&gt; {
+    val interval = dom.window.setInterval(() =&gt; {
+      setSeconds(seconds + 1)
+    }, 1000)
+    
+    // Cleanup: clear the interval when unmounting
+    () =&gt; dom.window.clearInterval(interval)
+  }, Seq())
+  
+  div(s&quot;Timer: $seconds seconds&quot;)
+}
+</code></pre>
+<h2><a href="#common-patterns" name="common-patterns" class="anchor"><span class="anchor-link"></span></a>Common Patterns</h2>
+<h3><a href="#skipping-effects" name="skipping-effects" class="anchor"><span class="anchor-link"></span></a>Skipping Effects</h3>
+<p>Sometimes you want to run an effect conditionally. While you can&rsquo;t put <code>useEffect</code> inside a conditional, you can put the conditional logic inside the effect:</p>
+<pre class="prettyprint"><code class="language-scala">useEffect(() =&gt; {
+  if (shouldRun) {
+    // Only run the effect if shouldRun is true
+    doSomething()
+  }
+}, Seq(shouldRun))
+</code></pre>
+<h3><a href="#separating-concerns" name="separating-concerns" class="anchor"><span class="anchor-link"></span></a>Separating Concerns</h3>
+<p>If you have multiple unrelated effects, split them into separate <code>useEffect</code> calls:</p>
+<pre class="prettyprint"><code class="language-scala">val UserDashboard = () =&gt; {
+  // Track page views
+  useEffect(() =&gt; {
+    analytics.trackPageView(&quot;dashboard&quot;)
+  }, Seq())
+  
+  // Fetch user data
+  useEffect(() =&gt; {
+    fetchUserData()
+  }, Seq())
+  
+  // Set up event listeners
+  useEffect(() =&gt; {
+    // Event listeners setup and cleanup
+  }, Seq())
+  
+  // ...
+}
+</code></pre>
+<p>This makes your code more maintainable by keeping related logic together.</p>
+<h2><a href="#implementation-details" name="implementation-details" class="anchor"><span class="anchor-link"></span></a>Implementation Details</h2>
+<p>In Fluxus, <code>useEffect</code> is implemented as a hook that registers an effect function and its dependencies. After the component renders and the DOM is updated, Fluxus runs all the effects whose dependencies have changed.</p>
+<p>Effects are run in order from parent to child components, and cleanup functions are run in reverse order to ensure a consistent data flow.</p>
+</div>
+<div>
+<a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/hooks/useEffect.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
+</div>
+<div class="print-only">
+<span class="md-source-file md-version">
+0.0.30
+</span>
+</div>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav class="md-footer-nav__inner md-grid">
+<a href="../hooks/useState.html" title="useState" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Previous
+</span>
+useState
+</span>
+</div>
+</a>
+<a href="../hooks/useRef.html" title="useRef" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
+useRef
+</span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+Powered by
+<a href="https://github.com/lightbend/paradox">Paradox</a>
+and
+<a href="https://sbt.github.io/sbt-paradox-material-theme/">Paradox Material Theme</a>
+
+</div>
+</div>
+</div>
+</footer>
+
+</div>
+<script src="../assets/javascripts/application.583bbe55.js"></script>
+<script src="../assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"../."}})</script>
+<script type="text/javascript" src="../lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="../lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+window.prettyPrint && prettyPrint();
+});
+</script>
+</body>
+</html>

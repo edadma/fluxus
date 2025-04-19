@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<meta name="generator" content="Paradox, paradox-material-theme=0.7.0, mkdocs-material=3.0.3">
+
+<meta name="lang:clipboard.copy" content="Copy to clipboard">
+<meta name="lang:clipboard.copied" content="Copied to clipboard">
+<meta name="lang:search.language" content="">
+<meta name="lang:search.pipeline.stopwords" content="true">
+<meta name="lang:search.pipeline.trimmer" content="true">
+<meta name="lang:search.result.none" content="No matching documents">
+<meta name="lang:search.result.one" content="1 matching document">
+<meta name="lang:search.result.other" content="# matching documents">
+<meta name="lang:search.tokenizer" content="[\s\-]+">
+
+
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<link rel="shortcut icon" href="../assets/images/favicon.png">
+<title>useFetch Hook · Fluxus</title>
+<link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="../lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="../lib/prettify/prettify.css">
+<script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+<style>
+body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
+code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
+</style>
+<link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="../assets/fonts/material-icons.css">
+<link rel="stylesheet" href="../assets/stylesheets/paradox-material-theme.css">
+</head>
+<body
+>
+<input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+<input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+<label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+<header class="md-header" data-md-component="header">
+<nav class="md-header-nav md-grid">
+<div class="md-flex">
+<div class="md-flex__cell md-flex__cell--shrink">
+<a href="../index.html" title="Fluxus" class="md-header-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch">
+<div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+<span class="md-header-nav__topic">
+Fluxus
+</span>
+<span class="md-header-nav__topic">
+useFetch Hook
+</span>
+</div>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+<label class="md-icon md-search__icon" for="__search"></label>
+<button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">&#xE5CD;</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix>
+<div class="md-search-result" data-md-component="result">
+<div class="md-search-result__meta">
+Type to start searching
+</div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</nav>
+</header>
+
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner md-grid" data-md-component="container">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
+<label class="md-nav__title md-nav__title--site" for="drawer">
+<a href="../index.html" title="Fluxus" class="md-nav__button md-logo">
+<span class="md-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+<a href="../index.html" title="Fluxus">
+Fluxus
+</a>
+</label>
+<ul>
+  <li><a href="../getting-started.html" class="page">Getting Started with Fluxus</a></li>
+  <li><a href="../core-concepts/index.html" class="page">Core Concepts</a>
+  <ul>
+    <li><a href="../core-concepts/virtual-dom.html" class="page">Virtual DOM</a></li>
+    <li><a href="../core-concepts/components.html" class="page">Components</a></li>
+    <li><a href="../core-concepts/reconciliation.html" class="page">Reconciliation</a></li>
+    <li><a href="../core-concepts/hooks.html" class="page">Hooks</a></li>
+    <li><a href="../core-concepts/event-handling.html" class="page">Event Handling</a></li>
+  </ul></li>
+  <li><a href="../hooks/index.html" class="page">Hooks</a>
+  <ul>
+    <li><a href="../hooks/useState.html" class="page">useState</a></li>
+    <li><a href="../hooks/useEffect.html" class="page">useEffect</a></li>
+    <li><a href="../hooks/useRef.html" class="page">useRef</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html" class="page">useMemo and useCallback Hooks</a></li>
+    <li><a href="../hooks/useFetch.html" class="active page">useFetch Hook</a></li>
+    <li><a href="../hooks/useSignal.html" class="page">useSignal Hook</a></li>
+    <li><a href="../hooks/custom-hooks.html" class="page">Custom Hooks</a></li>
+  </ul></li>
+</ul>
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../hooks/useFetch.html#usefetch-hook" class="header">useFetch Hook</a>
+  <ul>
+    <li><a href="../hooks/useFetch.html#basic-usage" class="header">Basic Usage</a></li>
+    <li><a href="../hooks/useFetch.html#fetchstate" class="header">FetchState</a></li>
+    <li><a href="../hooks/useFetch.html#fetcherror" class="header">FetchError</a></li>
+    <li><a href="../hooks/useFetch.html#fetchoptions" class="header">FetchOptions</a></li>
+    <li><a href="../hooks/useFetch.html#examples" class="header">Examples</a></li>
+    <li><a href="../hooks/useFetch.html#advanced-features" class="header">Advanced Features</a></li>
+    <li><a href="../hooks/useFetch.html#typescript-scala-integration" class="header">TypeScript/Scala Integration</a></li>
+    <li><a href="../hooks/useFetch.html#implementation-details" class="header">Implementation Details</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</nav>
+<ul style="display: none">
+<li class="md-nav__item md-version" id="project.version">
+<label class="md-nav__link" for="__version">
+<i class="md-icon" title="Version">label_outline</i> 0.0.30
+</label>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../hooks/useFetch.html#usefetch-hook" class="header">useFetch Hook</a>
+  <ul>
+    <li><a href="../hooks/useFetch.html#basic-usage" class="header">Basic Usage</a></li>
+    <li><a href="../hooks/useFetch.html#fetchstate" class="header">FetchState</a></li>
+    <li><a href="../hooks/useFetch.html#fetcherror" class="header">FetchError</a></li>
+    <li><a href="../hooks/useFetch.html#fetchoptions" class="header">FetchOptions</a></li>
+    <li><a href="../hooks/useFetch.html#examples" class="header">Examples</a></li>
+    <li><a href="../hooks/useFetch.html#advanced-features" class="header">Advanced Features</a></li>
+    <li><a href="../hooks/useFetch.html#typescript-scala-integration" class="header">TypeScript/Scala Integration</a></li>
+    <li><a href="../hooks/useFetch.html#implementation-details" class="header">Implementation Details</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<div class="md-content__searchable">
+<h1><a href="#usefetch-hook" name="usefetch-hook" class="anchor"><span class="anchor-link"></span></a>useFetch Hook</h1>
+<p><code>useFetch</code> is a custom hook in Fluxus that provides a convenient way to fetch data from APIs with built-in loading states, error handling, and JSON decoding.</p>
+<h2><a href="#basic-usage" name="basic-usage" class="anchor"><span class="anchor-link"></span></a>Basic Usage</h2>
+<pre class="prettyprint"><code class="language-scala">val (state, retry) = useFetch[T](
+  url = &quot;https://api.example.com/data&quot;,
+  dependencies = Seq(dependency1, dependency2),
+  options = FetchOptions(/* configuration */)
+)
+</code></pre>
+<p>Where: - <code>T</code> is the expected type of the response data (must have a <code>JsonDecoder</code> instance) - <code>state</code> is a <code>FetchState[T]</code> representing the current state of the fetch - <code>retry</code> is a function that can be called to retry the fetch - <code>dependencies</code> is an optional array of values that will trigger a refetch when changed - <code>options</code> is an optional configuration object for the fetch request</p>
+<h2><a href="#fetchstate" name="fetchstate" class="anchor"><span class="anchor-link"></span></a>FetchState</h2>
+<p>The state of a fetch operation is represented by the <code>FetchState</code> enum:</p>
+<pre class="prettyprint"><code class="language-scala">enum FetchState[T]:
+  case Success(data: T)
+  case Error(error: FetchError)
+  case Idle()
+  case Loading()
+</code></pre>
+<h2><a href="#fetcherror" name="fetcherror" class="anchor"><span class="anchor-link"></span></a>FetchError</h2>
+<p>Errors are represented by the <code>FetchError</code> enum:</p>
+<pre class="prettyprint"><code class="language-scala">enum FetchError extends Throwable:
+  case NetworkError(message: String)
+  case DecodeError(message: String)
+  case HttpError(status: Int, statusText: String)
+</code></pre>
+<h2><a href="#fetchoptions" name="fetchoptions" class="anchor"><span class="anchor-link"></span></a>FetchOptions</h2>
+<p>The <code>FetchOptions</code> case class allows you to configure the fetch request:</p>
+<pre class="prettyprint"><code class="language-scala">case class FetchOptions(
+  method: String = &quot;GET&quot;,
+  headers: Map[String, String] = Map.empty,
+  body: Option[String] = None,
+  retries: Int = 3,
+  retryDelay: Int = 1000,
+  mode: String = &quot;cors&quot;
+)
+</code></pre>
+<h2><a href="#examples" name="examples" class="anchor"><span class="anchor-link"></span></a>Examples</h2>
+<h3><a href="#basic-data-fetching" name="basic-data-fetching" class="anchor"><span class="anchor-link"></span></a>Basic Data Fetching</h3>
+<pre class="prettyprint"><code class="language-scala">case class User(id: Int, name: String, email: String) derives JsonDecoder
+
+val UserProfile = (props: UserProfileProps) =&gt; {
+  val (state, retry) = useFetch[User](
+    url = s&quot;https://api.example.com/users/${props.userId}&quot;,
+    dependencies = Seq(props.userId)
+  )
+  
+  div(
+    cls := &quot;user-profile&quot;,
+    state match {
+      case FetchState.Loading() =&gt;
+        div(cls := &quot;loading&quot;, &quot;Loading user data...&quot;)
+        
+      case FetchState.Success(user) =&gt;
+        div(
+          h1(user.name),
+          p(user.email),
+          button(
+            onClick := (() =&gt; retry()),
+            &quot;Refresh&quot;
+          )
+        )
+        
+      case FetchState.Error(error) =&gt;
+        div(
+          cls := &quot;error&quot;,
+          p(s&quot;Error: ${error.getMessage}&quot;),
+          button(
+            onClick := (() =&gt; retry()),
+            &quot;Retry&quot;
+          )
+        )
+        
+      case FetchState.Idle() =&gt;
+        div(&quot;No user data loaded yet&quot;)
+    }
+  )
+}
+</code></pre>
+<h3><a href="#fetching-a-list" name="fetching-a-list" class="anchor"><span class="anchor-link"></span></a>Fetching a List</h3>
+<pre class="prettyprint"><code class="language-scala">case class TodoItem(id: Int, title: String, completed: Boolean) derives JsonDecoder
+
+val TodoList = () =&gt; {
+  val (state, retry) = useFetch[List[TodoItem]](
+    url = &quot;https://jsonplaceholder.typicode.com/todos&quot;,
+    options = FetchOptions(
+      headers = Map(
+        &quot;Accept&quot; -&gt; &quot;application/json&quot;
+      )
+    )
+  )
+  
+  div(
+    h1(&quot;Todo List&quot;),
+    state match {
+      case FetchState.Loading() =&gt;
+        div(cls := &quot;loading-spinner&quot;, &quot;Loading todos...&quot;)
+        
+      case FetchState.Success(todos) =&gt;
+        div(
+          p(s&quot;${todos.size} todos loaded&quot;),
+          ul(
+            cls := &quot;todo-list&quot;,
+            todos.take(10).map(todo =&gt; 
+              li(
+                key := todo.id.toString,
+                input(
+                  typ := &quot;checkbox&quot;,
+                  checked := todo.completed,
+                  disabled := true
+                ),
+                span(todo.title)
+              )
+            )
+          ),
+          button(
+            onClick := (() =&gt; retry()),
+            &quot;Refresh&quot;
+          )
+        )
+        
+      case FetchState.Error(error) =&gt;
+        div(
+          cls := &quot;alert alert-error&quot;,
+          p(s&quot;Failed to load todos: ${error.getMessage}&quot;),
+          button(
+            onClick := (() =&gt; retry()),
+            &quot;Retry&quot;
+          )
+        )
+        
+      case FetchState.Idle() =&gt;
+        div(&quot;Click to load todos&quot;)
+    }
+  )
+}
+</code></pre>
+<h3><a href="#post-request-with-json-body" name="post-request-with-json-body" class="anchor"><span class="anchor-link"></span></a>POST Request with JSON Body</h3>
+<pre class="prettyprint"><code class="language-scala">case class LoginRequest(username: String, password: String) derives JsonEncoder
+case class LoginResponse(token: String, user: User) derives JsonDecoder
+
+val LoginForm = () =&gt; {
+  val (username, setUsername, _) = useState(&quot;&quot;)
+  val (password, setPassword, _) = useState(&quot;&quot;)
+  val (loginState, login) = useFetch[LoginResponse](
+    url = &quot;&quot;, // Empty URL initially, will be set when logging in
+    dependencies = Seq()
+  )
+  
+  def handleSubmit(e: dom.Event): Unit = {
+    e.preventDefault()
+    
+    // Create a new fetch with the login data
+    val loginData = LoginRequest(username, password)
+    login(
+      url = &quot;https://api.example.com/login&quot;,
+      options = FetchOptions(
+        method = &quot;POST&quot;,
+        headers = Map(
+          &quot;Content-Type&quot; -&gt; &quot;application/json&quot;
+        ),
+        body = Some(loginData.toJson)
+      )
+    )
+  }
+  
+  div(
+    form(
+      onSubmit := handleSubmit,
+      div(
+        label(&quot;Username&quot;),
+        input(
+          typ := &quot;text&quot;,
+          value := username,
+          onInput := ((e: dom.Event) =&gt; 
+            setUsername(e.target.asInstanceOf[dom.html.Input].value)
+          )
+        )
+      ),
+      div(
+        label(&quot;Password&quot;),
+        input(
+          typ := &quot;password&quot;,
+          value := password,
+          onInput := ((e: dom.Event) =&gt; 
+            setPassword(e.target.asInstanceOf[dom.html.Input].value)
+          )
+        )
+      ),
+      loginState match {
+        case FetchState.Loading() =&gt;
+          button(
+            typ := &quot;submit&quot;,
+            disabled := true,
+            &quot;Logging in...&quot;
+          )
+          
+        case FetchState.Error(error) =&gt;
+          div(
+            cls := &quot;error&quot;,
+            p(s&quot;Login failed: ${error.getMessage}&quot;),
+            button(typ := &quot;submit&quot;, &quot;Try Again&quot;)
+          )
+          
+        case _ =&gt;
+          button(typ := &quot;submit&quot;, &quot;Log In&quot;)
+      }
+    ),
+    loginState match {
+      case FetchState.Success(response) =&gt;
+        div(
+          cls := &quot;success&quot;,
+          p(s&quot;Welcome, ${response.user.name}!&quot;),
+          p(s&quot;Your token: ${response.token}&quot;)
+        )
+      case _ =&gt; null
+    }
+  )
+}
+</code></pre>
+<h3><a href="#implementing-pagination" name="implementing-pagination" class="anchor"><span class="anchor-link"></span></a>Implementing Pagination</h3>
+<pre class="prettyprint"><code class="language-scala">case class PaginatedResponse[T](
+  items: List[T],
+  totalItems: Int,
+  page: Int,
+  totalPages: Int
+) derives JsonDecoder
+
+case class Product(id: Int, name: String, price: Double) derives JsonDecoder
+
+val ProductList = () =&gt; {
+  val (page, setPage, _) = useState(1)
+  val (state, retry) = useFetch[PaginatedResponse[Product]](
+    url = s&quot;https://api.example.com/products?page=$page&amp;limit=10&quot;,
+    dependencies = Seq(page)
+  )
+  
+  div(
+    h1(&quot;Products&quot;),
+    state match {
+      case FetchState.Loading() =&gt;
+        div(cls := &quot;loading-spinner&quot;, &quot;Loading products...&quot;)
+        
+      case FetchState.Success(response) =&gt;
+        div(
+          table(
+            cls := &quot;products-table&quot;,
+            thead(
+              tr(
+                th(&quot;ID&quot;),
+                th(&quot;Name&quot;),
+                th(&quot;Price&quot;)
+              )
+            ),
+            tbody(
+              response.items.map(product =&gt; 
+                tr(
+                  key := product.id.toString,
+                  td(product.id.toString),
+                  td(product.name),
+                  td(f&quot;$${product.price}%.2f&quot;)
+                )
+              )
+            )
+          ),
+          div(
+            cls := &quot;pagination&quot;,
+            button(
+              onClick := (() =&gt; setPage(page - 1)),
+              disabled := (page &lt;= 1),
+              &quot;Previous&quot;
+            ),
+            span(s&quot;Page $page of ${response.totalPages}&quot;),
+            button(
+              onClick := (() =&gt; setPage(page + 1)),
+              disabled := (page &gt;= response.totalPages),
+              &quot;Next&quot;
+            )
+          )
+        )
+        
+      case FetchState.Error(error) =&gt;
+        div(
+          cls := &quot;error&quot;,
+          p(s&quot;Error: ${error.getMessage}&quot;),
+          button(
+            onClick := (() =&gt; retry()),
+            &quot;Retry&quot;
+          )
+        )
+        
+      case FetchState.Idle() =&gt;
+        div(&quot;No products loaded yet&quot;)
+    }
+  )
+}
+</code></pre>
+<h2><a href="#advanced-features" name="advanced-features" class="anchor"><span class="anchor-link"></span></a>Advanced Features</h2>
+<h3><a href="#automatic-retries" name="automatic-retries" class="anchor"><span class="anchor-link"></span></a>Automatic Retries</h3>
+<p><code>useFetch</code> automatically retries failed requests based on the <code>retries</code> and <code>retryDelay</code> options:</p>
+<pre class="prettyprint"><code class="language-scala">val (state, retry) = useFetch[User](
+  url = &quot;https://api.example.com/user/123&quot;,
+  options = FetchOptions(
+    retries = 5,     // Retry up to 5 times
+    retryDelay = 500 // Wait 500ms between retries
+  )
+)
+</code></pre>
+<p>By default, it will retry network errors and server errors (5xx), but not client errors (4xx) or decode errors.</p>
+<h3><a href="#manual-retry" name="manual-retry" class="anchor"><span class="anchor-link"></span></a>Manual Retry</h3>
+<p>You can manually retry a fetch with the returned <code>retry</code> function:</p>
+<pre class="prettyprint"><code class="language-scala">button(
+  onClick := (() =&gt; retry()),
+  &quot;Reload Data&quot;
+)
+</code></pre>
+<h3><a href="#cancellation" name="cancellation" class="anchor"><span class="anchor-link"></span></a>Cancellation</h3>
+<p><code>useFetch</code> automatically cancels in-flight requests when: - The component unmounts - The dependencies change, triggering a new fetch - You manually trigger a new fetch</p>
+<p>This prevents race conditions and memory leaks.</p>
+<h2><a href="#typescript-scala-integration" name="typescript-scala-integration" class="anchor"><span class="anchor-link"></span></a>TypeScript/Scala Integration</h2>
+<p>The <code>useFetch</code> hook is fully typed and integrates with Scala&rsquo;s type system. The type parameter <code>T</code> ensures that:</p>
+<ol>
+  <li>The JSON response is decoded to the correct Scala type</li>
+  <li>The <code>Success</code> case of <code>FetchState</code> contains a value of type <code>T</code></li>
+  <li>The compiler can check that you&rsquo;re handling all possible states</li>
+</ol>
+<p>For this to work, your data types need to have a <code>JsonDecoder</code> instance, which can be derived using the <code>derives</code> keyword with ZIO JSON:</p>
+<pre class="prettyprint"><code class="language-scala">case class Person(name: String, age: Int) derives JsonDecoder
+</code></pre>
+<h2><a href="#implementation-details" name="implementation-details" class="anchor"><span class="anchor-link"></span></a>Implementation Details</h2>
+<p>Under the hood, <code>useFetch</code> uses a combination of:</p>
+<ul>
+  <li><code>useState</code> to track the fetch state</li>
+  <li><code>useEffect</code> to trigger the fetch and handle cleanup</li>
+  <li><code>js.Promise</code> for the actual network request</li>
+  <li>ZIO JSON for decoding the response</li>
+</ul>
+<p>The hook also handles common edge cases like: - Race conditions between multiple in-flight requests - Component unmounting during a fetch - Network errors and timeout handling - JSON decoding errors</p>
+</div>
+<div>
+<a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/hooks/useFetch.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
+</div>
+<div class="print-only">
+<span class="md-source-file md-version">
+0.0.30
+</span>
+</div>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav class="md-footer-nav__inner md-grid">
+<a href="../hooks/useMemo-useCallback.html" title="useMemo and useCallback Hooks" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Previous
+</span>
+useMemo and useCallback Hooks
+</span>
+</div>
+</a>
+<a href="../hooks/useSignal.html" title="useSignal Hook" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
+useSignal Hook
+</span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+Powered by
+<a href="https://github.com/lightbend/paradox">Paradox</a>
+and
+<a href="https://sbt.github.io/sbt-paradox-material-theme/">Paradox Material Theme</a>
+
+</div>
+</div>
+</div>
+</footer>
+
+</div>
+<script src="../assets/javascripts/application.583bbe55.js"></script>
+<script src="../assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"../."}})</script>
+<script type="text/javascript" src="../lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="../lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+window.prettyPrint && prettyPrint();
+});
+</script>
+</body>
+</html>

@@ -1,128 +1,193 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en">
-
+<html lang="en" class="no-js">
 <head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<meta name="generator" content="Paradox, paradox-material-theme=0.7.0, mkdocs-material=3.0.3">
+
+<meta name="lang:clipboard.copy" content="Copy to clipboard">
+<meta name="lang:clipboard.copied" content="Copied to clipboard">
+<meta name="lang:search.language" content="">
+<meta name="lang:search.pipeline.stopwords" content="true">
+<meta name="lang:search.pipeline.trimmer" content="true">
+<meta name="lang:search.result.none" content="No matching documents">
+<meta name="lang:search.result.one" content="1 matching document">
+<meta name="lang:search.result.other" content="# matching documents">
+<meta name="lang:search.tokenizer" content="[\s\-]+">
+
+
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<link rel="shortcut icon" href="../assets/images/favicon.png">
 <title>useState · Fluxus</title>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content='A minimalist UI framework inspired by component-based design, built with Scala.js'/>
-<link rel="canonical" href="https://github.com/edadma/fluxushooks/useState.html"/>
-<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="../lib/jquery/jquery.min.js"></script>
-<script type="text/javascript" src="../js/page.js"></script>
-<script type="text/javascript" src="../js/warnOldVersion.js"></script>
-<script type="text/javascript" src="../js/groups.js"></script>
-<script type="text/javascript" src="../js/snippets.js"></script>
-<link rel="stylesheet" type="text/css" href="../lib/foundation/dist/foundation.min.css"/>
-<link rel="stylesheet" type="text/css" href="../css/page.css"/>
-
-<!--
-<link rel="shortcut icon" href="../images/favicon.ico" />
--->
+<link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="../lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="../lib/prettify/prettify.css">
+<script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+<style>
+body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
+code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
+</style>
+<link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="../assets/fonts/material-icons.css">
+<link rel="stylesheet" href="../assets/stylesheets/paradox-material-theme.css">
 </head>
-
-<body>
-<div class="off-canvas-wrapper">
-<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
-
-<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
-<nav class="off-canvas-nav">
-<div class="nav-home">
-<a href="../index.html" >
-<span class="home-icon">⌂</span>Fluxus
+<body
+>
+<input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+<input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+<label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+<header class="md-header" data-md-component="header">
+<nav class="md-header-nav md-grid">
+<div class="md-flex">
+<div class="md-flex__cell md-flex__cell--shrink">
+<a href="../index.html" title="Fluxus" class="md-header-nav__button md-logo">
+<i class="md-icon">local_library</i>
 </a>
-<div class="version-number">
-0.0.30
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch">
+<div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+<span class="md-header-nav__topic">
+Fluxus
+</span>
+<span class="md-header-nav__topic">
+useState
+</span>
 </div>
 </div>
-<div class="nav-toc">
-<ul>
-  <li><a href="../overview.html" class="page">Overview</a></li>
-  <li><a href="../getting-started.html" class="page">Getting Started</a></li>
-  <li><a href="../hooks/index.html" class="page">Hooks</a>
-  <ul>
-    <li><a href="../hooks/useState.html" class="active page">useState</a></li>
-  </ul></li>
-</ul>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+<label class="md-icon md-search__icon" for="__search"></label>
+<button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">&#xE5CD;</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix>
+<div class="md-search-result" data-md-component="result">
+<div class="md-search-result__meta">
+Type to start searching
+</div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
 </div>
 
+</div>
+</div>
 </nav>
-</div>
-
-<div class="off-canvas-content" data-off-canvas-content>
-
-<header class="site-header expanded row">
-<div class="small-12 column">
-<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
-H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
-C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
-</a>
-<div class="title"><a href="../index.html">Fluxus</a></div>
-
-<!--
-<a href="https://www.example.com" class="logo show-for-medium">logo</a>
--->
-</div>
 </header>
 
-<div class="expanded row">
-
-<div class="medium-3 large-2 show-for-medium column">
-<nav class="site-nav">
-<div class="nav-home">
-<a href="../index.html" >
-<span class="home-icon">⌂</span>Fluxus
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner md-grid" data-md-component="container">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
+<label class="md-nav__title md-nav__title--site" for="drawer">
+<a href="../index.html" title="Fluxus" class="md-nav__button md-logo">
+<span class="md-nav__button md-logo">
+<i class="md-icon">local_library</i>
 </a>
-<div class="version-number">
-0.0.30
-</div>
-</div>
-<div class="nav-toc">
+<a href="../index.html" title="Fluxus">
+Fluxus
+</a>
+</label>
 <ul>
-  <li><a href="../overview.html" class="page">Overview</a></li>
-  <li><a href="../getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="../getting-started.html" class="page">Getting Started with Fluxus</a></li>
+  <li><a href="../core-concepts/index.html" class="page">Core Concepts</a>
+  <ul>
+    <li><a href="../core-concepts/virtual-dom.html" class="page">Virtual DOM</a></li>
+    <li><a href="../core-concepts/components.html" class="page">Components</a></li>
+    <li><a href="../core-concepts/reconciliation.html" class="page">Reconciliation</a></li>
+    <li><a href="../core-concepts/hooks.html" class="page">Hooks</a></li>
+    <li><a href="../core-concepts/event-handling.html" class="page">Event Handling</a></li>
+  </ul></li>
   <li><a href="../hooks/index.html" class="page">Hooks</a>
   <ul>
     <li><a href="../hooks/useState.html" class="active page">useState</a></li>
+    <li><a href="../hooks/useEffect.html" class="page">useEffect</a></li>
+    <li><a href="../hooks/useRef.html" class="page">useRef</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html" class="page">useMemo and useCallback Hooks</a></li>
+    <li><a href="../hooks/useFetch.html" class="page">useFetch Hook</a></li>
+    <li><a href="../hooks/useSignal.html" class="page">useSignal Hook</a></li>
+    <li><a href="../hooks/custom-hooks.html" class="page">Custom Hooks</a></li>
   </ul></li>
 </ul>
-</div>
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../hooks/useState.html#usestate" class="header">useState</a>
+  <ul>
+    <li><a href="../hooks/useState.html#basic-usage" class="header">Basic Usage</a></li>
+    <li><a href="../hooks/useState.html#examples" class="header">Examples</a></li>
+    <li><a href="../hooks/useState.html#lazy-initialization" class="header">Lazy Initialization</a></li>
+    <li><a href="../hooks/useState.html#multiple-state-variables" class="header">Multiple State Variables</a></li>
+    <li><a href="../hooks/useState.html#batching-of-updates" class="header">Batching of Updates</a></li>
+    <li><a href="../hooks/useState.html#functional-updates-vs-direct-updates" class="header">Functional Updates vs Direct Updates</a></li>
+    <li><a href="../hooks/useState.html#typed-state" class="header">Typed State</a></li>
+    <li><a href="../hooks/useState.html#implementation-details" class="header">Implementation Details</a></li>
+  </ul></li>
+</ul>
+</nav>
 
 </nav>
-</div>
-
-<div class="small-12 medium-9 large-10 column">
-<section class="site-content">
-
-<span id="version-warning"></span>
-
-<div class="page-header row">
-<div class="medium-12 show-for-medium column">
-<div class="nav-breadcrumbs">
-<ul>
-  <li><a href="../index.html">Fluxus</a></li>
-  <li><a href="../hooks/index.html">Hooks</a></li>
-  <li>useState</li>
+<ul style="display: none">
+<li class="md-nav__item md-version" id="project.version">
+<label class="md-nav__link" for="__version">
+<i class="md-icon" title="Version">label_outline</i> 0.0.30
+</label>
+</li>
 </ul>
 </div>
 </div>
 </div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../hooks/useState.html#usestate" class="header">useState</a>
+  <ul>
+    <li><a href="../hooks/useState.html#basic-usage" class="header">Basic Usage</a></li>
+    <li><a href="../hooks/useState.html#examples" class="header">Examples</a></li>
+    <li><a href="../hooks/useState.html#lazy-initialization" class="header">Lazy Initialization</a></li>
+    <li><a href="../hooks/useState.html#multiple-state-variables" class="header">Multiple State Variables</a></li>
+    <li><a href="../hooks/useState.html#batching-of-updates" class="header">Batching of Updates</a></li>
+    <li><a href="../hooks/useState.html#functional-updates-vs-direct-updates" class="header">Functional Updates vs Direct Updates</a></li>
+    <li><a href="../hooks/useState.html#typed-state" class="header">Typed State</a></li>
+    <li><a href="../hooks/useState.html#implementation-details" class="header">Implementation Details</a></li>
+  </ul></li>
+</ul>
+</nav>
 
-<div class="page-content row">
-<div class="small-12 large-9 column" id="docs">
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<div class="md-content__searchable">
 <h1><a href="#usestate" name="usestate" class="anchor"><span class="anchor-link"></span></a>useState</h1>
-<p>The <code>useState</code> hook lets you add state to your functional components. It&rsquo;s the primary way to introduce reactivity into your UI.</p>
-<h2><a href="#signature" name="signature" class="anchor"><span class="anchor-link"></span></a>Signature</h2>
-<pre class="prettyprint"><code class="language-scala">def useState[T](initial: T): (T, T =&gt; Unit, (T =&gt; T) =&gt; Unit)
-</code></pre>
-<h2><a href="#parameters" name="parameters" class="anchor"><span class="anchor-link"></span></a>Parameters</h2>
-<ul>
-  <li><code>initial</code>: The initial state value</li>
-</ul>
-<h2><a href="#return-value" name="return-value" class="anchor"><span class="anchor-link"></span></a>Return Value</h2>
-<p>A tuple containing: 1. The current state value 2. A function to directly set the state to a new value 3. A function to update the state based on the previous value</p>
+<p>The <code>useState</code> hook adds local state to a Fluxus function component. It returns a value and setter functions that you can use to update the state.</p>
 <h2><a href="#basic-usage" name="basic-usage" class="anchor"><span class="anchor-link"></span></a>Basic Usage</h2>
-<pre class="prettyprint"><code class="language-scala">def Counter = () =&gt; {
+<pre class="prettyprint"><code class="language-scala">val (state, setState, updateState) = useState(initialValue)
+</code></pre>
+<p>Where: - <code>state</code> is the current state value - <code>setState</code> is a function to directly set a new state value - <code>updateState</code> is a function that takes a function to update the state based on its previous value</p>
+<h2><a href="#examples" name="examples" class="anchor"><span class="anchor-link"></span></a>Examples</h2>
+<h3><a href="#simple-counter" name="simple-counter" class="anchor"><span class="anchor-link"></span></a>Simple Counter</h3>
+<pre class="prettyprint"><code class="language-scala">val Counter = () =&gt; {
   val (count, setCount, _) = useState(0)
   
   div(
@@ -134,189 +199,261 @@ C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.
   )
 }
 </code></pre>
-<h2><a href="#direct-updates-vs-functional-updates" name="direct-updates-vs-functional-updates" class="anchor"><span class="anchor-link"></span></a>Direct Updates vs. Functional Updates</h2>
-<p>You can update state in two ways:</p>
-<h3><a href="#direct-updates" name="direct-updates" class="anchor"><span class="anchor-link"></span></a>Direct Updates</h3>
-<p>Use the second return value to set a new state value directly:</p>
-<pre class="prettyprint"><code class="language-scala">val (count, setCount, _) = useState(0)
-
-// Direct update
-setCount(5) // Sets count to 5 regardless of current value
-</code></pre>
-<h3><a href="#functional-updates" name="functional-updates" class="anchor"><span class="anchor-link"></span></a>Functional Updates</h3>
-<p>Use the third return value to update state based on the previous value:</p>
-<pre class="prettyprint"><code class="language-scala">val (count, _, updateCount) = useState(0)
-
-// Functional update
-updateCount(prevCount =&gt; prevCount + 1)
-</code></pre>
-<p>Functional updates are particularly useful when the new state depends on the previous state, especially in cases where multiple updates might be batched together.</p>
-<h2><a href="#examples" name="examples" class="anchor"><span class="anchor-link"></span></a>Examples</h2>
-<h3><a href="#simple-counter" name="simple-counter" class="anchor"><span class="anchor-link"></span></a>Simple Counter</h3>
-<pre class="prettyprint"><code class="language-scala">def Counter = () =&gt; {
-  val (count, setCount, _) = useState(0)
+<h3><a href="#using-the-update-function" name="using-the-update-function" class="anchor"><span class="anchor-link"></span></a>Using the Update Function</h3>
+<p>The update function is particularly useful when you need to update state based on the previous value:</p>
+<pre class="prettyprint"><code class="language-scala">val Counter = () =&gt; {
+  val (count, _, updateCount) = useState(0)
   
   div(
-    div(s&quot;Count: $count&quot;),
-    button(onClick := (() =&gt; setCount(count + 1)), &quot;Increment&quot;),
-    button(onClick := (() =&gt; setCount(count - 1)), &quot;Decrement&quot;),
-    button(onClick := (() =&gt; setCount(0)), &quot;Reset&quot;)
+    p(s&quot;Count: $count&quot;),
+    div(
+      button(
+        onClick := (() =&gt; updateCount(_ - 1)),
+        &quot;Decrement&quot;
+      ),
+      button(
+        onClick := (() =&gt; updateCount(_ + 1)),
+        &quot;Increment&quot;
+      ),
+      button(
+        onClick := (() =&gt; {
+          // Multiple updates in sequence
+          updateCount(_ =&gt; 0) // Reset to 0
+          updateCount(_ + 10) // Then add 10
+        }),
+        &quot;Reset and Add 10&quot;
+      )
+    )
   )
 }
 </code></pre>
-<h3><a href="#form-input" name="form-input" class="anchor"><span class="anchor-link"></span></a>Form Input</h3>
-<pre class="prettyprint"><code class="language-scala">def FormExample = () =&gt; {
+<h3><a href="#form-inputs" name="form-inputs" class="anchor"><span class="anchor-link"></span></a>Form Inputs</h3>
+<pre class="prettyprint"><code class="language-scala">val LoginForm = () =&gt; {
+  val (username, setUsername, _) = useState(&quot;&quot;)
+  val (password, setPassword, _) = useState(&quot;&quot;)
+  
+  def handleSubmit(): Unit = {
+    console.log(s&quot;Logging in with: $username / $password&quot;)
+  }
+  
+  form(
+    div(
+      label(&quot;Username:&quot;),
+      input(
+        typ := &quot;text&quot;,
+        value := username,
+        onInput := ((e: dom.Event) =&gt; 
+          setUsername(e.target.asInstanceOf[dom.html.Input].value)
+        )
+      )
+    ),
+    div(
+      label(&quot;Password:&quot;),
+      input(
+        typ := &quot;password&quot;,
+        value := password,
+        onInput := ((e: dom.Event) =&gt; 
+          setPassword(e.target.asInstanceOf[dom.html.Input].value)
+        )
+      )
+    ),
+    button(
+      typ := &quot;button&quot;,
+      onClick := (() =&gt; handleSubmit()),
+      &quot;Log In&quot;
+    )
+  )
+}
+</code></pre>
+<h3><a href="#objects-and-collections" name="objects-and-collections" class="anchor"><span class="anchor-link"></span></a>Objects and Collections</h3>
+<p>When using objects or collections as state, always update them immutably:</p>
+<pre class="prettyprint"><code class="language-scala">case class Todo(id: String, text: String, completed: Boolean)
+
+val TodoApp = () =&gt; {
+  val (todos, _, updateTodos) = useState(Vector[Todo]())
+  val (newTodo, setNewTodo, _) = useState(&quot;&quot;)
+  
+  def addTodo(): Unit = {
+    if (newTodo.nonEmpty) {
+      updateTodos(prevTodos =&gt; 
+        prevTodos :+ Todo(
+          id = java.util.UUID.randomUUID().toString,
+          text = newTodo,
+          completed = false
+        )
+      )
+      setNewTodo(&quot;&quot;)
+    }
+  }
+  
+  def toggleTodo(id: String): Unit = {
+    updateTodos(prevTodos =&gt; 
+      prevTodos.map(todo =&gt; 
+        if (todo.id == id) todo.copy(completed = !todo.completed)
+        else todo
+      )
+    )
+  }
+  
+  div(
+    div(
+      input(
+        typ := &quot;text&quot;,
+        value := newTodo,
+        onInput := ((e: dom.Event) =&gt; 
+          setNewTodo(e.target.asInstanceOf[dom.html.Input].value)
+        ),
+        placeholder := &quot;Add a todo&quot;
+      ),
+      button(onClick := (() =&gt; addTodo()), &quot;Add&quot;)
+    ),
+    ul(
+      todos.map(todo =&gt; 
+        li(
+          key := todo.id,
+          input(
+            typ := &quot;checkbox&quot;,
+            checked := todo.completed,
+            onChange := (() =&gt; toggleTodo(todo.id))
+          ),
+          span(
+            cls := (if (todo.completed) &quot;completed&quot; else &quot;&quot;),
+            todo.text
+          )
+        )
+      )
+    )
+  )
+}
+</code></pre>
+<h2><a href="#lazy-initialization" name="lazy-initialization" class="anchor"><span class="anchor-link"></span></a>Lazy Initialization</h2>
+<p>If creating the initial state is expensive, you can pass a function to <code>useState</code>:</p>
+<pre class="prettyprint"><code class="language-scala">val (state, setState, _) = useState(() =&gt; {
+  // Expensive computation
+  computeInitialState()
+})
+</code></pre>
+<p>This function will only be called during the initial render.</p>
+<h2><a href="#multiple-state-variables" name="multiple-state-variables" class="anchor"><span class="anchor-link"></span></a>Multiple State Variables</h2>
+<p>You can call <code>useState</code> multiple times in the same component:</p>
+<pre class="prettyprint"><code class="language-scala">val Form = () =&gt; {
   val (name, setName, _) = useState(&quot;&quot;)
+  val (age, setAge, _) = useState(0)
+  val (email, setEmail, _) = useState(&quot;&quot;)
   
-  div(
-    div(&quot;Enter your name:&quot;),
-    input(
-      value_ := name,
-      onInput := ((e: org.scalajs.dom.Event) =&gt; 
-        setName(e.target.asInstanceOf[org.scalajs.dom.html.Input].value)
-      )
-    ),
-    if (name.nonEmpty) 
-      p(s&quot;Hello, $name!&quot;)
-    else
-      null
-  )
+  // Component body
 }
 </code></pre>
-<h3><a href="#complex-state-with-case-classes" name="complex-state-with-case-classes" class="anchor"><span class="anchor-link"></span></a>Complex State with Case Classes</h3>
-<pre class="prettyprint"><code class="language-scala">case class User(name: String, email: String)
-
-def UserForm = () =&gt; {
-  val (user, setUser, updateUser) = useState(User(&quot;&quot;, &quot;&quot;))
-  
-  div(
-    div(&quot;Name:&quot;),
-    input(
-      value_ := user.name,
-      onInput := ((e: org.scalajs.dom.Event) =&gt; 
-        updateUser(prev =&gt; prev.copy(name = e.target.asInstanceOf[org.scalajs.dom.html.Input].value))
-      )
-    ),
-    div(&quot;Email:&quot;),
-    input(
-      value_ := user.email,
-      onInput := ((e: org.scalajs.dom.Event) =&gt; 
-        updateUser(prev =&gt; prev.copy(email = e.target.asInstanceOf[org.scalajs.dom.html.Input].value))
-      )
-    ),
-    div(s&quot;Current user: ${user.name} (${user.email})&quot;)
-  )
-}
+<h2><a href="#batching-of-updates" name="batching-of-updates" class="anchor"><span class="anchor-link"></span></a>Batching of Updates</h2>
+<p>Fluxus automatically batches multiple state updates that occur within the same event handler:</p>
+<pre class="prettyprint"><code class="language-scala">button(
+  onClick := (() =&gt; {
+    setCount(count + 1) // These will be batched,
+    setFlag(true)       // causing only one re-render
+  })
+)
 </code></pre>
-<h2><a href="#best-practices" name="best-practices" class="anchor"><span class="anchor-link"></span></a>Best Practices</h2>
+<h2><a href="#functional-updates-vs-direct-updates" name="functional-updates-vs-direct-updates" class="anchor"><span class="anchor-link"></span></a>Functional Updates vs Direct Updates</h2>
+<p>There&rsquo;s an important difference between the direct update (<code>setState</code>) and functional update (<code>updateState</code>) functions:</p>
+<ul>
+  <li><strong>Direct update</strong> (<code>setState</code>): Sets the state to a new value regardless of the previous value</li>
+  <li><strong>Functional update</strong> (<code>updateState</code>): Accepts a function that receives the previous state and returns the new state</li>
+</ul>
+<p>When to use each:</p>
 <ol>
   <li>
-  <p><strong>Use multiple state hooks for unrelated state variables</strong> rather than combining everything into one complex state object.</p></li>
+  <p>Use <strong>direct update</strong> when the new state doesn&rsquo;t depend on the previous state:  <code>scala
+   setName(&quot;John&quot;)
+   setIsOpen(true)
+</code></p></li>
   <li>
-  <p><strong>Use functional updates when the new state depends on the previous state</strong> to avoid issues with stale closures.</p></li>
-  <li>
-  <p><strong>Keep state minimal and derived values computed</strong> - don&rsquo;t store values that can be computed from other state.</p></li>
-  <li>
-  <p><strong>Use the updater function</strong> (<code>updateCount</code> in our examples) for state that depends on previous state, especially inside event handlers or effects.</p></li>
+  <p>Use <strong>functional update</strong> when the new state depends on the previous state:  <code>scala
+   updateCount(prev =&gt; prev + 1)
+   updateItems(prev =&gt; prev :+ newItem)
+</code></p></li>
 </ol>
-<h2><a href="#limitations" name="limitations" class="anchor"><span class="anchor-link"></span></a>Limitations</h2>
-<ul>
-  <li>
-  <p>Hooks, including <code>useState</code>, can only be called at the top level of your component function, not inside loops, conditions, or nested functions.</p></li>
-  <li>
-  <p>The state is maintained as long as the component is mounted. When a component is unmounted, its state is destroyed.</p></li>
-</ul>
-<h2><a href="#see-also" name="see-also" class="anchor"><span class="anchor-link"></span></a>See Also</h2>
-<div class="source-github">
-The source code for this page can be found <a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/hooks/useState.md">here</a>.
-</div>
+<p>Functional updates are especially important when dealing with asynchronous updates, as they ensure you&rsquo;re always working with the latest state.</p>
+<h2><a href="#typed-state" name="typed-state" class="anchor"><span class="anchor-link"></span></a>Typed State</h2>
+<p>Fluxus&rsquo;s <code>useState</code> hook is fully typed, allowing the Scala compiler to ensure type safety:</p>
+<pre class="prettyprint"><code class="language-scala">// The type is inferred from the initial value
+val (count, setCount, updateCount) = useState(0)
+setCount(&quot;not a number&quot;) // Compilation error
 
+// You can explicitly specify the type
+val (items, setItems, updateItems) = useState[List[String]](List())
+</code></pre>
+<h2><a href="#implementation-details" name="implementation-details" class="anchor"><span class="anchor-link"></span></a>Implementation Details</h2>
+<p>The <code>useState</code> hook is implemented using the component instance&rsquo;s hook array. Each component maintains an array of hooks in the order they were called. The <code>useState</code> hook adds a <code>StateHook</code> to this array.</p>
+<p>When a component re-renders, the hooks are matched up by their call order, ensuring that the state is preserved across renders.</p>
 </div>
-<div class="large-3 show-for-large column" data-sticky-container>
-<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
-<div class="page-nav">
-<div class="nav-title">On this page:</div>
-<div class="nav-toc">
-<ul>
-  <li><a href="../hooks/useState.html#usestate" class="header">useState</a>
-  <ul>
-    <li><a href="../hooks/useState.html#signature" class="header">Signature</a></li>
-    <li><a href="../hooks/useState.html#parameters" class="header">Parameters</a></li>
-    <li><a href="../hooks/useState.html#return-value" class="header">Return Value</a></li>
-    <li><a href="../hooks/useState.html#basic-usage" class="header">Basic Usage</a></li>
-    <li><a href="../hooks/useState.html#direct-updates-vs-functional-updates" class="header">Direct Updates vs. Functional Updates</a></li>
-    <li><a href="../hooks/useState.html#examples" class="header">Examples</a></li>
-    <li><a href="../hooks/useState.html#best-practices" class="header">Best Practices</a></li>
-    <li><a href="../hooks/useState.html#limitations" class="header">Limitations</a></li>
-    <li><a href="../hooks/useState.html#see-also" class="header">See Also</a></li>
-  </ul></li>
-</ul>
+<div>
+<a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/hooks/useState.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
+</div>
+<div class="print-only">
+<span class="md-source-file md-version">
+0.0.30
+</span>
+</div>
+</article>
 </div>
 </div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav class="md-footer-nav__inner md-grid">
+<a href="../hooks/index.html" title="Hooks" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Previous
+</span>
+Hooks
+</span>
+</div>
+</a>
+<a href="../hooks/useEffect.html" title="useEffect" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
+useEffect
+</span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+</div>
+</a>
 </nav>
 </div>
-</div>
-
-</section>
-</div>
-
-</div>
-
-<footer class="site-footer">
-
-<section class="site-footer-nav">
-<div class="expanded row">
-<div class="small-12 large-offset-2 large-10 column">
-<div class="row site-footer-content">
-
-<div class="small-12 medium-4 large-3 text-center column">
-<div class="nav-links">
-<ul>
-<!-- <li><a href="https://www.example.com/products/">Products</a> -->
-</ul>
-</div>
-</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+Powered by
+<a href="https://github.com/lightbend/paradox">Paradox</a>
+and
+<a href="https://sbt.github.io/sbt-paradox-material-theme/">Paradox Material Theme</a>
 
 </div>
 </div>
 </div>
-</section>
-
-<section class="site-footer-base">
-<div class="expanded row">
-<div class="small-12 large-offset-2 large-10 column">
-<div class="row site-footer-content">
-
-<div class="small-12 text-center large-9 column">
-
-<!--
-<div class="copyright">
-<span class="text">&copy; 2025</span>
-<a href="https://www.example.com" class="logo">logo</a>
-</div>
--->
-</div>
-
-</div>
-</div>
-</div>
-</section>
 </footer>
 
 </div>
-</div>
-</div>
-</body>
-
-<script type="text/javascript" src="../lib/foundation/dist/foundation.min.js"></script>
-<script type="text/javascript">jQuery(document).foundation();</script>
-<script type="text/javascript" src="../js/magellan.js"></script>
-
-<style type="text/css">@import "../lib/prettify/prettify.css";</style>
+<script src="../assets/javascripts/application.583bbe55.js"></script>
+<script src="../assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"../."}})</script>
 <script type="text/javascript" src="../lib/prettify/prettify.js"></script>
 <script type="text/javascript" src="../lib/prettify/lang-scala.js"></script>
-<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
-<script type="text/javascript">jQuery(function(jq){initOldVersionWarnings(jq, '0.0.30', 'https://github.com/edadma/fluxus')});</script>
-
-
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+window.prettyPrint && prettyPrint();
+});
+</script>
+</body>
 </html>

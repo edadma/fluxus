@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<meta name="generator" content="Paradox, paradox-material-theme=0.7.0, mkdocs-material=3.0.3">
+
+<meta name="lang:clipboard.copy" content="Copy to clipboard">
+<meta name="lang:clipboard.copied" content="Copied to clipboard">
+<meta name="lang:search.language" content="">
+<meta name="lang:search.pipeline.stopwords" content="true">
+<meta name="lang:search.pipeline.trimmer" content="true">
+<meta name="lang:search.result.none" content="No matching documents">
+<meta name="lang:search.result.one" content="1 matching document">
+<meta name="lang:search.result.other" content="# matching documents">
+<meta name="lang:search.tokenizer" content="[\s\-]+">
+
+
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<link rel="shortcut icon" href="../assets/images/favicon.png">
+<title>Event Handling · Fluxus</title>
+<link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="../lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="../lib/prettify/prettify.css">
+<script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+<style>
+body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
+code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
+</style>
+<link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="../assets/fonts/material-icons.css">
+<link rel="stylesheet" href="../assets/stylesheets/paradox-material-theme.css">
+</head>
+<body
+>
+<input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+<input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+<label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+<header class="md-header" data-md-component="header">
+<nav class="md-header-nav md-grid">
+<div class="md-flex">
+<div class="md-flex__cell md-flex__cell--shrink">
+<a href="../index.html" title="Fluxus" class="md-header-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch">
+<div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+<span class="md-header-nav__topic">
+Fluxus
+</span>
+<span class="md-header-nav__topic">
+Event Handling
+</span>
+</div>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+<label class="md-icon md-search__icon" for="__search"></label>
+<button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">&#xE5CD;</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix>
+<div class="md-search-result" data-md-component="result">
+<div class="md-search-result__meta">
+Type to start searching
+</div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</nav>
+</header>
+
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner md-grid" data-md-component="container">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
+<label class="md-nav__title md-nav__title--site" for="drawer">
+<a href="../index.html" title="Fluxus" class="md-nav__button md-logo">
+<span class="md-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+<a href="../index.html" title="Fluxus">
+Fluxus
+</a>
+</label>
+<ul>
+  <li><a href="../getting-started.html" class="page">Getting Started with Fluxus</a></li>
+  <li><a href="../core-concepts/index.html" class="page">Core Concepts</a>
+  <ul>
+    <li><a href="../core-concepts/virtual-dom.html" class="page">Virtual DOM</a></li>
+    <li><a href="../core-concepts/components.html" class="page">Components</a></li>
+    <li><a href="../core-concepts/reconciliation.html" class="page">Reconciliation</a></li>
+    <li><a href="../core-concepts/hooks.html" class="page">Hooks</a></li>
+    <li><a href="../core-concepts/event-handling.html" class="active page">Event Handling</a></li>
+  </ul></li>
+  <li><a href="../hooks/index.html" class="page">Hooks</a>
+  <ul>
+    <li><a href="../hooks/useState.html" class="page">useState</a></li>
+    <li><a href="../hooks/useEffect.html" class="page">useEffect</a></li>
+    <li><a href="../hooks/useRef.html" class="page">useRef</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html" class="page">useMemo and useCallback Hooks</a></li>
+    <li><a href="../hooks/useFetch.html" class="page">useFetch Hook</a></li>
+    <li><a href="../hooks/useSignal.html" class="page">useSignal Hook</a></li>
+    <li><a href="../hooks/custom-hooks.html" class="page">Custom Hooks</a></li>
+  </ul></li>
+</ul>
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../core-concepts/event-handling.html#event-handling" class="header">Event Handling</a>
+  <ul>
+    <li><a href="../core-concepts/event-handling.html#basic-event-handling" class="header">Basic Event Handling</a></li>
+    <li><a href="../core-concepts/event-handling.html#event-types" class="header">Event Types</a></li>
+    <li><a href="../core-concepts/event-handling.html#accessing-event-information" class="header">Accessing Event Information</a></li>
+    <li><a href="../core-concepts/event-handling.html#preventing-default-behavior" class="header">Preventing Default Behavior</a></li>
+    <li><a href="../core-concepts/event-handling.html#event-propagation" class="header">Event Propagation</a></li>
+    <li><a href="../core-concepts/event-handling.html#event-delegation" class="header">Event Delegation</a></li>
+    <li><a href="../core-concepts/event-handling.html#custom-event-types" class="header">Custom Event Types</a></li>
+    <li><a href="../core-concepts/event-handling.html#memory-management" class="header">Memory Management</a></li>
+    <li><a href="../core-concepts/event-handling.html#events-in-custom-components" class="header">Events in Custom Components</a></li>
+    <li><a href="../core-concepts/event-handling.html#event-object-properties" class="header">Event Object Properties</a></li>
+    <li><a href="../core-concepts/event-handling.html#example-form-handling" class="header">Example: Form Handling</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</nav>
+<ul style="display: none">
+<li class="md-nav__item md-version" id="project.version">
+<label class="md-nav__link" for="__version">
+<i class="md-icon" title="Version">label_outline</i> 0.0.30
+</label>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../core-concepts/event-handling.html#event-handling" class="header">Event Handling</a>
+  <ul>
+    <li><a href="../core-concepts/event-handling.html#basic-event-handling" class="header">Basic Event Handling</a></li>
+    <li><a href="../core-concepts/event-handling.html#event-types" class="header">Event Types</a></li>
+    <li><a href="../core-concepts/event-handling.html#accessing-event-information" class="header">Accessing Event Information</a></li>
+    <li><a href="../core-concepts/event-handling.html#preventing-default-behavior" class="header">Preventing Default Behavior</a></li>
+    <li><a href="../core-concepts/event-handling.html#event-propagation" class="header">Event Propagation</a></li>
+    <li><a href="../core-concepts/event-handling.html#event-delegation" class="header">Event Delegation</a></li>
+    <li><a href="../core-concepts/event-handling.html#custom-event-types" class="header">Custom Event Types</a></li>
+    <li><a href="../core-concepts/event-handling.html#memory-management" class="header">Memory Management</a></li>
+    <li><a href="../core-concepts/event-handling.html#events-in-custom-components" class="header">Events in Custom Components</a></li>
+    <li><a href="../core-concepts/event-handling.html#event-object-properties" class="header">Event Object Properties</a></li>
+    <li><a href="../core-concepts/event-handling.html#example-form-handling" class="header">Example: Form Handling</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<div class="md-content__searchable">
+<h1><a href="#event-handling" name="event-handling" class="anchor"><span class="anchor-link"></span></a>Event Handling</h1>
+<p>Fluxus provides an ergonomic and type-safe way to handle DOM events in your components.</p>
+<h2><a href="#basic-event-handling" name="basic-event-handling" class="anchor"><span class="anchor-link"></span></a>Basic Event Handling</h2>
+<p>Event handlers are attached to elements using attributes with the <code>on</code> prefix:</p>
+<pre class="prettyprint"><code class="language-scala">button(
+  onClick := (() =&gt; console.log(&quot;Button clicked!&quot;)),
+  &quot;Click me&quot;
+)
+</code></pre>
+<h2><a href="#event-types" name="event-types" class="anchor"><span class="anchor-link"></span></a>Event Types</h2>
+<p>Fluxus supports all standard DOM events, including:</p>
+<ul>
+  <li><strong>Mouse events</strong>: onClick, onMouseDown, onMouseUp, onMouseEnter, onMouseLeave, etc.</li>
+  <li><strong>Keyboard events</strong>: onKeyDown, onKeyUp, onKeyPress</li>
+  <li><strong>Form events</strong>: onChange, onSubmit, onInput, onFocus, onBlur</li>
+  <li><strong>Drag events</strong>: onDrag, onDragStart, onDragEnd, onDrop, etc.</li>
+  <li><strong>Touch events</strong>: onTouchStart, onTouchMove, onTouchEnd</li>
+  <li><strong>And more</strong>: onScroll, onWheel, onCopy, onPaste, etc.</li>
+</ul>
+<h2><a href="#accessing-event-information" name="accessing-event-information" class="anchor"><span class="anchor-link"></span></a>Accessing Event Information</h2>
+<p>Event handlers can access the event object to get more information:</p>
+<pre class="prettyprint"><code class="language-scala">input(
+  onInput := ((e: dom.Event) =&gt; {
+    val value = e.target.asInstanceOf[dom.html.Input].value
+    setInputValue(value)
+  }),
+  typ := &quot;text&quot;
+)
+</code></pre>
+<p>For keyboard events, you can check specific keys:</p>
+<pre class="prettyprint"><code class="language-scala">input(
+  onKeyDown := ((e: dom.KeyboardEvent) =&gt; {
+    if (e.key == &quot;Enter&quot;) {
+      submitForm()
+    }
+  }),
+  typ := &quot;text&quot;
+)
+</code></pre>
+<h2><a href="#preventing-default-behavior" name="preventing-default-behavior" class="anchor"><span class="anchor-link"></span></a>Preventing Default Behavior</h2>
+<p>To prevent the default browser behavior for an event, use <code>preventDefault()</code>:</p>
+<pre class="prettyprint"><code class="language-scala">form(
+  onSubmit := ((e: dom.Event) =&gt; {
+    e.preventDefault()
+    // Handle form submission manually
+    submitForm()
+  }),
+  // Form elements
+)
+</code></pre>
+<h2><a href="#event-propagation" name="event-propagation" class="anchor"><span class="anchor-link"></span></a>Event Propagation</h2>
+<p>Events in the DOM bubble up from the target element to its ancestors. You can stop this propagation using <code>stopPropagation()</code>:</p>
+<pre class="prettyprint"><code class="language-scala">div(
+  onClick := (() =&gt; console.log(&quot;Outer div clicked&quot;)),
+  div(
+    onClick := ((e: dom.Event) =&gt; {
+      e.stopPropagation()
+      console.log(&quot;Inner div clicked&quot;)
+    }),
+    &quot;Click me&quot;
+  )
+)
+</code></pre>
+<h2><a href="#event-delegation" name="event-delegation" class="anchor"><span class="anchor-link"></span></a>Event Delegation</h2>
+<p>For large lists, you can use event delegation by attaching a single event handler to a parent element:</p>
+<pre class="prettyprint"><code class="language-scala">ul(
+  onClick := ((e: dom.Event) =&gt; {
+    val target = e.target.asInstanceOf[dom.Element]
+    if (target.nodeName.toLowerCase == &quot;li&quot;) {
+      val id = target.getAttribute(&quot;data-id&quot;)
+      handleItemClick(id)
+    }
+  }),
+  items.map(item =&gt; 
+    li(&quot;data-id&quot; := item.id, item.name)
+  )
+)
+</code></pre>
+<h2><a href="#custom-event-types" name="custom-event-types" class="anchor"><span class="anchor-link"></span></a>Custom Event Types</h2>
+<p>For more type safety, you can define custom event handler types:</p>
+<pre class="prettyprint"><code class="language-scala">type InputChangeHandler = dom.Event =&gt; Unit
+type SubmitHandler = dom.Event =&gt; Unit
+
+// Usage
+def FormComponent() = {
+  val handleInputChange: InputChangeHandler = e =&gt; {
+    val value = e.target.asInstanceOf[dom.html.Input].value
+    setInputValue(value)
+  }
+  
+  val handleSubmit: SubmitHandler = e =&gt; {
+    e.preventDefault()
+    submitForm()
+  }
+  
+  form(
+    onSubmit := handleSubmit,
+    input(onInput := handleInputChange)
+  )
+}
+</code></pre>
+<h2><a href="#memory-management" name="memory-management" class="anchor"><span class="anchor-link"></span></a>Memory Management</h2>
+<p>Fluxus automatically cleans up event listeners when components are unmounted, so you don&rsquo;t need to worry about memory leaks from event handlers.</p>
+<h2><a href="#events-in-custom-components" name="events-in-custom-components" class="anchor"><span class="anchor-link"></span></a>Events in Custom Components</h2>
+<p>When creating custom components, you can pass event handlers as props:</p>
+<pre class="prettyprint"><code class="language-scala">case class ButtonProps(
+  onClick: () =&gt; Unit,
+  label: String
+)
+
+val Button = (props: ButtonProps) =&gt; {
+  button(
+    cls := &quot;custom-button&quot;,
+    onClick := props.onClick,
+    props.label
+  )
+}
+
+// Usage
+Button &lt;&gt; ButtonProps(() =&gt; console.log(&quot;Custom button clicked&quot;), &quot;Click me&quot;)
+</code></pre>
+<h2><a href="#event-object-properties" name="event-object-properties" class="anchor"><span class="anchor-link"></span></a>Event Object Properties</h2>
+<p>Common properties of DOM event objects include:</p>
+<ul>
+  <li><code>target</code>: The element that triggered the event</li>
+  <li><code>currentTarget</code>: The element that the event handler is attached to</li>
+  <li><code>preventDefault()</code>: Prevents the default action</li>
+  <li><code>stopPropagation()</code>: Stops the event from bubbling up</li>
+  <li><code>timeStamp</code>: The time when the event was created</li>
+  <li><code>type</code>: The type of event (e.g., &ldquo;click&rdquo;, &ldquo;keydown&rdquo;)</li>
+</ul>
+<p>Additional properties are available for specific event types:</p>
+<ul>
+  <li><code>MouseEvent</code>: clientX, clientY, button</li>
+  <li><code>KeyboardEvent</code>: key, keyCode, ctrlKey, altKey, shiftKey</li>
+  <li><code>InputEvent</code>: data, inputType</li>
+  <li><code>TouchEvent</code>: touches, changedTouches</li>
+</ul>
+<h2><a href="#example-form-handling" name="example-form-handling" class="anchor"><span class="anchor-link"></span></a>Example: Form Handling</h2>
+<p>Here&rsquo;s a complete example of form handling with events:</p>
+<pre class="prettyprint"><code class="language-scala">def LoginForm() = {
+  val (username, setUsername, _) = useState(&quot;&quot;)
+  val (password, setPassword, _) = useState(&quot;&quot;)
+  val (error, setError, _) = useState(&quot;&quot;)
+  
+  def handleSubmit(e: dom.Event) = {
+    e.preventDefault()
+    
+    if (username.isEmpty || password.isEmpty) {
+      setError(&quot;Please fill in all fields&quot;)
+    } else {
+      setError(&quot;&quot;)
+      // Submit the form
+      loginUser(username, password)
+    }
+  }
+  
+  form(
+    onSubmit := handleSubmit,
+    
+    if (error.nonEmpty) {
+      div(cls := &quot;error&quot;, error)
+    },
+    
+    div(
+      label(&quot;Username&quot;),
+      input(
+        typ := &quot;text&quot;,
+        value := username,
+        onInput := ((e: dom.Event) =&gt; 
+          setUsername(e.target.asInstanceOf[dom.html.Input].value)
+        )
+      )
+    ),
+    
+    div(
+      label(&quot;Password&quot;),
+      input(
+        typ := &quot;password&quot;,
+        value := password,
+        onInput := ((e: dom.Event) =&gt; 
+          setPassword(e.target.asInstanceOf[dom.html.Input].value)
+        )
+      )
+    ),
+    
+    button(typ := &quot;submit&quot;, &quot;Log in&quot;)
+  )
+}
+</code></pre>
+</div>
+<div>
+<a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/core-concepts/event-handling.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
+</div>
+<div class="print-only">
+<span class="md-source-file md-version">
+0.0.30
+</span>
+</div>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav class="md-footer-nav__inner md-grid">
+<a href="../core-concepts/hooks.html" title="Hooks" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Previous
+</span>
+Hooks
+</span>
+</div>
+</a>
+<a href="../hooks/index.html" title="Hooks" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
+Hooks
+</span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+Powered by
+<a href="https://github.com/lightbend/paradox">Paradox</a>
+and
+<a href="https://sbt.github.io/sbt-paradox-material-theme/">Paradox Material Theme</a>
+
+</div>
+</div>
+</div>
+</footer>
+
+</div>
+<script src="../assets/javascripts/application.583bbe55.js"></script>
+<script src="../assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"../."}})</script>
+<script type="text/javascript" src="../lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="../lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+window.prettyPrint && prettyPrint();
+});
+</script>
+</body>
+</html>
