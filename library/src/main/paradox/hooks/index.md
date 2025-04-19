@@ -1,99 +1,89 @@
 # Hooks
 
-Hooks are functions that let you "hook into" Fluxus state and lifecycle features from functional components. They let you use state and other Fluxus features without writing a class.
-
-## Available Hooks
+Hooks are functions that let you use state and other Fluxus features in functional components. This section covers the built-in hooks and how to create custom hooks.
 
 @@@ index
 
 * [useState](useState.md)
+* [useEffect](useEffect.md)
+* [useRef](useRef.md)
+* [useMemo and useCallback](useMemo-useCallback.md)
+* [useFetch](useFetch.md)
+* [useSignal](useSignal.md)
+* [Custom Hooks](custom-hooks.md)
 
 @@@
 
+## Overview
+
+Hooks were introduced to solve several problems in component-based UI libraries:
+
+1. **Reusing stateful logic** between components without complex patterns
+2. **Splitting components** into smaller functions based on related pieces
+3. **Using state** without writing class components
+
+In Fluxus, hooks are implemented using a simple index-based system that tracks hook calls within each component instance.
+
 ## Rules of Hooks
 
-There are two important rules you need to follow when using hooks:
+To ensure hooks work correctly, you must follow these rules:
 
-1. **Only call hooks at the top level of your component**. Don't call hooks inside loops, conditions, or nested functions.
+1. **Only call hooks at the top level** of your component functions. Don't call hooks inside loops, conditions, or nested functions.
 
-2. **Only call hooks from Fluxus functional components**. Don't call hooks from regular JavaScript functions.
+2. **Only call hooks from Fluxus component functions**. Don't call them from regular Scala functions.
 
-Following these rules ensures that state is preserved correctly between renders.
+The reason for these rules is that Fluxus relies on the order of hook calls to maintain each hook's state across renders.
 
 ## Basic Example
 
-Here's a component that uses multiple hooks:
+Here's a simple example using the `useState` hook:
 
 ```scala
-def ProfileForm = () => {
-  // State for form inputs
-  val (name, setName, _) = useState("")
-  val (bio, setBio, _) = useState("")
-  
-  // Effect to load data
-  useEffect(() => {
-    // Load data from an API
-    println("Component mounted")
-    
-    // Return cleanup function
-    () => println("Component unmounted")
-  }, Seq())
-  
-  // Computed value
-  val isFormValid = useMemo(
-    () => name.nonEmpty && bio.length <= 200,
-    Seq(name, bio)
-  )
+val Counter = () => {
+  val (count, setCount, _) = useState(0)
   
   div(
-    h2("Profile"),
-    div(
-      label("Name:"),
-      input(
-        value_ := name,
-        onInput := ((e) => setName(e.target.asInstanceOf[org.scalajs.dom.html.Input].value))
-      )
-    ),
-    div(
-      label("Bio:"),
-      textarea(
-        value_ := bio,
-        onInput := ((e) => setBio(e.target.asInstanceOf[org.scalajs.dom.html.TextArea].value))
-      ),
-      div(s"${bio.length}/200 characters")
-    ),
+    p(s"Count: $count"),
     button(
-      disabled := !isFormValid,
-      "Save Profile"
+      onClick := (() => setCount(count + 1)),
+      "Increment"
     )
   )
 }
 ```
 
-## Custom Hooks
+## Available Hooks
 
-You can create your own custom hooks to extract component logic into reusable functions:
+Fluxus provides several built-in hooks:
+
+- **useState**: Adds local state to a function component
+- **useEffect**: Performs side effects in function components
+- **useRef**: Creates a mutable reference that persists across renders
+- **useMemo**: Memoizes expensive computations
+- **useCallback**: Memoizes callback functions
+- **useFetch**: Fetches data from a server
+- **useSignal**: Integrates with Airstream for reactive programming
+
+## Creating Custom Hooks
+
+You can create your own hooks to reuse stateful logic between components. A custom hook is simply a function that calls other hooks.
 
 ```scala
-def useFormField[T](initialValue: T): (T, (org.scalajs.dom.Event => Unit), Boolean) = {
+def useFormField(initialValue: String): (String, dom.Event => Unit, Boolean) = {
   val (value, setValue, _) = useState(initialValue)
   val (touched, setTouched, _) = useState(false)
   
-  val handleChange = (e: org.scalajs.dom.Event) => {
-    setValue(e.target.asInstanceOf[org.scalajs.dom.html.Input].value.asInstanceOf[T])
+  val handleChange = (e: dom.Event) => {
+    setValue(e.target.asInstanceOf[dom.html.Input].value)
     setTouched(true)
   }
   
   (value, handleChange, touched)
 }
-
-// Usage in a component
-def Form = () => {
-  val (username, handleUsernameChange, usernameTouched) = useFormField("")
-  val (password, handlePasswordChange, passwordTouched) = useFormField("")
-  
-  // Rest of the component...
-}
 ```
 
-Custom hooks are a powerful way to share logic between components while keeping your code DRY.
+By convention, custom hook names should start with "use" to make it clear they follow the rules of hooks.
+
+## Next Steps
+
+Explore each hook in detail in the following pages, starting with @ref[useState](useState.md).

@@ -1,114 +1,169 @@
-# Getting Started
+# Getting Started with Fluxus
 
-This guide will help you set up a new Fluxus project and build your first component.
+This guide will walk you through setting up a new Fluxus project and creating your first component.
 
 ## Prerequisites
 
-- JDK 11 or higher
-- sbt 1.5.0 or higher
-- Node.js 14.0.0 or higher (for development server)
+- [Scala](https://scala-lang.org/) (3.6.0 or higher)
+- [sbt](https://www.scala-sbt.org/) (1.8.0 or higher)
+- [Node.js](https://nodejs.org/) (16.x or higher)
 
 ## Project Setup
 
-The easiest way to start a new Fluxus project is to use the template repository:
+The easiest way to get started is to use the [fluxus-template](https://github.com/edadma/fluxus-template) repository:
 
 ```bash
-git clone https://github.com/edadma/fluxus-template my-fluxus-app
+git clone https://github.com/edadma/fluxus-template.git my-fluxus-app
 cd my-fluxus-app
+npm install
 ```
 
-Alternatively, you can add Fluxus to an existing Scala.js project:
+### Manual Setup
 
-### sbt Setup
+If you prefer to set up your project manually, create a new SBT project with Scala.js:
 
-Add the following to your `build.sbt`:
+#### build.sbt
+```scala
+ThisBuild / scalaVersion := "3.6.4"
+ThisBuild / organization := "com.example"
+
+lazy val root = project
+  .in(file("."))
+  .enablePlugins(ScalaJSPlugin)
+  .settings(
+    name := "my-fluxus-app",
+    scalaJSUseMainModuleInitializer := true,
+    libraryDependencies ++= Seq(
+      "io.github.edadma" %%% "fluxus" % "0.0.30"
+    )
+  )
+```
+
+#### project/plugins.sbt
+```scala
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.13.1")
+```
+
+## Your First Component
+
+Create a simple application with a counter component:
 
 ```scala
-enablePlugins(ScalaJSPlugin)
+package example
 
-// For Scala 3
-scalaVersion := "3.6.4"
+import io.github.edadma.fluxus.*
 
-// Add Fluxus dependency
-libraryDependencies += "io.github.edadma" %%% "fluxus" % "0.0.30"
+object MyApp {
+  def main(args: Array[String]): Unit = {
+    render(App, "app")
+  }
 
-// Optional: Configure Scala.js settings
-scalaJSUseMainModuleInitializer := true
-scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) }
+  def App: FluxusNode = {
+    val (count, setCount, _) = useState(0)
+    
+    div(
+      cls := "container",
+      h1("My First Fluxus App"),
+      p(s"Count: $count"),
+      button(
+        onClick := (() => setCount(count + 1)),
+        "Increment"
+      )
+    )
+  }
+}
 ```
 
-### HTML Setup
-
-Create an `index.html` file in your project root:
+Create an `index.html` file:
 
 ```html
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="UTF-8">
     <title>My Fluxus App</title>
-</head>
-<body>
+    <style>
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        font-family: system-ui, sans-serif;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        background: #0077cc;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
     <div id="app"></div>
-    <script type="module" src="main.js"></script>
-</body>
+    <script src="./target/scala-3.6.4/my-fluxus-app-fastopt.js"></script>
+  </body>
 </html>
 ```
 
-### JS Entry Point
+## Development Workflow
 
-Create a `main.js` file in your project root:
+1. Start the SBT server:
+   ```bash
+   sbt
+   ```
 
+2. Inside the SBT console, start continuous compilation:
+   ```
+   ~fastLinkJS
+   ```
+
+3. Open the `index.html` file in your browser.
+
+## Using with Vite (Recommended)
+
+For a better development experience with hot reloading, set up Vite with the Scala.js plugin:
+
+### vite.config.js
 ```javascript
-import 'scalajs:main.js'
+import { defineConfig } from "vite";
+import scalaJSPlugin from "@scala-js/vite-plugin-scalajs";
+
+export default defineConfig({
+  plugins: [scalaJSPlugin({
+    cwd: ".",
+    projectID: "root"
+  })],
+});
 ```
 
-## Building Your First Component
-
-Create a new Scala file `src/main/scala/MyApp.scala`:
-
-```scala
-import io.github.edadma.fluxus.*
-
-@main def run(): Unit = {
-  render(App, "app")
-}
-
-def App: FluxusNode = {
-  val (count, setCount, _) = useState(0)
-  
-  div(
-    h1("My First Fluxus App"),
-    p(s"You clicked the button $count times"),
-    button(
-      onClick := (() => setCount(count + 1)),
-      "Click me"
-    )
-  )
+### package.json
+```json
+{
+  "name": "my-fluxus-app",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@scala-js/vite-plugin-scalajs": "^1.0.0",
+    "vite": "^4.3.9"
+  }
 }
 ```
 
-## Running the Application
-
-Start the development server:
+Now you can run the development server with:
 
 ```bash
 npm run dev
 ```
 
-This will compile your Scala.js code and start a development server. Open your browser to the URL shown in the terminal (usually http://localhost:5173).
-
-## Development Workflow
-
-1. Write your components in Scala using Fluxus
-2. Save the files to trigger automatic recompilation
-3. See changes reflected in the browser
-
 ## Next Steps
 
-Now that you have a basic Fluxus application running, you can:
+Now that you have your first Fluxus application running, explore the following topics:
 
-- Learn about @ref[Hooks](hooks/index.md) for state and effects
-- Explore component composition patterns
-- Add styling with CSS or a CSS-in-JS library
-- Integrate with external APIs using `useFetch`
+- @ref[Core Concepts](core-concepts/index.md) to understand the Fluxus architecture
+- @ref[Hooks](hooks/index.md) for state management and side effects

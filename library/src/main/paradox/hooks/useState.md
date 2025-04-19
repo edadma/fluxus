@@ -1,28 +1,24 @@
 # useState
 
-The `useState` hook lets you add state to your functional components. It's the primary way to introduce reactivity into your UI.
-
-## Signature
-
-```scala
-def useState[T](initial: T): (T, T => Unit, (T => T) => Unit)
-```
-
-## Parameters
-
-- `initial`: The initial state value
-
-## Return Value
-
-A tuple containing:
-1. The current state value
-2. A function to directly set the state to a new value
-3. A function to update the state based on the previous value
+The `useState` hook adds local state to a Fluxus function component. It returns a value and setter functions that you can use to update the state.
 
 ## Basic Usage
 
 ```scala
-def Counter = () => {
+val (state, setState, updateState) = useState(initialValue)
+```
+
+Where:
+- `state` is the current state value
+- `setState` is a function to directly set a new state value
+- `updateState` is a function that takes a function to update the state based on its previous value
+
+## Examples
+
+### Simple Counter
+
+```scala
+val Counter = () => {
   val (count, setCount, _) = useState(0)
   
   div(
@@ -35,116 +31,222 @@ def Counter = () => {
 }
 ```
 
-## Direct Updates vs. Functional Updates
+### Using the Update Function
 
-You can update state in two ways:
-
-### Direct Updates
-
-Use the second return value to set a new state value directly:
+The update function is particularly useful when you need to update state based on the previous value:
 
 ```scala
-val (count, setCount, _) = useState(0)
-
-// Direct update
-setCount(5) // Sets count to 5 regardless of current value
-```
-
-### Functional Updates
-
-Use the third return value to update state based on the previous value:
-
-```scala
-val (count, _, updateCount) = useState(0)
-
-// Functional update
-updateCount(prevCount => prevCount + 1)
-```
-
-Functional updates are particularly useful when the new state depends on the previous state, especially in cases where multiple updates might be batched together.
-
-## Examples
-
-### Simple Counter
-
-```scala
-def Counter = () => {
-  val (count, setCount, _) = useState(0)
+val Counter = () => {
+  val (count, _, updateCount) = useState(0)
   
   div(
-    div(s"Count: $count"),
-    button(onClick := (() => setCount(count + 1)), "Increment"),
-    button(onClick := (() => setCount(count - 1)), "Decrement"),
-    button(onClick := (() => setCount(0)), "Reset")
+    p(s"Count: $count"),
+    div(
+      button(
+        onClick := (() => updateCount(_ - 1)),
+        "Decrement"
+      ),
+      button(
+        onClick := (() => updateCount(_ + 1)),
+        "Increment"
+      ),
+      button(
+        onClick := (() => {
+          // Multiple updates in sequence
+          updateCount(_ => 0) // Reset to 0
+          updateCount(_ + 10) // Then add 10
+        }),
+        "Reset and Add 10"
+      )
+    )
   )
 }
 ```
 
-### Form Input
+### Form Inputs
 
 ```scala
-def FormExample = () => {
+val LoginForm = () => {
+  val (username, setUsername, _) = useState("")
+  val (password, setPassword, _) = useState("")
+  
+  def handleSubmit(): Unit = {
+    console.log(s"Logging in with: $username / $password")
+  }
+  
+  form(
+    div(
+      label("Username:"),
+      input(
+        typ := "text",
+        value := username,
+        onInput := ((e: dom.Event) => 
+          setUsername(e.target.asInstanceOf[dom.html.Input].value)
+        )
+      )
+    ),
+    div(
+      label("Password:"),
+      input(
+        typ := "password",
+        value := password,
+        onInput := ((e: dom.Event) => 
+          setPassword(e.target.asInstanceOf[dom.html.Input].value)
+        )
+      )
+    ),
+    button(
+      typ := "button",
+      onClick := (() => handleSubmit()),
+      "Log In"
+    )
+  )
+}
+```
+
+### Objects and Collections
+
+When using objects or collections as state, always update them immutably:
+
+```scala
+case class Todo(id: String, text: String, completed: Boolean)
+
+val TodoApp = () => {
+  val (todos, _, updateTodos) = useState(Vector[Todo]())
+  val (newTodo, setNewTodo, _) = useState("")
+  
+  def addTodo(): Unit = {
+    if (newTodo.nonEmpty) {
+      updateTodos(prevTodos => 
+        prevTodos :+ Todo(
+          id = java.util.UUID.randomUUID().toString,
+          text = newTodo,
+          completed = false
+        )
+      )
+      setNewTodo("")
+    }
+  }
+  
+  def toggleTodo(id: String): Unit = {
+    updateTodos(prevTodos => 
+      prevTodos.map(todo => 
+        if (todo.id == id) todo.copy(completed = !todo.completed)
+        else todo
+      )
+    )
+  }
+  
+  div(
+    div(
+      input(
+        typ := "text",
+        value := newTodo,
+        onInput := ((e: dom.Event) => 
+          setNewTodo(e.target.asInstanceOf[dom.html.Input].value)
+        ),
+        placeholder := "Add a todo"
+      ),
+      button(onClick := (() => addTodo()), "Add")
+    ),
+    ul(
+      todos.map(todo => 
+        li(
+          key := todo.id,
+          input(
+            typ := "checkbox",
+            checked := todo.completed,
+            onChange := (() => toggleTodo(todo.id))
+          ),
+          span(
+            cls := (if (todo.completed) "completed" else ""),
+            todo.text
+          )
+        )
+      )
+    )
+  )
+}
+```
+
+## Lazy Initialization
+
+If creating the initial state is expensive, you can pass a function to `useState`:
+
+```scala
+val (state, setState, _) = useState(() => {
+  // Expensive computation
+  computeInitialState()
+})
+```
+
+This function will only be called during the initial render.
+
+## Multiple State Variables
+
+You can call `useState` multiple times in the same component:
+
+```scala
+val Form = () => {
   val (name, setName, _) = useState("")
+  val (age, setAge, _) = useState(0)
+  val (email, setEmail, _) = useState("")
   
-  div(
-    div("Enter your name:"),
-    input(
-      value_ := name,
-      onInput := ((e: org.scalajs.dom.Event) => 
-        setName(e.target.asInstanceOf[org.scalajs.dom.html.Input].value)
-      )
-    ),
-    if (name.nonEmpty) 
-      p(s"Hello, $name!")
-    else
-      null
-  )
+  // Component body
 }
 ```
 
-### Complex State with Case Classes
+## Batching of Updates
+
+Fluxus automatically batches multiple state updates that occur within the same event handler:
 
 ```scala
-case class User(name: String, email: String)
-
-def UserForm = () => {
-  val (user, setUser, updateUser) = useState(User("", ""))
-  
-  div(
-    div("Name:"),
-    input(
-      value_ := user.name,
-      onInput := ((e: org.scalajs.dom.Event) => 
-        updateUser(prev => prev.copy(name = e.target.asInstanceOf[org.scalajs.dom.html.Input].value))
-      )
-    ),
-    div("Email:"),
-    input(
-      value_ := user.email,
-      onInput := ((e: org.scalajs.dom.Event) => 
-        updateUser(prev => prev.copy(email = e.target.asInstanceOf[org.scalajs.dom.html.Input].value))
-      )
-    ),
-    div(s"Current user: ${user.name} (${user.email})")
-  )
-}
+button(
+  onClick := (() => {
+    setCount(count + 1) // These will be batched,
+    setFlag(true)       // causing only one re-render
+  })
+)
 ```
 
-## Best Practices
+## Functional Updates vs Direct Updates
 
-1. **Use multiple state hooks for unrelated state variables** rather than combining everything into one complex state object.
+There's an important difference between the direct update (`setState`) and functional update (`updateState`) functions:
 
-2. **Use functional updates when the new state depends on the previous state** to avoid issues with stale closures.
+- **Direct update** (`setState`): Sets the state to a new value regardless of the previous value
+- **Functional update** (`updateState`): Accepts a function that receives the previous state and returns the new state
 
-3. **Keep state minimal and derived values computed** - don't store values that can be computed from other state.
+When to use each:
 
-4. **Use the updater function** (`updateCount` in our examples) for state that depends on previous state, especially inside event handlers or effects.
+1. Use **direct update** when the new state doesn't depend on the previous state:
+   ```scala
+   setName("John")
+   setIsOpen(true)
+   ```
 
-## Limitations
+2. Use **functional update** when the new state depends on the previous state:
+   ```scala
+   updateCount(prev => prev + 1)
+   updateItems(prev => prev :+ newItem)
+   ```
 
-- Hooks, including `useState`, can only be called at the top level of your component function, not inside loops, conditions, or nested functions.
+Functional updates are especially important when dealing with asynchronous updates, as they ensure you're always working with the latest state.
 
-- The state is maintained as long as the component is mounted. When a component is unmounted, its state is destroyed.
+## Typed State
 
-## See Also
+Fluxus's `useState` hook is fully typed, allowing the Scala compiler to ensure type safety:
 
+```scala
+// The type is inferred from the initial value
+val (count, setCount, updateCount) = useState(0)
+setCount("not a number") // Compilation error
+
+// You can explicitly specify the type
+val (items, setItems, updateItems) = useState[List[String]](List())
+```
+
+## Implementation Details
+
+The `useState` hook is implemented using the component instance's hook array. Each component maintains an array of hooks in the order they were called. The `useState` hook adds a `StateHook` to this array.
+
+When a component re-renders, the hooks are matched up by their call order, ensuring that the state is preserved across renders.
