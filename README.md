@@ -32,7 +32,7 @@
 
 ## Getting Started
 
-The easiest way to start a new Fluxus project is to use the [fluxus-template](https://github.com/edadma/fluxus-template) repository. This template provides:
+The easiest way to start a new Fluxus™ project is to use the [fluxus-template](https://github.com/edadma/fluxus-template) repository. This template provides:
 
 - Complete project setup with Vite
 - Ready-to-use example components and applications
