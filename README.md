@@ -2,7 +2,7 @@
   <img src="public/fluxus.png" width="200" alt="Fluxus Logo">
 </p>
 
-<h1 align="center">Fluxus</h1>
+<h1 align="center">Fluxus™</h1>
 
 <p align="center">
   A minimalist UI framework inspired by component-based design, built with Scala.js
