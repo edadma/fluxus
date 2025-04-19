@@ -6,7 +6,7 @@ Both `useMemo` and `useCallback` are optimization hooks that help prevent unnece
 
 `useMemo` lets you memoize expensive calculations so they're only recomputed when dependencies change.
 
-### Basic Usage
+### useMemo Basic Usage
 
 ```scala
 val memoizedValue = useMemo(
@@ -29,7 +29,7 @@ Use `useMemo` when:
 2. You want to ensure referential equality for objects that would otherwise be recreated on each render
 3. You want to avoid unnecessary re-renders of child components that rely on object or array props
 
-### Examples
+### useMemo Examples
 
 #### Expensive Calculation
 
@@ -133,7 +133,7 @@ val ItemList = () => {
 
 `useCallback` returns a memoized version of a callback function that only changes if one of the dependencies has changed.
 
-### Basic Usage
+### useCallback Basic Usage
 
 ```scala
 val memoizedCallback = useCallback(
@@ -155,7 +155,7 @@ Use `useCallback` when:
 2. You want to prevent callbacks from being recreated on every render
 3. The callback is a dependency for other hooks like `useEffect`
 
-### Examples
+### useCallback Examples
 
 #### Passing Stable Callbacks to Child Components
 
