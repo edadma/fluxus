@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<title>useState · Fluxus</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='A minimalist UI framework inspired by component-based design, built with Scala.js'/>
+<link rel="canonical" href="https://github.com/edadma/fluxushooks/useState.html"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="../lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="../js/page.js"></script>
+<script type="text/javascript" src="../js/warnOldVersion.js"></script>
+<script type="text/javascript" src="../js/groups.js"></script>
+<script type="text/javascript" src="../js/snippets.js"></script>
+<link rel="stylesheet" type="text/css" href="../lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="../css/page.css"/>
+
+<!--
+<link rel="shortcut icon" href="../images/favicon.ico" />
+-->
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="../index.html" >
+<span class="home-icon">⌂</span>Fluxus
+</a>
+<div class="version-number">
+0.0.30
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="../overview.html" class="page">Overview</a></li>
+  <li><a href="../getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="../hooks/index.html" class="page">Hooks</a>
+  <ul>
+    <li><a href="../hooks/useState.html" class="active page">useState</a></li>
+  </ul></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<div class="title"><a href="../index.html">Fluxus</a></div>
+
+<!--
+<a href="https://www.example.com" class="logo show-for-medium">logo</a>
+-->
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="../index.html" >
+<span class="home-icon">⌂</span>Fluxus
+</a>
+<div class="version-number">
+0.0.30
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="../overview.html" class="page">Overview</a></li>
+  <li><a href="../getting-started.html" class="page">Getting Started</a></li>
+  <li><a href="../hooks/index.html" class="page">Hooks</a>
+  <ul>
+    <li><a href="../hooks/useState.html" class="active page">useState</a></li>
+  </ul></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<span id="version-warning"></span>
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="../index.html">Fluxus</a></li>
+  <li><a href="../hooks/index.html">Hooks</a></li>
+  <li>useState</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#usestate" name="usestate" class="anchor"><span class="anchor-link"></span></a>useState</h1>
+<p>The <code>useState</code> hook lets you add state to your functional components. It&rsquo;s the primary way to introduce reactivity into your UI.</p>
+<h2><a href="#signature" name="signature" class="anchor"><span class="anchor-link"></span></a>Signature</h2>
+<pre class="prettyprint"><code class="language-scala">def useState[T](initial: T): (T, T =&gt; Unit, (T =&gt; T) =&gt; Unit)
+</code></pre>
+<h2><a href="#parameters" name="parameters" class="anchor"><span class="anchor-link"></span></a>Parameters</h2>
+<ul>
+  <li><code>initial</code>: The initial state value</li>
+</ul>
+<h2><a href="#return-value" name="return-value" class="anchor"><span class="anchor-link"></span></a>Return Value</h2>
+<p>A tuple containing: 1. The current state value 2. A function to directly set the state to a new value 3. A function to update the state based on the previous value</p>
+<h2><a href="#basic-usage" name="basic-usage" class="anchor"><span class="anchor-link"></span></a>Basic Usage</h2>
+<pre class="prettyprint"><code class="language-scala">def Counter = () =&gt; {
+  val (count, setCount, _) = useState(0)
+  
+  div(
+    p(s&quot;Count: $count&quot;),
+    button(
+      onClick := (() =&gt; setCount(count + 1)),
+      &quot;Increment&quot;
+    )
+  )
+}
+</code></pre>
+<h2><a href="#direct-updates-vs-functional-updates" name="direct-updates-vs-functional-updates" class="anchor"><span class="anchor-link"></span></a>Direct Updates vs. Functional Updates</h2>
+<p>You can update state in two ways:</p>
+<h3><a href="#direct-updates" name="direct-updates" class="anchor"><span class="anchor-link"></span></a>Direct Updates</h3>
+<p>Use the second return value to set a new state value directly:</p>
+<pre class="prettyprint"><code class="language-scala">val (count, setCount, _) = useState(0)
+
+// Direct update
+setCount(5) // Sets count to 5 regardless of current value
+</code></pre>
+<h3><a href="#functional-updates" name="functional-updates" class="anchor"><span class="anchor-link"></span></a>Functional Updates</h3>
+<p>Use the third return value to update state based on the previous value:</p>
+<pre class="prettyprint"><code class="language-scala">val (count, _, updateCount) = useState(0)
+
+// Functional update
+updateCount(prevCount =&gt; prevCount + 1)
+</code></pre>
+<p>Functional updates are particularly useful when the new state depends on the previous state, especially in cases where multiple updates might be batched together.</p>
+<h2><a href="#examples" name="examples" class="anchor"><span class="anchor-link"></span></a>Examples</h2>
+<h3><a href="#simple-counter" name="simple-counter" class="anchor"><span class="anchor-link"></span></a>Simple Counter</h3>
+<pre class="prettyprint"><code class="language-scala">def Counter = () =&gt; {
+  val (count, setCount, _) = useState(0)
+  
+  div(
+    div(s&quot;Count: $count&quot;),
+    button(onClick := (() =&gt; setCount(count + 1)), &quot;Increment&quot;),
+    button(onClick := (() =&gt; setCount(count - 1)), &quot;Decrement&quot;),
+    button(onClick := (() =&gt; setCount(0)), &quot;Reset&quot;)
+  )
+}
+</code></pre>
+<h3><a href="#form-input" name="form-input" class="anchor"><span class="anchor-link"></span></a>Form Input</h3>
+<pre class="prettyprint"><code class="language-scala">def FormExample = () =&gt; {
+  val (name, setName, _) = useState(&quot;&quot;)
+  
+  div(
+    div(&quot;Enter your name:&quot;),
+    input(
+      value_ := name,
+      onInput := ((e: org.scalajs.dom.Event) =&gt; 
+        setName(e.target.asInstanceOf[org.scalajs.dom.html.Input].value)
+      )
+    ),
+    if (name.nonEmpty) 
+      p(s&quot;Hello, $name!&quot;)
+    else
+      null
+  )
+}
+</code></pre>
+<h3><a href="#complex-state-with-case-classes" name="complex-state-with-case-classes" class="anchor"><span class="anchor-link"></span></a>Complex State with Case Classes</h3>
+<pre class="prettyprint"><code class="language-scala">case class User(name: String, email: String)
+
+def UserForm = () =&gt; {
+  val (user, setUser, updateUser) = useState(User(&quot;&quot;, &quot;&quot;))
+  
+  div(
+    div(&quot;Name:&quot;),
+    input(
+      value_ := user.name,
+      onInput := ((e: org.scalajs.dom.Event) =&gt; 
+        updateUser(prev =&gt; prev.copy(name = e.target.asInstanceOf[org.scalajs.dom.html.Input].value))
+      )
+    ),
+    div(&quot;Email:&quot;),
+    input(
+      value_ := user.email,
+      onInput := ((e: org.scalajs.dom.Event) =&gt; 
+        updateUser(prev =&gt; prev.copy(email = e.target.asInstanceOf[org.scalajs.dom.html.Input].value))
+      )
+    ),
+    div(s&quot;Current user: ${user.name} (${user.email})&quot;)
+  )
+}
+</code></pre>
+<h2><a href="#best-practices" name="best-practices" class="anchor"><span class="anchor-link"></span></a>Best Practices</h2>
+<ol>
+  <li>
+  <p><strong>Use multiple state hooks for unrelated state variables</strong> rather than combining everything into one complex state object.</p></li>
+  <li>
+  <p><strong>Use functional updates when the new state depends on the previous state</strong> to avoid issues with stale closures.</p></li>
+  <li>
+  <p><strong>Keep state minimal and derived values computed</strong> - don&rsquo;t store values that can be computed from other state.</p></li>
+  <li>
+  <p><strong>Use the updater function</strong> (<code>updateCount</code> in our examples) for state that depends on previous state, especially inside event handlers or effects.</p></li>
+</ol>
+<h2><a href="#limitations" name="limitations" class="anchor"><span class="anchor-link"></span></a>Limitations</h2>
+<ul>
+  <li>
+  <p>Hooks, including <code>useState</code>, can only be called at the top level of your component function, not inside loops, conditions, or nested functions.</p></li>
+  <li>
+  <p>The state is maintained as long as the component is mounted. When a component is unmounted, its state is destroyed.</p></li>
+</ul>
+<h2><a href="#see-also" name="see-also" class="anchor"><span class="anchor-link"></span></a>See Also</h2>
+<div class="source-github">
+The source code for this page can be found <a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/hooks/useState.md">here</a>.
+</div>
+
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="../hooks/useState.html#usestate" class="header">useState</a>
+  <ul>
+    <li><a href="../hooks/useState.html#signature" class="header">Signature</a></li>
+    <li><a href="../hooks/useState.html#parameters" class="header">Parameters</a></li>
+    <li><a href="../hooks/useState.html#return-value" class="header">Return Value</a></li>
+    <li><a href="../hooks/useState.html#basic-usage" class="header">Basic Usage</a></li>
+    <li><a href="../hooks/useState.html#direct-updates-vs-functional-updates" class="header">Direct Updates vs. Functional Updates</a></li>
+    <li><a href="../hooks/useState.html#examples" class="header">Examples</a></li>
+    <li><a href="../hooks/useState.html#best-practices" class="header">Best Practices</a></li>
+    <li><a href="../hooks/useState.html#limitations" class="header">Limitations</a></li>
+    <li><a href="../hooks/useState.html#see-also" class="header">See Also</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 text-center large-9 column">
+
+<!--
+<div class="copyright">
+<span class="text">&copy; 2025</span>
+<a href="https://www.example.com" class="logo">logo</a>
+</div>
+-->
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</footer>
+
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="../lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="../js/magellan.js"></script>
+
+<style type="text/css">@import "../lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="../lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="../lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+<script type="text/javascript">jQuery(function(jq){initOldVersionWarnings(jq, '0.0.30', 'https://github.com/edadma/fluxus')});</script>
+
+
+</html>

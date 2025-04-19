@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+<title>Getting Started · Fluxus</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content='A minimalist UI framework inspired by component-based design, built with Scala.js'/>
+<link rel="canonical" href="https://github.com/edadma/fluxusgetting-started.html"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100normal,100italic,300normal,300italic,400normal,400italic,500normal,500italic,700normal,700italic,900normal,900italicc" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/warnOldVersion.js"></script>
+<script type="text/javascript" src="js/groups.js"></script>
+<script type="text/javascript" src="js/snippets.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/foundation/dist/foundation.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/page.css"/>
+
+<!--
+<link rel="shortcut icon" href="images/favicon.ico" />
+-->
+</head>
+
+<body>
+<div class="off-canvas-wrapper">
+<div class="off-canvas-wrapper-inner" data-off-canvas-wrapper>
+
+<div class="off-canvas position-left" id="off-canvas-menu" data-off-canvas>
+<nav class="off-canvas-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>Fluxus
+</a>
+<div class="version-number">
+0.0.30
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="overview.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="active page">Getting Started</a></li>
+  <li><a href="hooks/index.html" class="page">Hooks</a>
+  <ul>
+    <li><a href="hooks/useState.html" class="page">useState</a></li>
+  </ul></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="off-canvas-content" data-off-canvas-content>
+
+<header class="site-header expanded row">
+<div class="small-12 column">
+<a href="#" class="off-canvas-toggle hide-for-medium" data-toggle="off-canvas-menu"><svg class="svg-icon svg-icon-menu" version="1.1" id="Menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve"> <path class="svg-icon-menu-path" fill="#53CDEC" d="M16.4,9H3.6C3.048,9,3,9.447,3,10c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,9.447,16.952,9,16.4,9z M16.4,13
+H3.6C3.048,13,3,13.447,3,14c0,0.553,0.048,1,0.6,1H16.4c0.552,0,0.6-0.447,0.6-1C17,13.447,16.952,13,16.4,13z M3.6,7H16.4
+C16.952,7,17,6.553,17,6c0-0.553-0.048-1-0.6-1H3.6C3.048,5,3,5.447,3,6C3,6.553,3.048,7,3.6,7z"/></svg>
+</a>
+<div class="title"><a href="index.html">Fluxus</a></div>
+
+<!--
+<a href="https://www.example.com" class="logo show-for-medium">logo</a>
+-->
+</div>
+</header>
+
+<div class="expanded row">
+
+<div class="medium-3 large-2 show-for-medium column">
+<nav class="site-nav">
+<div class="nav-home">
+<a href="index.html" >
+<span class="home-icon">⌂</span>Fluxus
+</a>
+<div class="version-number">
+0.0.30
+</div>
+</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="overview.html" class="page">Overview</a></li>
+  <li><a href="getting-started.html" class="active page">Getting Started</a></li>
+  <li><a href="hooks/index.html" class="page">Hooks</a>
+  <ul>
+    <li><a href="hooks/useState.html" class="page">useState</a></li>
+  </ul></li>
+</ul>
+</div>
+
+</nav>
+</div>
+
+<div class="small-12 medium-9 large-10 column">
+<section class="site-content">
+
+<span id="version-warning"></span>
+
+<div class="page-header row">
+<div class="medium-12 show-for-medium column">
+<div class="nav-breadcrumbs">
+<ul>
+  <li><a href="index.html">Fluxus</a></li>
+  <li>Getting Started</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page-content row">
+<div class="small-12 large-9 column" id="docs">
+<h1><a href="#getting-started" name="getting-started" class="anchor"><span class="anchor-link"></span></a>Getting Started</h1>
+<p>This guide will help you set up a new Fluxus project and build your first component.</p>
+<h2><a href="#prerequisites" name="prerequisites" class="anchor"><span class="anchor-link"></span></a>Prerequisites</h2>
+<ul>
+  <li>JDK 11 or higher</li>
+  <li>sbt 1.5.0 or higher</li>
+  <li>Node.js 14.0.0 or higher (for development server)</li>
+</ul>
+<h2><a href="#project-setup" name="project-setup" class="anchor"><span class="anchor-link"></span></a>Project Setup</h2>
+<p>The easiest way to start a new Fluxus project is to use the template repository:</p>
+<pre class="prettyprint"><code class="language-bash">git clone https://github.com/edadma/fluxus-template my-fluxus-app
+cd my-fluxus-app
+</code></pre>
+<p>Alternatively, you can add Fluxus to an existing Scala.js project:</p>
+<h3><a href="#sbt-setup" name="sbt-setup" class="anchor"><span class="anchor-link"></span></a>sbt Setup</h3>
+<p>Add the following to your <code>build.sbt</code>:</p>
+<pre class="prettyprint"><code class="language-scala">enablePlugins(ScalaJSPlugin)
+
+// For Scala 3
+scalaVersion := &quot;3.6.4&quot;
+
+// Add Fluxus dependency
+libraryDependencies += &quot;io.github.edadma&quot; %%% &quot;fluxus&quot; % &quot;0.0.30&quot;
+
+// Optional: Configure Scala.js settings
+scalaJSUseMainModuleInitializer := true
+scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) }
+</code></pre>
+<h3><a href="#html-setup" name="html-setup" class="anchor"><span class="anchor-link"></span></a>HTML Setup</h3>
+<p>Create an <code>index.html</code> file in your project root:</p>
+<pre class="prettyprint"><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;My Fluxus App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id=&quot;app&quot;&gt;&lt;/div&gt;
+    &lt;script type=&quot;module&quot; src=&quot;main.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<h3><a href="#js-entry-point" name="js-entry-point" class="anchor"><span class="anchor-link"></span></a>JS Entry Point</h3>
+<p>Create a <code>main.js</code> file in your project root:</p>
+<pre class="prettyprint"><code class="language-javascript">import &#39;scalajs:main.js&#39;
+</code></pre>
+<h2><a href="#building-your-first-component" name="building-your-first-component" class="anchor"><span class="anchor-link"></span></a>Building Your First Component</h2>
+<p>Create a new Scala file <code>src/main/scala/MyApp.scala</code>:</p>
+<pre class="prettyprint"><code class="language-scala">import io.github.edadma.fluxus.*
+
+@main def run(): Unit = {
+  render(App, &quot;app&quot;)
+}
+
+def App: FluxusNode = {
+  val (count, setCount, _) = useState(0)
+  
+  div(
+    h1(&quot;My First Fluxus App&quot;),
+    p(s&quot;You clicked the button $count times&quot;),
+    button(
+      onClick := (() =&gt; setCount(count + 1)),
+      &quot;Click me&quot;
+    )
+  )
+}
+</code></pre>
+<h2><a href="#running-the-application" name="running-the-application" class="anchor"><span class="anchor-link"></span></a>Running the Application</h2>
+<p>Start the development server:</p>
+<pre class="prettyprint"><code class="language-bash">npm run dev
+</code></pre>
+<p>This will compile your Scala.js code and start a development server. Open your browser to the URL shown in the terminal (usually <a href="http://localhost:5173)">http://localhost:5173)</a>.</p>
+<h2><a href="#development-workflow" name="development-workflow" class="anchor"><span class="anchor-link"></span></a>Development Workflow</h2>
+<ol>
+  <li>Write your components in Scala using Fluxus</li>
+  <li>Save the files to trigger automatic recompilation</li>
+  <li>See changes reflected in the browser</li>
+</ol>
+<h2><a href="#next-steps" name="next-steps" class="anchor"><span class="anchor-link"></span></a>Next Steps</h2>
+<p>Now that you have a basic Fluxus application running, you can:</p>
+<ul>
+  <li>Learn about <a href="hooks/index.html">Hooks</a> for state and effects</li>
+  <li>Explore component composition patterns</li>
+  <li>Add styling with CSS or a CSS-in-JS library</li>
+  <li>Integrate with external APIs using <code>useFetch</code></li>
+</ul>
+<div class="source-github">
+The source code for this page can be found <a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/getting-started.md">here</a>.
+</div>
+
+<div class="nav-next">
+<p><strong>Next:</strong> <a href="hooks/index.html">Hooks</a></p>
+</div>
+</div>
+<div class="large-3 show-for-large column" data-sticky-container>
+<nav class="sidebar sticky" data-sticky data-anchor="docs" data-sticky-on="large">
+<div class="page-nav">
+<div class="nav-title">On this page:</div>
+<div class="nav-toc">
+<ul>
+  <li><a href="getting-started.html#getting-started" class="header">Getting Started</a>
+  <ul>
+    <li><a href="getting-started.html#prerequisites" class="header">Prerequisites</a></li>
+    <li><a href="getting-started.html#project-setup" class="header">Project Setup</a></li>
+    <li><a href="getting-started.html#building-your-first-component" class="header">Building Your First Component</a></li>
+    <li><a href="getting-started.html#running-the-application" class="header">Running the Application</a></li>
+    <li><a href="getting-started.html#development-workflow" class="header">Development Workflow</a></li>
+    <li><a href="getting-started.html#next-steps" class="header">Next Steps</a></li>
+  </ul></li>
+</ul>
+</div>
+</div>
+</nav>
+</div>
+</div>
+
+</section>
+</div>
+
+</div>
+
+<footer class="site-footer">
+
+<section class="site-footer-nav">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 medium-4 large-3 text-center column">
+<div class="nav-links">
+<ul>
+<!-- <li><a href="https://www.example.com/products/">Products</a> -->
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+
+<section class="site-footer-base">
+<div class="expanded row">
+<div class="small-12 large-offset-2 large-10 column">
+<div class="row site-footer-content">
+
+<div class="small-12 text-center large-9 column">
+
+<!--
+<div class="copyright">
+<span class="text">&copy; 2025</span>
+<a href="https://www.example.com" class="logo">logo</a>
+</div>
+-->
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</footer>
+
+</div>
+</div>
+</div>
+</body>
+
+<script type="text/javascript" src="lib/foundation/dist/foundation.min.js"></script>
+<script type="text/javascript">jQuery(document).foundation();</script>
+<script type="text/javascript" src="js/magellan.js"></script>
+
+<style type="text/css">@import "lib/prettify/prettify.css";</style>
+<script type="text/javascript" src="lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">jQuery(function(){window.prettyPrint && prettyPrint()});</script>
+<script type="text/javascript">jQuery(function(jq){initOldVersionWarnings(jq, '0.0.30', 'https://github.com/edadma/fluxus')});</script>
+
+
+</html>
