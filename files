@@ -1,1 +1,1 @@
-node ../files/files files.txt code.txt
+node ../files/files.js files.txt code.txt
