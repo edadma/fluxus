@@ -20,7 +20,7 @@
 
 <meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
 <link rel="shortcut icon" href="../assets/images/favicon.png">
-<title>Hooks · Fluxus</title>
+<title>Virtual DOM · Fluxus</title>
 <link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../lib/material__tabs/dist/mdc.tabs.min.css">
 <link rel="stylesheet" href="../lib/prettify/prettify.css">
@@ -56,7 +56,7 @@ code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
 Fluxus
 </span>
 <span class="md-header-nav__topic">
-Hooks
+Virtual DOM
 </span>
 </div>
 </div>
@@ -108,13 +108,13 @@ Fluxus
   <li><a href="../getting-started.html" class="page">Getting Started with Fluxus</a></li>
   <li><a href="../core-concepts/index.html" class="page">Core Concepts</a>
   <ul>
-    <li><a href="../core-concepts/virtual-dom.html" class="page">Virtual DOM</a></li>
+    <li><a href="../core-concepts/virtual-dom.html" class="active page">Virtual DOM</a></li>
     <li><a href="../core-concepts/components.html" class="page">Components</a></li>
     <li><a href="../core-concepts/reconciliation.html" class="page">Reconciliation</a></li>
     <li><a href="../core-concepts/hooks.html" class="page">Hooks</a></li>
     <li><a href="../core-concepts/event-handling.html" class="page">Event Handling</a></li>
   </ul></li>
-  <li><a href="../hooks/index.html" class="active page">Hooks</a>
+  <li><a href="../hooks/index.html" class="page">Hooks</a>
   <ul>
     <li><a href="../hooks/useState.html" class="page">useState</a></li>
     <li><a href="../hooks/useEffect.html" class="page">useEffect</a></li>
@@ -128,14 +128,14 @@ Fluxus
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="../hooks/index.html#hooks" class="header">Hooks</a>
+  <li><a href="../core-concepts/virtual-dom.html#virtual-dom" class="header">Virtual DOM</a>
   <ul>
-    <li><a href="../hooks/index.html#overview" class="header">Overview</a></li>
-    <li><a href="../hooks/index.html#rules-of-hooks" class="header">Rules of Hooks</a></li>
-    <li><a href="../hooks/index.html#basic-example" class="header">Basic Example</a></li>
-    <li><a href="../hooks/index.html#available-hooks" class="header">Available Hooks</a></li>
-    <li><a href="../hooks/index.html#creating-custom-hooks" class="header">Creating Custom Hooks</a></li>
-    <li><a href="../hooks/index.html#next-steps" class="header">Next Steps</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#what-is-the-virtual-dom-" class="header">What is the Virtual DOM?</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#how-it-works" class="header">How It Works</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#fluxusnode-hierarchy" class="header">FluxusNode Hierarchy</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#creating-virtual-dom-nodes" class="header">Creating Virtual DOM Nodes</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#keys" class="header">Keys</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#benefits-of-virtual-dom" class="header">Benefits of Virtual DOM</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -157,14 +157,14 @@ Fluxus
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="../hooks/index.html#hooks" class="header">Hooks</a>
+  <li><a href="../core-concepts/virtual-dom.html#virtual-dom" class="header">Virtual DOM</a>
   <ul>
-    <li><a href="../hooks/index.html#overview" class="header">Overview</a></li>
-    <li><a href="../hooks/index.html#rules-of-hooks" class="header">Rules of Hooks</a></li>
-    <li><a href="../hooks/index.html#basic-example" class="header">Basic Example</a></li>
-    <li><a href="../hooks/index.html#available-hooks" class="header">Available Hooks</a></li>
-    <li><a href="../hooks/index.html#creating-custom-hooks" class="header">Creating Custom Hooks</a></li>
-    <li><a href="../hooks/index.html#next-steps" class="header">Next Steps</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#what-is-the-virtual-dom-" class="header">What is the Virtual DOM?</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#how-it-works" class="header">How It Works</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#fluxusnode-hierarchy" class="header">FluxusNode Hierarchy</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#creating-virtual-dom-nodes" class="header">Creating Virtual DOM Nodes</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#keys" class="header">Keys</a></li>
+    <li><a href="../core-concepts/virtual-dom.html#benefits-of-virtual-dom" class="header">Benefits of Virtual DOM</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -175,70 +175,112 @@ Fluxus
 <div class="md-content">
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
-<h1><a href="#hooks" name="hooks" class="anchor"><span class="anchor-link"></span></a>Hooks</h1>
-<p>Hooks are functions that let you use state and other Fluxus features in functional components. This section covers the built-in hooks and how to create custom hooks.</p>
-<h2><a href="#overview" name="overview" class="anchor"><span class="anchor-link"></span></a>Overview</h2>
-<p>Hooks were introduced to solve several problems in component-based UI libraries:</p>
+<h1><a href="#virtual-dom" name="virtual-dom" class="anchor"><span class="anchor-link"></span></a>Virtual DOM</h1>
+<p>The Virtual DOM is a core concept in Fluxus that enables efficient UI updates.</p>
+<h2><a href="#what-is-the-virtual-dom-" name="what-is-the-virtual-dom-" class="anchor"><span class="anchor-link"></span></a>What is the Virtual DOM?</h2>
+<p>The Virtual DOM is a lightweight in-memory representation of the actual DOM. In Fluxus, it&rsquo;s implemented as a tree of <code>FluxusNode</code> objects that describe what the UI should look like.</p>
+<p>Unlike the real DOM, which is expensive to manipulate, the Virtual DOM can be created and modified quickly in memory. This allows Fluxus to:</p>
 <ol>
-  <li><strong>Reusing stateful logic</strong> between components without complex patterns</li>
-  <li><strong>Splitting components</strong> into smaller functions based on related pieces</li>
-  <li><strong>Using state</strong> without writing class components</li>
+  <li>Calculate the minimal set of changes needed to update the real DOM</li>
+  <li>Batch multiple updates together for better performance</li>
+  <li>Provide a more declarative API for building UIs</li>
 </ol>
-<p>In Fluxus, hooks are implemented using a simple index-based system that tracks hook calls within each component instance.</p>
-<h2><a href="#rules-of-hooks" name="rules-of-hooks" class="anchor"><span class="anchor-link"></span></a>Rules of Hooks</h2>
-<p>To ensure hooks work correctly, you must follow these rules:</p>
+<h2><a href="#how-it-works" name="how-it-works" class="anchor"><span class="anchor-link"></span></a>How It Works</h2>
+<p>The Virtual DOM system in Fluxus follows this process:</p>
 <ol>
-  <li>
-  <p><strong>Only call hooks at the top level</strong> of your component functions. Don&rsquo;t call hooks inside loops, conditions, or nested functions.</p></li>
-  <li>
-  <p><strong>Only call hooks from Fluxus component functions</strong>. Don&rsquo;t call them from regular Scala functions.</p></li>
+  <li><strong>Render</strong>: Component functions are called to produce a tree of <code>FluxusNode</code> objects</li>
+  <li><strong>Diff</strong>: The new tree is compared with the previous one to determine what changed</li>
+  <li><strong>Patch</strong>: The necessary changes are applied to the real DOM</li>
 </ol>
-<p>The reason for these rules is that Fluxus relies on the order of hook calls to maintain each hook&rsquo;s state across renders.</p>
-<h2><a href="#basic-example" name="basic-example" class="anchor"><span class="anchor-link"></span></a>Basic Example</h2>
-<p>Here&rsquo;s a simple example using the <code>useState</code> hook:</p>
-<pre class="prettyprint"><code class="language-scala">val Counter = () =&gt; {
-  val (count, setCount, _) = useState(0)
-  
-  div(
-    p(s&quot;Count: $count&quot;),
-    button(
-      onClick := (() =&gt; setCount(count + 1)),
-      &quot;Increment&quot;
-    )
+<h2><a href="#fluxusnode-hierarchy" name="fluxusnode-hierarchy" class="anchor"><span class="anchor-link"></span></a>FluxusNode Hierarchy</h2>
+<p>In Fluxus, the Virtual DOM is represented by the sealed trait <code>FluxusNode</code>. The main node types are:</p>
+<h3><a href="#elementnode" name="elementnode" class="anchor"><span class="anchor-link"></span></a>ElementNode</h3>
+<p>Represents an HTML or SVG element:</p>
+<pre class="prettyprint"><code class="language-scala">case class ElementNode(
+  tag: String,
+  attrs: Map[String, Any],
+  events: Map[String, js.Function1[dom.Event, Unit]],
+  children: Vector[FluxusNode],
+  parent: Option[FluxusNode],
+  domNode: Option[Node],
+  namespace: Option[String] = None,
+  ref: Option[RefHook] = None,
+  key: Option[String] = None
+) extends FluxusNode
+</code></pre>
+<h3><a href="#textnode" name="textnode" class="anchor"><span class="anchor-link"></span></a>TextNode</h3>
+<p>Represents a text node in the DOM:</p>
+<pre class="prettyprint"><code class="language-scala">case class TextNode(
+  text: String,
+  parent: Option[FluxusNode],
+  domNode: Option[Node]
+) extends FluxusNode
+</code></pre>
+<h3><a href="#componentnode" name="componentnode" class="anchor"><span class="anchor-link"></span></a>ComponentNode</h3>
+<p>Represents a user-defined component:</p>
+<pre class="prettyprint"><code class="language-scala">case class ComponentNode(
+  component: Product =&gt; FluxusNode,
+  props: Product,
+  parent: Option[FluxusNode] = None,
+  domNode: Option[Node] = None,
+  key: Option[String] = None,
+  instance: Option[ComponentInstance] = None,
+  componentHash: Int = 0
+) extends FluxusNode
+</code></pre>
+<h3><a href="#rawnode" name="rawnode" class="anchor"><span class="anchor-link"></span></a>RawNode</h3>
+<p>Represents a direct reference to an existing DOM element:</p>
+<pre class="prettyprint"><code class="language-scala">case class RawNode(
+  element: dom.Element,
+  parent: Option[FluxusNode] = None,
+  domNode: Option[Node] = None,
+  key: Option[String] = None
+) extends FluxusNode
+</code></pre>
+<h3><a href="#emptynode" name="emptynode" class="anchor"><span class="anchor-link"></span></a>EmptyNode</h3>
+<p>Represents the absence of a node (like <code>null</code> in React):</p>
+<pre class="prettyprint"><code class="language-scala">case object EmptyNode extends FluxusNode
+</code></pre>
+<h2><a href="#creating-virtual-dom-nodes" name="creating-virtual-dom-nodes" class="anchor"><span class="anchor-link"></span></a>Creating Virtual DOM Nodes</h2>
+<p>Fluxus provides a set of helper functions to create Virtual DOM nodes:</p>
+<pre class="prettyprint"><code class="language-scala">// Creating element nodes
+div(cls := &quot;container&quot;, &quot;Hello, world!&quot;)
+
+// Creating nested structures
+div(
+  cls := &quot;card&quot;,
+  h1(cls := &quot;title&quot;, &quot;Card Title&quot;),
+  p(cls := &quot;content&quot;, &quot;Card content goes here&quot;)
+)
+
+// Conditional rendering
+div(
+  if (isLoggedIn) 
+    button(onClick := logout, &quot;Log out&quot;)
+  else 
+    button(onClick := login, &quot;Log in&quot;)
+)
+</code></pre>
+<h2><a href="#keys" name="keys" class="anchor"><span class="anchor-link"></span></a>Keys</h2>
+<p>When rendering lists of elements, it&rsquo;s often important to provide a unique <code>key</code> for each item:</p>
+<pre class="prettyprint"><code class="language-scala">ul(
+  items.map(item =&gt; 
+    li(key := item.id, item.name)
   )
-}
+)
 </code></pre>
-<h2><a href="#available-hooks" name="available-hooks" class="anchor"><span class="anchor-link"></span></a>Available Hooks</h2>
-<p>Fluxus provides several built-in hooks:</p>
-<ul>
-  <li><strong>useState</strong>: Adds local state to a function component</li>
-  <li><strong>useEffect</strong>: Performs side effects in function components</li>
-  <li><strong>useRef</strong>: Creates a mutable reference that persists across renders</li>
-  <li><strong>useMemo</strong>: Memoizes expensive computations</li>
-  <li><strong>useCallback</strong>: Memoizes callback functions</li>
-  <li><strong>useFetch</strong>: Fetches data from a server</li>
-  <li><strong>useSignal</strong>: Integrates with Airstream for reactive programming</li>
-</ul>
-<h2><a href="#creating-custom-hooks" name="creating-custom-hooks" class="anchor"><span class="anchor-link"></span></a>Creating Custom Hooks</h2>
-<p>You can create your own hooks to reuse stateful logic between components. A custom hook is simply a function that calls other hooks.</p>
-<pre class="prettyprint"><code class="language-scala">def useFormField(initialValue: String): (String, dom.Event =&gt; Unit, Boolean) = {
-  val (value, setValue, _) = useState(initialValue)
-  val (touched, setTouched, _) = useState(false)
-  
-  val handleChange = (e: dom.Event) =&gt; {
-    setValue(e.target.asInstanceOf[dom.html.Input].value)
-    setTouched(true)
-  }
-  
-  (value, handleChange, touched)
-}
-</code></pre>
-<p>By convention, custom hook names should start with &ldquo;use&rdquo; to make it clear they follow the rules of hooks.</p>
-<h2><a href="#next-steps" name="next-steps" class="anchor"><span class="anchor-link"></span></a>Next Steps</h2>
-<p>Explore each hook in detail in the following pages, starting with <a href="useState.html">useState</a>.</p>
+<p>Keys help the reconciliation algorithm identify which items have changed, moved, or been removed, leading to more efficient updates.</p>
+<h2><a href="#benefits-of-virtual-dom" name="benefits-of-virtual-dom" class="anchor"><span class="anchor-link"></span></a>Benefits of Virtual DOM</h2>
+<p>The Virtual DOM approach provides several benefits:</p>
+<ol>
+  <li><strong>Performance</strong>: By minimizing actual DOM operations, UI updates are faster</li>
+  <li><strong>Simplicity</strong>: Developers can describe UIs declaratively without worrying about DOM manipulation</li>
+  <li><strong>Predictability</strong>: UI rendering is a pure function of state, making behavior more predictable</li>
+  <li><strong>Testability</strong>: Virtual DOM trees can be tested without a browser environment</li>
+</ol>
 </div>
 <div>
-<a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/hooks/index.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/core-concepts/virtual-dom.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
@@ -254,7 +296,7 @@ Edit this page
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav class="md-footer-nav__inner md-grid">
-<a href="../core-concepts/event-handling.html" title="Event Handling" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<a href="../core-concepts/index.html" title="Core Concepts" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
 <div class="md-flex__cell md-flex__cell--shrink">
 <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
 </div>
@@ -263,17 +305,17 @@ Edit this page
 <span class="md-footer-nav__direction">
 Previous
 </span>
-Event Handling
+Core Concepts
 </span>
 </div>
 </a>
-<a href="../hooks/useState.html" title="useState" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<a href="../core-concepts/components.html" title="Components" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
 <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
 <span class="md-flex__ellipsis">
 <span class="md-footer-nav__direction">
 Next
 </span>
-useState
+Components
 </span>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">

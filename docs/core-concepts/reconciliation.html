@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<meta name="generator" content="Paradox, paradox-material-theme=0.7.0, mkdocs-material=3.0.3">
+
+<meta name="lang:clipboard.copy" content="Copy to clipboard">
+<meta name="lang:clipboard.copied" content="Copied to clipboard">
+<meta name="lang:search.language" content="">
+<meta name="lang:search.pipeline.stopwords" content="true">
+<meta name="lang:search.pipeline.trimmer" content="true">
+<meta name="lang:search.result.none" content="No matching documents">
+<meta name="lang:search.result.one" content="1 matching document">
+<meta name="lang:search.result.other" content="# matching documents">
+<meta name="lang:search.tokenizer" content="[\s\-]+">
+
+
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<link rel="shortcut icon" href="../assets/images/favicon.png">
+<title>Reconciliation · Fluxus</title>
+<link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="../lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="../lib/prettify/prettify.css">
+<script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+<style>
+body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
+code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
+</style>
+<link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="../assets/fonts/material-icons.css">
+<link rel="stylesheet" href="../assets/stylesheets/paradox-material-theme.css">
+</head>
+<body
+>
+<input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+<input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+<label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+<header class="md-header" data-md-component="header">
+<nav class="md-header-nav md-grid">
+<div class="md-flex">
+<div class="md-flex__cell md-flex__cell--shrink">
+<a href="../index.html" title="Fluxus" class="md-header-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch">
+<div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+<span class="md-header-nav__topic">
+Fluxus
+</span>
+<span class="md-header-nav__topic">
+Reconciliation
+</span>
+</div>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+<label class="md-icon md-search__icon" for="__search"></label>
+<button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">&#xE5CD;</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix>
+<div class="md-search-result" data-md-component="result">
+<div class="md-search-result__meta">
+Type to start searching
+</div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</nav>
+</header>
+
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner md-grid" data-md-component="container">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
+<label class="md-nav__title md-nav__title--site" for="drawer">
+<a href="../index.html" title="Fluxus" class="md-nav__button md-logo">
+<span class="md-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+<a href="../index.html" title="Fluxus">
+Fluxus
+</a>
+</label>
+<ul>
+  <li><a href="../getting-started.html" class="page">Getting Started with Fluxus</a></li>
+  <li><a href="../core-concepts/index.html" class="page">Core Concepts</a>
+  <ul>
+    <li><a href="../core-concepts/virtual-dom.html" class="page">Virtual DOM</a></li>
+    <li><a href="../core-concepts/components.html" class="page">Components</a></li>
+    <li><a href="../core-concepts/reconciliation.html" class="active page">Reconciliation</a></li>
+    <li><a href="../core-concepts/hooks.html" class="page">Hooks</a></li>
+    <li><a href="../core-concepts/event-handling.html" class="page">Event Handling</a></li>
+  </ul></li>
+  <li><a href="../hooks/index.html" class="page">Hooks</a>
+  <ul>
+    <li><a href="../hooks/useState.html" class="page">useState</a></li>
+    <li><a href="../hooks/useEffect.html" class="page">useEffect</a></li>
+    <li><a href="../hooks/useRef.html" class="page">useRef</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html" class="page">useMemo and useCallback Hooks</a></li>
+    <li><a href="../hooks/useFetch.html" class="page">useFetch Hook</a></li>
+    <li><a href="../hooks/useSignal.html" class="page">useSignal Hook</a></li>
+    <li><a href="../hooks/custom-hooks.html" class="page">Custom Hooks</a></li>
+  </ul></li>
+</ul>
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../core-concepts/reconciliation.html#reconciliation" class="header">Reconciliation</a>
+  <ul>
+    <li><a href="../core-concepts/reconciliation.html#how-reconciliation-works" class="header">How Reconciliation Works</a></li>
+    <li><a href="../core-concepts/reconciliation.html#the-diff-algorithm" class="header">The Diff Algorithm</a></li>
+    <li><a href="../core-concepts/reconciliation.html#dom-operations" class="header">DOM Operations</a></li>
+    <li><a href="../core-concepts/reconciliation.html#key-based-reconciliation" class="header">Key-Based Reconciliation</a></li>
+    <li><a href="../core-concepts/reconciliation.html#component-reconciliation" class="header">Component Reconciliation</a></li>
+    <li><a href="../core-concepts/reconciliation.html#batching-updates" class="header">Batching Updates</a></li>
+    <li><a href="../core-concepts/reconciliation.html#effect-handling" class="header">Effect Handling</a></li>
+    <li><a href="../core-concepts/reconciliation.html#implementation-details" class="header">Implementation Details</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</nav>
+<ul style="display: none">
+<li class="md-nav__item md-version" id="project.version">
+<label class="md-nav__link" for="__version">
+<i class="md-icon" title="Version">label_outline</i> 0.0.30
+</label>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../core-concepts/reconciliation.html#reconciliation" class="header">Reconciliation</a>
+  <ul>
+    <li><a href="../core-concepts/reconciliation.html#how-reconciliation-works" class="header">How Reconciliation Works</a></li>
+    <li><a href="../core-concepts/reconciliation.html#the-diff-algorithm" class="header">The Diff Algorithm</a></li>
+    <li><a href="../core-concepts/reconciliation.html#dom-operations" class="header">DOM Operations</a></li>
+    <li><a href="../core-concepts/reconciliation.html#key-based-reconciliation" class="header">Key-Based Reconciliation</a></li>
+    <li><a href="../core-concepts/reconciliation.html#component-reconciliation" class="header">Component Reconciliation</a></li>
+    <li><a href="../core-concepts/reconciliation.html#batching-updates" class="header">Batching Updates</a></li>
+    <li><a href="../core-concepts/reconciliation.html#effect-handling" class="header">Effect Handling</a></li>
+    <li><a href="../core-concepts/reconciliation.html#implementation-details" class="header">Implementation Details</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<div class="md-content__searchable">
+<h1><a href="#reconciliation" name="reconciliation" class="anchor"><span class="anchor-link"></span></a>Reconciliation</h1>
+<p>Reconciliation is the process of efficiently updating the DOM based on changes to the virtual DOM. It&rsquo;s a core part of what makes Fluxus performant.</p>
+<h2><a href="#how-reconciliation-works" name="how-reconciliation-works" class="anchor"><span class="anchor-link"></span></a>How Reconciliation Works</h2>
+<p>When a component&rsquo;s state or props change, Fluxus performs these steps:</p>
+<ol>
+  <li>The component function is called again to produce a new virtual DOM tree</li>
+  <li>This new tree is compared with the previous tree (diffing)</li>
+  <li>A minimal set of operations is generated to transform the real DOM</li>
+  <li>These operations are applied to the DOM in a single batch</li>
+</ol>
+<h2><a href="#the-diff-algorithm" name="the-diff-algorithm" class="anchor"><span class="anchor-link"></span></a>The Diff Algorithm</h2>
+<p>The diffing algorithm in Fluxus is designed to be efficient with a few key assumptions:</p>
+<ol>
+  <li>
+  <p><strong>Different node types will produce different trees</strong>: If an element changes from a <code>div</code> to a <code>span</code>, Fluxus rebuilds the entire subtree rather than trying to patch it.</p></li>
+  <li>
+  <p><strong>Stable elements can be identified with keys</strong>: When lists of elements change, keys help identify which items were added, removed, or moved.</p></li>
+  <li>
+  <p><strong>Children are diffed recursively</strong>: The algorithm walks the tree recursively, comparing node by node.</p></li>
+</ol>
+<h2><a href="#dom-operations" name="dom-operations" class="anchor"><span class="anchor-link"></span></a>DOM Operations</h2>
+<p>The reconciliation process generates a sequence of operations that are batched together for efficiency:</p>
+<ul>
+  <li><code>UpdateProperties</code>: Updates properties on an existing element</li>
+  <li><code>ReplaceNode</code>: Replaces an entire node (and its children) with a new one</li>
+  <li><code>UpdateText</code>: Updates the content of a text node</li>
+  <li><code>RemoveProps</code>: Removes properties from an element</li>
+  <li><code>AddProps</code>: Adds new properties to an element</li>
+  <li><code>RemoveEvent</code>: Removes an event handler</li>
+  <li><code>AddEvent</code>: Adds an event handler</li>
+  <li><code>RemoveNode</code>: Removes a node from the DOM</li>
+  <li><code>InsertNode</code>: Inserts a new node</li>
+  <li><code>RerenderComponent</code>: Re-renders a component with new props</li>
+  <li><code>MoveNode</code>: Moves a node to a new position</li>
+</ul>
+<h2><a href="#key-based-reconciliation" name="key-based-reconciliation" class="anchor"><span class="anchor-link"></span></a>Key-Based Reconciliation</h2>
+<p>When rendering lists of elements, using the <code>key</code> property helps Fluxus identify which items have changed:</p>
+<pre class="prettyprint"><code class="language-scala">ul(
+  items.map(item =&gt; 
+    li(key := item.id, item.text)
+  )
+)
+</code></pre>
+<p>Without keys, Fluxus has to rebuild large portions of the DOM when items change position. With keys, it can identify moved elements and reuse DOM nodes, resulting in better performance.</p>
+<h2><a href="#component-reconciliation" name="component-reconciliation" class="anchor"><span class="anchor-link"></span></a>Component Reconciliation</h2>
+<p>Components are reconciled based on their type and key:</p>
+<ol>
+  <li>If a component&rsquo;s type changes (different component function), the entire subtree is replaced</li>
+  <li>If a component&rsquo;s type stays the same but props change, the component instance is reused but re-rendered</li>
+  <li>If both type and props are unchanged, the component can often skip re-rendering</li>
+</ol>
+<h2><a href="#batching-updates" name="batching-updates" class="anchor"><span class="anchor-link"></span></a>Batching Updates</h2>
+<p>Fluxus batches multiple state updates that occur within the same event loop iteration. This means multiple calls to state setters will result in only one re-render:</p>
+<pre class="prettyprint"><code class="language-scala">val (count, setCount, _) = useState(0)
+
+// These will be batched into a single update
+button(
+  onClick := (() =&gt; {
+    setCount(count + 1)
+    setCount(count + 2)
+  })
+)
+</code></pre>
+<p>However, functional updates will apply sequentially:</p>
+<pre class="prettyprint"><code class="language-scala">val (count, _, updateCount) = useState(0)
+
+// These will apply sequentially, resulting in count = 2
+button(
+  onClick := (() =&gt; {
+    updateCount(c =&gt; c + 1)
+    updateCount(c =&gt; c + 1)
+  })
+)
+</code></pre>
+<h2><a href="#effect-handling" name="effect-handling" class="anchor"><span class="anchor-link"></span></a>Effect Handling</h2>
+<p>After the DOM has been updated, Fluxus runs effects (from <code>useEffect</code> hooks). This ensures that effects always see the latest DOM state.</p>
+<p>Effects are executed in order from parent to child components, to ensure a consistent data flow.</p>
+<h2><a href="#implementation-details" name="implementation-details" class="anchor"><span class="anchor-link"></span></a>Implementation Details</h2>
+<p>The reconciliation process is implemented primarily in these modules:</p>
+<ul>
+  <li><code>diff.scala</code>: Generates operations by comparing virtual DOM trees</li>
+  <li><code>commit.scala</code>: Applies operations to the real DOM</li>
+  <li><code>BatchScheduler.scala</code>: Handles batching updates and scheduling effects</li>
+  <li><code>reconcile.scala</code>: Coordinates the overall reconciliation process</li>
+</ul>
+</div>
+<div>
+<a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/core-concepts/reconciliation.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
+</div>
+<div class="print-only">
+<span class="md-source-file md-version">
+0.0.30
+</span>
+</div>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav class="md-footer-nav__inner md-grid">
+<a href="../core-concepts/components.html" title="Components" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Previous
+</span>
+Components
+</span>
+</div>
+</a>
+<a href="../core-concepts/hooks.html" title="Hooks" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
+Hooks
+</span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+Powered by
+<a href="https://github.com/lightbend/paradox">Paradox</a>
+and
+<a href="https://sbt.github.io/sbt-paradox-material-theme/">Paradox Material Theme</a>
+
+</div>
+</div>
+</div>
+</footer>
+
+</div>
+<script src="../assets/javascripts/application.583bbe55.js"></script>
+<script src="../assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"../."}})</script>
+<script type="text/javascript" src="../lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="../lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+window.prettyPrint && prettyPrint();
+});
+</script>
+</body>
+</html>

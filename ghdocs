@@ -1,0 +1,4 @@
+rm -r docs/*
+cp -r library/target/paradox/site/main/* docs
+git add docs
+git commit -am "docs" && git push

@@ -1,0 +1,26 @@
+>> index.md
+
+@@@ index
+
+* [Getting Started](getting-started.md)
+* [Core Concepts](core-concepts/index.md)
+* [Components](components/index.md)
+* [Hooks](hooks/index.md)
+* [DOM and Events](dom-events/index.md)
+* [State Management](state-management/index.md)
+* [Testing](testing/index.md)
+* [Examples](examples/index.md)
+* [API Reference](api/index.md)
+
+@@@
+
+>> getting-started.md
+
+## Next Steps
+
+Now that you have your first Fluxus application running, explore the following topics:
+
+- @ref[Core Concepts](core-concepts/index.md) to understand the Fluxus architecture
+- [Components](components/index.md) to learn how to create reusable UI elements
+- @ref[Hooks](hooks/index.md) for state management and side effects
+- [Examples](examples/index.md) to see more complete applications

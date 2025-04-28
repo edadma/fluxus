@@ -5,7 +5,7 @@ ThisBuild / scalaVersion           := "3.6.4"
 ThisBuild / organization           := "io.github.edadma"
 ThisBuild / organizationName       := "edadma"
 ThisBuild / organizationHomepage   := Some(url("https://github.com/edadma"))
-ThisBuild / version                := "0.0.30"
+ThisBuild / version                := "0.0.31"
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 ThisBuild / sonatypeRepository     := "https://s01.oss.sonatype.org/service/local"
 
@@ -55,7 +55,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val library = project
-  .enablePlugins(ScalaJSPlugin, ParadoxSitePlugin, SitePreviewPlugin)
+  .enablePlugins(ScalaJSPlugin, ParadoxSitePlugin, SitePreviewPlugin, ParadoxMaterialThemePlugin)
   .settings(commonSettings)
   .settings(
     name        := "fluxus",

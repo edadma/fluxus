@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<meta name="generator" content="Paradox, paradox-material-theme=0.7.0, mkdocs-material=3.0.3">
+
+<meta name="lang:clipboard.copy" content="Copy to clipboard">
+<meta name="lang:clipboard.copied" content="Copied to clipboard">
+<meta name="lang:search.language" content="">
+<meta name="lang:search.pipeline.stopwords" content="true">
+<meta name="lang:search.pipeline.trimmer" content="true">
+<meta name="lang:search.result.none" content="No matching documents">
+<meta name="lang:search.result.one" content="1 matching document">
+<meta name="lang:search.result.other" content="# matching documents">
+<meta name="lang:search.tokenizer" content="[\s\-]+">
+
+
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<link rel="shortcut icon" href="../assets/images/favicon.png">
+<title>useMemo and useCallback Hooks · Fluxus</title>
+<link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="../lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="../lib/prettify/prettify.css">
+<script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+<style>
+body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
+code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
+</style>
+<link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="../assets/fonts/material-icons.css">
+<link rel="stylesheet" href="../assets/stylesheets/paradox-material-theme.css">
+</head>
+<body
+>
+<input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+<input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+<label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+<header class="md-header" data-md-component="header">
+<nav class="md-header-nav md-grid">
+<div class="md-flex">
+<div class="md-flex__cell md-flex__cell--shrink">
+<a href="../index.html" title="Fluxus" class="md-header-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch">
+<div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+<span class="md-header-nav__topic">
+Fluxus
+</span>
+<span class="md-header-nav__topic">
+useMemo and useCallback Hooks
+</span>
+</div>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+<label class="md-icon md-search__icon" for="__search"></label>
+<button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">&#xE5CD;</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix>
+<div class="md-search-result" data-md-component="result">
+<div class="md-search-result__meta">
+Type to start searching
+</div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</nav>
+</header>
+
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner md-grid" data-md-component="container">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
+<label class="md-nav__title md-nav__title--site" for="drawer">
+<a href="../index.html" title="Fluxus" class="md-nav__button md-logo">
+<span class="md-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+<a href="../index.html" title="Fluxus">
+Fluxus
+</a>
+</label>
+<ul>
+  <li><a href="../getting-started.html" class="page">Getting Started with Fluxus</a></li>
+  <li><a href="../core-concepts/index.html" class="page">Core Concepts</a>
+  <ul>
+    <li><a href="../core-concepts/virtual-dom.html" class="page">Virtual DOM</a></li>
+    <li><a href="../core-concepts/components.html" class="page">Components</a></li>
+    <li><a href="../core-concepts/reconciliation.html" class="page">Reconciliation</a></li>
+    <li><a href="../core-concepts/hooks.html" class="page">Hooks</a></li>
+    <li><a href="../core-concepts/event-handling.html" class="page">Event Handling</a></li>
+  </ul></li>
+  <li><a href="../hooks/index.html" class="page">Hooks</a>
+  <ul>
+    <li><a href="../hooks/useState.html" class="page">useState</a></li>
+    <li><a href="../hooks/useEffect.html" class="page">useEffect</a></li>
+    <li><a href="../hooks/useRef.html" class="page">useRef</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html" class="active page">useMemo and useCallback Hooks</a></li>
+    <li><a href="../hooks/useFetch.html" class="page">useFetch Hook</a></li>
+    <li><a href="../hooks/useSignal.html" class="page">useSignal Hook</a></li>
+    <li><a href="../hooks/custom-hooks.html" class="page">Custom Hooks</a></li>
+  </ul></li>
+</ul>
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../hooks/useMemo-useCallback.html#usememo-and-usecallback-hooks" class="header">useMemo and useCallback Hooks</a>
+  <ul>
+    <li><a href="../hooks/useMemo-useCallback.html#usememo" class="header">useMemo</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#usecallback" class="header">useCallback</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#differences-between-usememo-and-usecallback" class="header">Differences Between useMemo and useCallback</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#implementation-in-fluxus" class="header">Implementation in Fluxus</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#performance-considerations" class="header">Performance Considerations</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#using-with-typescript-scala-type-system" class="header">Using with TypeScript/Scala Type System</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#edge-cases-and-gotchas" class="header">Edge Cases and Gotchas</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</nav>
+<ul style="display: none">
+<li class="md-nav__item md-version" id="project.version">
+<label class="md-nav__link" for="__version">
+<i class="md-icon" title="Version">label_outline</i> 0.0.30
+</label>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../hooks/useMemo-useCallback.html#usememo-and-usecallback-hooks" class="header">useMemo and useCallback Hooks</a>
+  <ul>
+    <li><a href="../hooks/useMemo-useCallback.html#usememo" class="header">useMemo</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#usecallback" class="header">useCallback</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#differences-between-usememo-and-usecallback" class="header">Differences Between useMemo and useCallback</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#implementation-in-fluxus" class="header">Implementation in Fluxus</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#performance-considerations" class="header">Performance Considerations</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#using-with-typescript-scala-type-system" class="header">Using with TypeScript/Scala Type System</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html#edge-cases-and-gotchas" class="header">Edge Cases and Gotchas</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<div class="md-content__searchable">
+<h1><a href="#usememo-and-usecallback-hooks" name="usememo-and-usecallback-hooks" class="anchor"><span class="anchor-link"></span></a>useMemo and useCallback Hooks</h1>
+<p>Both <code>useMemo</code> and <code>useCallback</code> are optimization hooks that help prevent unnecessary calculations and renders in your Fluxus applications.</p>
+<h2><a href="#usememo" name="usememo" class="anchor"><span class="anchor-link"></span></a>useMemo</h2>
+<p><code>useMemo</code> lets you memoize expensive calculations so they&rsquo;re only recomputed when dependencies change.</p>
+<h3><a href="#usememo-basic-usage" name="usememo-basic-usage" class="anchor"><span class="anchor-link"></span></a>useMemo Basic Usage</h3>
+<pre class="prettyprint"><code class="language-scala">val memoizedValue = useMemo(
+  () =&gt; computeExpensiveValue(a, b),
+  Seq(a, b)
+)
+</code></pre>
+<p>Where: - The first argument is a function that computes a value - The second argument is an array of dependencies - The function runs during rendering - Fluxus will only recompute the memoized value when one of the dependencies has changed</p>
+<h3><a href="#when-to-use-usememo" name="when-to-use-usememo" class="anchor"><span class="anchor-link"></span></a>When to Use useMemo</h3>
+<p>Use <code>useMemo</code> when:</p>
+<ol>
+  <li>You have computationally expensive calculations that don&rsquo;t need to be redone on every render</li>
+  <li>You want to ensure referential equality for objects that would otherwise be recreated on each render</li>
+  <li>You want to avoid unnecessary re-renders of child components that rely on object or array props</li>
+</ol>
+<h3><a href="#usememo-examples" name="usememo-examples" class="anchor"><span class="anchor-link"></span></a>useMemo Examples</h3>
+<h4><a href="#expensive-calculation" name="expensive-calculation" class="anchor"><span class="anchor-link"></span></a>Expensive Calculation</h4>
+<pre class="prettyprint"><code class="language-scala">val FibonacciCalculator = () =&gt; {
+  val (number, setNumber, _) = useState(35)
+  
+  val fibResult = useMemo(
+    () =&gt; {
+      // Recursive Fibonacci - intentionally inefficient to demonstrate memoization
+      def fib(n: Int): BigInt = {
+        if (n &lt;= 1) n
+        else fib(n - 1) + fib(n - 2)
+      }
+      
+      fib(number).toString
+    },
+    Seq(number) // Only recalculate when number changes
+  )
+  
+  div(
+    input(
+      typ := &quot;number&quot;,
+      value := number.toString,
+      onInput := ((e: dom.Event) =&gt; setNumber(e.target.asInstanceOf[dom.html.Input].value.toInt))
+    ),
+    p(s&quot;Fibonacci($number) = $fibResult&quot;)
+  )
+}
+</code></pre>
+<h4><a href="#derived-data" name="derived-data" class="anchor"><span class="anchor-link"></span></a>Derived Data</h4>
+<pre class="prettyprint"><code class="language-scala">val FilteredList = (props: FilteredListProps) =&gt; {
+  val (filter, setFilter, _) = useState(&quot;&quot;)
+  
+  // Memoize filtered items to avoid recalculating on every render
+  val filteredItems = useMemo(
+    () =&gt; props.items.filter(item =&gt; item.name.contains(filter)),
+    Seq(props.items, filter) // Recalculate when items or filter changes
+  )
+  
+  div(
+    input(
+      value := filter,
+      onInput := ((e: dom.Event) =&gt; setFilter(e.target.asInstanceOf[dom.html.Input].value)),
+      placeholder := &quot;Filter items&quot;
+    ),
+    ul(
+      filteredItems.map(item =&gt; li(key := item.id, item.name))
+    )
+  )
+}
+</code></pre>
+<h4><a href="#preventing-unnecessary-renders" name="preventing-unnecessary-renders" class="anchor"><span class="anchor-link"></span></a>Preventing Unnecessary Renders</h4>
+<pre class="prettyprint"><code class="language-scala">case class ItemProps(id: String, name: String, onClick: () =&gt; Unit)
+
+val Item = (props: ItemProps) =&gt; {
+  console.log(s&quot;Rendering Item: ${props.name}&quot;)
+  
+  li(
+    onClick := props.onClick,
+    props.name
+  )
+}
+
+val ItemList = () =&gt; {
+  val (items, _, updateItems) = useState(List(&quot;Apple&quot;, &quot;Banana&quot;, &quot;Cherry&quot;))
+  val (selectedIndex, setSelectedIndex, _) = useState(-1)
+  
+  val itemComponents = useMemo(
+    () =&gt; {
+      items.zipWithIndex.map { case (name, index) =&gt;
+        val itemProps = ItemProps(
+          id = index.toString,
+          name = name,
+          onClick = () =&gt; setSelectedIndex(index)
+        )
+        
+        Item &lt;&gt; itemProps
+      }
+    },
+    Seq(items) // Only recreate when items change, not when selectedIndex changes
+  )
+  
+  div(
+    ul(itemComponents),
+    p(
+      if (selectedIndex &gt;= 0) s&quot;Selected: ${items(selectedIndex)}&quot;
+      else &quot;Nothing selected&quot;
+    )
+  )
+}
+</code></pre>
+<h2><a href="#usecallback" name="usecallback" class="anchor"><span class="anchor-link"></span></a>useCallback</h2>
+<p><code>useCallback</code> returns a memoized version of a callback function that only changes if one of the dependencies has changed.</p>
+<h3><a href="#usecallback-basic-usage" name="usecallback-basic-usage" class="anchor"><span class="anchor-link"></span></a>useCallback Basic Usage</h3>
+<pre class="prettyprint"><code class="language-scala">val memoizedCallback = useCallback(
+  () =&gt; doSomething(a, b),
+  Seq(a, b)
+)
+</code></pre>
+<p>Where: - The first argument is a function that you want to memoize - The second argument is an array of dependencies - The function is only recreated when one of the dependencies changes</p>
+<h3><a href="#when-to-use-usecallback" name="when-to-use-usecallback" class="anchor"><span class="anchor-link"></span></a>When to Use useCallback</h3>
+<p>Use <code>useCallback</code> when:</p>
+<ol>
+  <li>You&rsquo;re passing callbacks to optimized child components that rely on reference equality</li>
+  <li>You want to prevent callbacks from being recreated on every render</li>
+  <li>The callback is a dependency for other hooks like <code>useEffect</code></li>
+</ol>
+<h3><a href="#usecallback-examples" name="usecallback-examples" class="anchor"><span class="anchor-link"></span></a>useCallback Examples</h3>
+<h4><a href="#passing-stable-callbacks-to-child-components" name="passing-stable-callbacks-to-child-components" class="anchor"><span class="anchor-link"></span></a>Passing Stable Callbacks to Child Components</h4>
+<pre class="prettyprint"><code class="language-scala">// Child component that uses React.memo or similar optimization
+case class ButtonProps(onClick: () =&gt; Unit, label: String)
+
+val Button = (props: ButtonProps) =&gt; {
+  console.log(s&quot;Rendering Button: ${props.label}&quot;)
+  
+  button(
+    onClick := props.onClick,
+    props.label
+  )
+}
+
+val Parent = () =&gt; {
+  val (count, setCount, _) = useState(0)
+  
+  // Without useCallback, this function would be recreated on every render
+  val incrementCount = useCallback(
+    () =&gt; setCount(count + 1),
+    Seq(count) // Only recreate when count changes
+  )
+  
+  // This callback doesn&#39;t depend on any values from render scope
+  val resetCount = useCallback(
+    () =&gt; setCount(0),
+    Seq() // Never recreate this function
+  )
+  
+  div(
+    p(s&quot;Count: $count&quot;),
+    Button &lt;&gt; ButtonProps(incrementCount, &quot;Increment&quot;),
+    Button &lt;&gt; ButtonProps(resetCount, &quot;Reset&quot;)
+  )
+}
+</code></pre>
+<h4><a href="#callbacks-as-dependencies-of-effects" name="callbacks-as-dependencies-of-effects" class="anchor"><span class="anchor-link"></span></a>Callbacks as Dependencies of Effects</h4>
+<pre class="prettyprint"><code class="language-scala">val SearchResults = () =&gt; {
+  val (query, setQuery, _) = useState(&quot;&quot;)
+  val (results, setResults, _) = useState(List.empty[String])
+  
+  // Memoize the search function
+  val searchAPI = useCallback(
+    () =&gt; {
+      if (query.nonEmpty) {
+        fetchResults(query).foreach(data =&gt; setResults(data))
+      }
+    },
+    Seq(query) // Only recreate when query changes
+  )
+  
+  // Use the memoized function in an effect
+  useEffect(() =&gt; {
+    searchAPI()
+  }, Seq(searchAPI)) // Depends on the searchAPI function
+  
+  div(
+    input(
+      value := query,
+      onInput := ((e: dom.Event) =&gt; setQuery(e.target.asInstanceOf[dom.html.Input].value)),
+      placeholder := &quot;Search...&quot;
+    ),
+    button(onClick := (() =&gt; searchAPI()), &quot;Search&quot;),
+    ul(
+      results.map(result =&gt; li(result))
+    )
+  )
+}
+</code></pre>
+<h2><a href="#differences-between-usememo-and-usecallback" name="differences-between-usememo-and-usecallback" class="anchor"><span class="anchor-link"></span></a>Differences Between useMemo and useCallback</h2>
+<p>While similar, these hooks serve different purposes:</p>
+<ul>
+  <li><code>useMemo</code> memoizes a <strong>value</strong> resulting from a computation</li>
+  <li><code>useCallback</code> memoizes a <strong>function</strong> definition</li>
+</ul>
+<p>In fact, <code>useCallback(fn, deps)</code> is equivalent to <code>useMemo(() =&gt; fn, deps)</code>.</p>
+<h2><a href="#implementation-in-fluxus" name="implementation-in-fluxus" class="anchor"><span class="anchor-link"></span></a>Implementation in Fluxus</h2>
+<p>In Fluxus, <code>useCallback</code> is actually implemented in terms of <code>useMemo</code>:</p>
+<pre class="prettyprint"><code class="language-scala">def useCallback[T](callback: T, deps: Seq[Any]): T = useMemo(() =&gt; callback, deps)
+</code></pre>
+<h2><a href="#performance-considerations" name="performance-considerations" class="anchor"><span class="anchor-link"></span></a>Performance Considerations</h2>
+<ol>
+  <li>
+  <p><strong>Don&rsquo;t optimize prematurely</strong>: Only use these hooks when you have identified a performance issue.</p></li>
+  <li>
+  <p><strong>Be careful with dependencies</strong>: Missing dependencies can cause bugs, while too many dependencies can negate the benefits of memoization.</p></li>
+  <li>
+  <p><strong>Consider the cost</strong>: Memoization itself has a cost. For very simple calculations, the overhead of <code>useMemo</code> might be greater than just recalculating the value.</p></li>
+  <li>
+  <p><strong>Debugging</strong>: Memoized functions can make debugging more difficult, as the functions you see in the debugger are not the ones you wrote in your code.</p></li>
+</ol>
+<h2><a href="#using-with-typescript-scala-type-system" name="using-with-typescript-scala-type-system" class="anchor"><span class="anchor-link"></span></a>Using with TypeScript/Scala Type System</h2>
+<p>Both hooks preserve the type of the value or function being memoized:</p>
+<pre class="prettyprint"><code class="language-scala">// Type is inferred as Int
+val memoizedValue = useMemo(() =&gt; calculateValue(a, b), Seq(a, b))
+
+// Type is inferred as (Int, Int) =&gt; Int
+val memoizedFunction = useCallback((a: Int, b: Int) =&gt; a + b, Seq())
+
+// Explicit typing
+val memoizedList = useMemo[List[String]](() =&gt; 
+  items.filter(_.contains(query)), 
+  Seq(items, query)
+)
+</code></pre>
+<h2><a href="#edge-cases-and-gotchas" name="edge-cases-and-gotchas" class="anchor"><span class="anchor-link"></span></a>Edge Cases and Gotchas</h2>
+<ol>
+  <li>
+  <p><strong>Dependencies must be stable</strong>: If you create objects or arrays inside your component, they will be new references on every render. Either move them outside the component or memoize them.</p></li>
+  <li>
+  <p><strong>Don&rsquo;t create functions inside useMemo</strong>: This can lead to unexpected behavior.  <code>scala
+   // Don&#39;t do this
+   val memoizedValue = useMemo(() =&gt; {
+ val helper = () =&gt; doSomething()
+ helper()
+   }, Seq())
+</code></p></li>
+  <li>
+  <p><strong>Empty dependencies array vs. null</strong>: With an empty array, the value is computed once. With <code>null</code>, it&rsquo;s computed on every render.  ```scala  // Computed once  val value1 = useMemo(() =&gt; expensive(), Seq())</p></li>
+</ol>
+<p>// Computed on every render  val value2 = useMemo(() =&gt; expensive(), null)  ```</p>
+<ol>
+  <li>
+  <p><strong>Infinite loops</strong>: Be careful not to create dependencies that change on every render.</p></li>
+  <li>
+  <p><strong>Non-serializable values</strong>: The dependency array should contain values that can be compared with <code>==</code>.</p></li>
+</ol>
+</div>
+<div>
+<a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/hooks/useMemo-useCallback.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
+</div>
+<div class="print-only">
+<span class="md-source-file md-version">
+0.0.30
+</span>
+</div>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav class="md-footer-nav__inner md-grid">
+<a href="../hooks/useRef.html" title="useRef" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Previous
+</span>
+useRef
+</span>
+</div>
+</a>
+<a href="../hooks/useFetch.html" title="useFetch Hook" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
+useFetch Hook
+</span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+Powered by
+<a href="https://github.com/lightbend/paradox">Paradox</a>
+and
+<a href="https://sbt.github.io/sbt-paradox-material-theme/">Paradox Material Theme</a>
+
+</div>
+</div>
+</div>
+</footer>
+
+</div>
+<script src="../assets/javascripts/application.583bbe55.js"></script>
+<script src="../assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"../."}})</script>
+<script type="text/javascript" src="../lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="../lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+window.prettyPrint && prettyPrint();
+});
+</script>
+</body>
+</html>

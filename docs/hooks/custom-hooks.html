@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<meta name="generator" content="Paradox, paradox-material-theme=0.7.0, mkdocs-material=3.0.3">
+
+<meta name="lang:clipboard.copy" content="Copy to clipboard">
+<meta name="lang:clipboard.copied" content="Copied to clipboard">
+<meta name="lang:search.language" content="">
+<meta name="lang:search.pipeline.stopwords" content="true">
+<meta name="lang:search.pipeline.trimmer" content="true">
+<meta name="lang:search.result.none" content="No matching documents">
+<meta name="lang:search.result.one" content="1 matching document">
+<meta name="lang:search.result.other" content="# matching documents">
+<meta name="lang:search.tokenizer" content="[\s\-]+">
+
+
+<meta name="description" content="A minimalist UI framework inspired by component-based design, built with Scala.js">
+<link rel="shortcut icon" href="../assets/images/favicon.png">
+<title>Custom Hooks · Fluxus</title>
+<link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="../lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="../lib/prettify/prettify.css">
+<script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+<style>
+body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
+code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
+</style>
+<link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="../assets/fonts/material-icons.css">
+<link rel="stylesheet" href="../assets/stylesheets/paradox-material-theme.css">
+</head>
+<body
+>
+<input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+<input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+<label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+<header class="md-header" data-md-component="header">
+<nav class="md-header-nav md-grid">
+<div class="md-flex">
+<div class="md-flex__cell md-flex__cell--shrink">
+<a href="../index.html" title="Fluxus" class="md-header-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch">
+<div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+<span class="md-header-nav__topic">
+Fluxus
+</span>
+<span class="md-header-nav__topic">
+Custom Hooks
+</span>
+</div>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+<label class="md-icon md-search__icon" for="__search"></label>
+<button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">&#xE5CD;</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix>
+<div class="md-search-result" data-md-component="result">
+<div class="md-search-result__meta">
+Type to start searching
+</div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</nav>
+</header>
+
+<div class="md-container">
+<main class="md-main">
+<div class="md-main__inner md-grid" data-md-component="container">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
+<label class="md-nav__title md-nav__title--site" for="drawer">
+<a href="../index.html" title="Fluxus" class="md-nav__button md-logo">
+<span class="md-nav__button md-logo">
+<i class="md-icon">local_library</i>
+</a>
+<a href="../index.html" title="Fluxus">
+Fluxus
+</a>
+</label>
+<ul>
+  <li><a href="../getting-started.html" class="page">Getting Started with Fluxus</a></li>
+  <li><a href="../core-concepts/index.html" class="page">Core Concepts</a>
+  <ul>
+    <li><a href="../core-concepts/virtual-dom.html" class="page">Virtual DOM</a></li>
+    <li><a href="../core-concepts/components.html" class="page">Components</a></li>
+    <li><a href="../core-concepts/reconciliation.html" class="page">Reconciliation</a></li>
+    <li><a href="../core-concepts/hooks.html" class="page">Hooks</a></li>
+    <li><a href="../core-concepts/event-handling.html" class="page">Event Handling</a></li>
+  </ul></li>
+  <li><a href="../hooks/index.html" class="page">Hooks</a>
+  <ul>
+    <li><a href="../hooks/useState.html" class="page">useState</a></li>
+    <li><a href="../hooks/useEffect.html" class="page">useEffect</a></li>
+    <li><a href="../hooks/useRef.html" class="page">useRef</a></li>
+    <li><a href="../hooks/useMemo-useCallback.html" class="page">useMemo and useCallback Hooks</a></li>
+    <li><a href="../hooks/useFetch.html" class="page">useFetch Hook</a></li>
+    <li><a href="../hooks/useSignal.html" class="page">useSignal Hook</a></li>
+    <li><a href="../hooks/custom-hooks.html" class="active page">Custom Hooks</a></li>
+  </ul></li>
+</ul>
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../hooks/custom-hooks.html#custom-hooks" class="header">Custom Hooks</a>
+  <ul>
+    <li><a href="../hooks/custom-hooks.html#basic-pattern" class="header">Basic Pattern</a></li>
+    <li><a href="../hooks/custom-hooks.html#why-create-custom-hooks-" class="header">Why Create Custom Hooks?</a></li>
+    <li><a href="../hooks/custom-hooks.html#examples" class="header">Examples</a></li>
+    <li><a href="../hooks/custom-hooks.html#composing-hooks" class="header">Composing Hooks</a></li>
+    <li><a href="../hooks/custom-hooks.html#rules-for-custom-hooks" class="header">Rules for Custom Hooks</a></li>
+    <li><a href="../hooks/custom-hooks.html#testing-custom-hooks" class="header">Testing Custom Hooks</a></li>
+    <li><a href="../hooks/custom-hooks.html#best-practices" class="header">Best Practices</a></li>
+    <li><a href="../hooks/custom-hooks.html#common-hook-patterns" class="header">Common Hook Patterns</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</nav>
+<ul style="display: none">
+<li class="md-nav__item md-version" id="project.version">
+<label class="md-nav__link" for="__version">
+<i class="md-icon" title="Version">label_outline</i> 0.0.30
+</label>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="../hooks/custom-hooks.html#custom-hooks" class="header">Custom Hooks</a>
+  <ul>
+    <li><a href="../hooks/custom-hooks.html#basic-pattern" class="header">Basic Pattern</a></li>
+    <li><a href="../hooks/custom-hooks.html#why-create-custom-hooks-" class="header">Why Create Custom Hooks?</a></li>
+    <li><a href="../hooks/custom-hooks.html#examples" class="header">Examples</a></li>
+    <li><a href="../hooks/custom-hooks.html#composing-hooks" class="header">Composing Hooks</a></li>
+    <li><a href="../hooks/custom-hooks.html#rules-for-custom-hooks" class="header">Rules for Custom Hooks</a></li>
+    <li><a href="../hooks/custom-hooks.html#testing-custom-hooks" class="header">Testing Custom Hooks</a></li>
+    <li><a href="../hooks/custom-hooks.html#best-practices" class="header">Best Practices</a></li>
+    <li><a href="../hooks/custom-hooks.html#common-hook-patterns" class="header">Common Hook Patterns</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<div class="md-content__searchable">
+<h1><a href="#custom-hooks" name="custom-hooks" class="anchor"><span class="anchor-link"></span></a>Custom Hooks</h1>
+<p>Custom hooks are a powerful pattern for reusing stateful logic between components. They allow you to extract component logic into reusable functions.</p>
+<h2><a href="#basic-pattern" name="basic-pattern" class="anchor"><span class="anchor-link"></span></a>Basic Pattern</h2>
+<p>A custom hook is simply a function that:</p>
+<ol>
+  <li>Starts with &ldquo;use&rdquo; (by convention)</li>
+  <li>Calls other hooks</li>
+  <li>Returns values that components will use</li>
+</ol>
+<pre class="prettyprint"><code class="language-scala">def useCounter(initialValue: Int = 0): (Int, () =&gt; Unit, () =&gt; Unit) = {
+  val (count, setCount, _) = useState(initialValue)
+  
+  val increment = () =&gt; setCount(count + 1)
+  val decrement = () =&gt; setCount(count - 1)
+  
+  (count, increment, decrement)
+}
+
+// Usage in a component
+val CounterComponent = () =&gt; {
+  val (count, increment, decrement) = useCounter(0)
+  
+  div(
+    p(s&quot;Count: $count&quot;),
+    button(onClick := decrement, &quot;−&quot;),
+    button(onClick := increment, &quot;+&quot;)
+  )
+}
+</code></pre>
+<h2><a href="#why-create-custom-hooks-" name="why-create-custom-hooks-" class="anchor"><span class="anchor-link"></span></a>Why Create Custom Hooks?</h2>
+<p>Custom hooks provide several benefits:</p>
+<ol>
+  <li><strong>Code Reuse</strong>: Extract common logic into reusable functions</li>
+  <li><strong>Separation of Concerns</strong>: Split complex components into smaller, focused pieces</li>
+  <li><strong>Cleaner Components</strong>: Move implementation details out of component bodies</li>
+  <li><strong>Testing</strong>: Test complex logic independently from UI components</li>
+  <li><strong>Composition</strong>: Compose multiple hooks together for more complex behavior</li>
+</ol>
+<h2><a href="#examples" name="examples" class="anchor"><span class="anchor-link"></span></a>Examples</h2>
+<h3><a href="#form-field-hook" name="form-field-hook" class="anchor"><span class="anchor-link"></span></a>Form Field Hook</h3>
+<pre class="prettyprint"><code class="language-scala">def useFormField(initialValue: String = &quot;&quot;): (String, dom.Event =&gt; Unit, Boolean) = {
+  val (value, setValue, _) = useState(initialValue)
+  val (touched, setTouched, _) = useState(false)
+  
+  val handleChange = (e: dom.Event) =&gt; {
+    setValue(e.target.asInstanceOf[dom.html.Input].value)
+    setTouched(true)
+  }
+  
+  (value, handleChange, touched)
+}
+
+// Usage
+val RegisterForm = () =&gt; {
+  val (username, handleUsernameChange, usernameTouched) = useFormField()
+  val (email, handleEmailChange, emailTouched) = useFormField()
+  
+  div(
+    div(
+      label(&quot;Username&quot;),
+      input(
+        typ := &quot;text&quot;,
+        value := username,
+        onInput := handleUsernameChange
+      ),
+      if (usernameTouched &amp;&amp; username.isEmpty) {
+        p(cls := &quot;error&quot;, &quot;Username is required&quot;)
+      }
+    ),
+    div(
+      label(&quot;Email&quot;),
+      input(
+        typ := &quot;email&quot;,
+        value := email,
+        onInput := handleEmailChange
+      ),
+      if (emailTouched &amp;&amp; email.isEmpty) {
+        p(cls := &quot;error&quot;, &quot;Email is required&quot;)
+      }
+    )
+  )
+}
+</code></pre>
+<h3><a href="#local-storage-hook" name="local-storage-hook" class="anchor"><span class="anchor-link"></span></a>Local Storage Hook</h3>
+<pre class="prettyprint"><code class="language-scala">def useLocalStorage[T: JsonEncoder: JsonDecoder](key: String, initialValue: T): (T, T =&gt; Unit) = {
+  // Function to get stored value
+  def getStoredValue(): T = {
+    try {
+      Option(dom.window.localStorage.getItem(key))
+        .flatMap(item =&gt; item.fromJson[T].toOption)
+        .getOrElse(initialValue)
+    } catch {
+      case _: Exception =&gt; initialValue
+    }
+  }
+  
+  // Initialize state with stored value
+  val (storedValue, setStoredValue, _) = useState(getStoredValue())
+  
+  // Return a wrapped version of useState&#39;s setter function
+  val setValue = (value: T) =&gt; {
+    try {
+      // Allow value to be a function
+      setStoredValue(value)
+      // Save to localStorage
+      dom.window.localStorage.setItem(key, value.toJson)
+    } catch {
+      case e: Exception =&gt;
+        console.error(s&quot;Error saving to localStorage: ${e.getMessage}&quot;)
+    }
+  }
+  
+  (storedValue, setValue)
+}
+
+// Usage
+val ThemeSelector = () =&gt; {
+  val (theme, setTheme) = useLocalStorage(&quot;theme&quot;, &quot;light&quot;)
+  
+  div(
+    p(s&quot;Current theme: $theme&quot;),
+    button(
+      onClick := (() =&gt; setTheme(if (theme == &quot;light&quot;) &quot;dark&quot; else &quot;light&quot;)),
+      &quot;Toggle Theme&quot;
+    )
+  )
+}
+</code></pre>
+<h3><a href="#window-size-hook" name="window-size-hook" class="anchor"><span class="anchor-link"></span></a>Window Size Hook</h3>
+<pre class="prettyprint"><code class="language-scala">def useWindowSize(): (Int, Int) = {
+  val (width, setWidth, _) = useState(dom.window.innerWidth)
+  val (height, setHeight, _) = useState(dom.window.innerHeight)
+  
+  useEffect(() =&gt; {
+    val handleResize = () =&gt; {
+      setWidth(dom.window.innerWidth)
+      setHeight(dom.window.innerHeight)
+    }
+    
+    dom.window.addEventListener(&quot;resize&quot;, handleResize)
+    
+    // Cleanup function
+    () =&gt; dom.window.removeEventListener(&quot;resize&quot;, handleResize)
+  }, Seq())
+  
+  (width, height)
+}
+
+// Usage
+val ResponsiveComponent = () =&gt; {
+  val (width, height) = useWindowSize()
+  
+  div(
+    p(s&quot;Window dimensions: $width × $height&quot;),
+    if (width &lt; 768) {
+      div(cls := &quot;mobile-layout&quot;, &quot;Mobile Layout&quot;)
+    } else {
+      div(cls := &quot;desktop-layout&quot;, &quot;Desktop Layout&quot;)
+    }
+  )
+}
+</code></pre>
+<h3><a href="#debounce-hook" name="debounce-hook" class="anchor"><span class="anchor-link"></span></a>Debounce Hook</h3>
+<pre class="prettyprint"><code class="language-scala">def useDebounce[T](value: T, delay: Int = 500): T = {
+  val (debouncedValue, setDebouncedValue, _) = useState(value)
+  
+  useEffect(() =&gt; {
+    val handler = dom.window.setTimeout(() =&gt; {
+      setDebouncedValue(value)
+    }, delay)
+    
+    () =&gt; dom.window.clearTimeout(handler)
+  }, Seq(value, delay))
+  
+  debouncedValue
+}
+
+// Usage
+val SearchComponent = () =&gt; {
+  val (searchTerm, setSearchTerm, _) = useState(&quot;&quot;)
+  val debouncedSearchTerm = useDebounce(searchTerm, 300)
+  
+  // Effect runs when debouncedSearchTerm changes
+  useEffect(() =&gt; {
+    if (debouncedSearchTerm.nonEmpty) {
+      performSearch(debouncedSearchTerm)
+    }
+  }, Seq(debouncedSearchTerm))
+  
+  div(
+    input(
+      typ := &quot;text&quot;,
+      value := searchTerm,
+      onInput := ((e: dom.Event) =&gt; 
+        setSearchTerm(e.target.asInstanceOf[dom.html.Input].value)
+      ),
+      placeholder := &quot;Search...&quot;
+    ),
+    p(s&quot;Searching for: $debouncedSearchTerm&quot;)
+  )
+}
+</code></pre>
+<h3><a href="#network-status-hook" name="network-status-hook" class="anchor"><span class="anchor-link"></span></a>Network Status Hook</h3>
+<pre class="prettyprint"><code class="language-scala">def useOnlineStatus(): Boolean = {
+  val (isOnline, setIsOnline, _) = useState(dom.window.navigator.onLine)
+  
+  useEffect(() =&gt; {
+    val handleOnline = () =&gt; setIsOnline(true)
+    val handleOffline = () =&gt; setIsOnline(false)
+    
+    dom.window.addEventListener(&quot;online&quot;, handleOnline)
+    dom.window.addEventListener(&quot;offline&quot;, handleOffline)
+    
+    () =&gt; {
+      dom.window.removeEventListener(&quot;online&quot;, handleOnline)
+      dom.window.removeEventListener(&quot;offline&quot;, handleOffline)
+    }
+  }, Seq())
+  
+  isOnline
+}
+
+// Usage
+val NetworkIndicator = () =&gt; {
+  val isOnline = useOnlineStatus()
+  
+  div(
+    cls := s&quot;network-status ${if (isOnline) &quot;online&quot; else &quot;offline&quot;}&quot;,
+    if (isOnline) {
+      span(&quot;Connected&quot;)
+    } else {
+      span(&quot;Disconnected&quot;)
+    }
+  )
+}
+</code></pre>
+<h2><a href="#composing-hooks" name="composing-hooks" class="anchor"><span class="anchor-link"></span></a>Composing Hooks</h2>
+<p>Custom hooks can call other custom hooks, allowing for powerful composition:</p>
+<pre class="prettyprint"><code class="language-scala">def useUserProfile(userId: String): (Option[User], Boolean, Option[String]) = {
+  val isOnline = useOnlineStatus()
+  val (userState, retry) = useFetch[User](
+    url = if (isOnline) s&quot;/api/users/$userId&quot; else &quot;&quot;,
+    dependencies = Seq(userId, isOnline)
+  )
+  
+  userState match {
+    case FetchState.Success(user) =&gt; (Some(user), false, None)
+    case FetchState.Loading() =&gt; (None, true, None)
+    case FetchState.Error(error) =&gt; (None, false, Some(error.getMessage))
+    case FetchState.Idle() =&gt; (None, false, None)
+  }
+}
+
+// Usage
+val ProfilePage = (props: ProfilePageProps) =&gt; {
+  val (user, loading, error) = useUserProfile(props.userId)
+  
+  div(
+    cls := &quot;profile-page&quot;,
+    if (loading) {
+      div(&quot;Loading profile...&quot;)
+    } else if (error.isDefined) {
+      div(cls := &quot;error&quot;, s&quot;Error: ${error.get}&quot;)
+    } else if (user.isDefined) {
+      div(
+        h1(user.get.name),
+        p(user.get.email)
+      )
+    } else {
+      div(&quot;No user data&quot;)
+    }
+  )
+}
+</code></pre>
+<h2><a href="#rules-for-custom-hooks" name="rules-for-custom-hooks" class="anchor"><span class="anchor-link"></span></a>Rules for Custom Hooks</h2>
+<ol>
+  <li><strong>Follow Hook Rules</strong>: Custom hooks must follow the same rules as built-in hooks</li>
+  <li><strong>Naming Convention</strong>: Always start custom hook names with &ldquo;use&rdquo;</li>
+  <li><strong>Return Immutable Values</strong>: Return values that components can use directly</li>
+  <li><strong>Handle Cleanup</strong>: If your hook sets up resources, make sure they&rsquo;re cleaned up</li>
+  <li><strong>Keep it Focused</strong>: Each hook should have a single responsibility</li>
+  <li><strong>Document Types</strong>: Be explicit about the types your hook returns</li>
+</ol>
+<h2><a href="#testing-custom-hooks" name="testing-custom-hooks" class="anchor"><span class="anchor-link"></span></a>Testing Custom Hooks</h2>
+<p>Custom hooks can be tested independently from components:</p>
+<pre class="prettyprint"><code class="language-scala">// TestUtils.scala
+def testHook[T](hook: () =&gt; T): T = {
+  var result: T = null.asInstanceOf[T]
+  
+  val TestComponent = () =&gt; {
+    result = hook()
+    null
+  }
+  
+  createDOM(TestComponent &lt;&gt; (), document.createElement(&quot;div&quot;))
+  
+  result
+}
+
+// CounterHookTest.scala
+test(&quot;useCounter should initialize with the provided value&quot;) {
+  val (count, _, _) = testHook(() =&gt; useCounter(5))
+  count shouldBe 5
+}
+
+test(&quot;useCounter increment should increase the count&quot;) {
+  var count: Int = 0
+  var increment: () =&gt; Unit = () =&gt; {}
+  
+  testHook(() =&gt; {
+    val result = useCounter(0)
+    count = result._1
+    increment = result._2
+    result
+  })
+  
+  increment()
+  count shouldBe 1
+}
+</code></pre>
+<h2><a href="#best-practices" name="best-practices" class="anchor"><span class="anchor-link"></span></a>Best Practices</h2>
+<ol>
+  <li>
+  <p><strong>Extract Reusable Logic</strong>: If you find yourself copying and pasting logic between components, consider creating a custom hook.</p></li>
+  <li>
+  <p><strong>Focus on State and Side Effects</strong>: Custom hooks should primarily manage state and side effects. Avoid putting rendering logic in hooks.</p></li>
+  <li>
+  <p><strong>Keep Components Pure</strong>: Components should focus on rendering UI based on props and hook results, while hooks handle the complex state logic.</p></li>
+  <li>
+  <p><strong>Avoid Premature Abstraction</strong>: Don&rsquo;t create hooks for everything. Only extract logic when it&rsquo;s clearly reusable.</p></li>
+  <li>
+  <p><strong>Expose Minimal Interface</strong>: Only return what components need, hiding implementation details.</p></li>
+  <li>
+  <p><strong>Name Hooks Based on Purpose</strong>: Use descriptive names for your hooks (e.g., <code>useUserStatus</code> instead of <code>useStatus</code>).</p></li>
+  <li>
+  <p><strong>Library Organization</strong>: Group related hooks in modules for better organization.</p></li>
+</ol>
+<h2><a href="#common-hook-patterns" name="common-hook-patterns" class="anchor"><span class="anchor-link"></span></a>Common Hook Patterns</h2>
+<h3><a href="#resource-hook-pattern" name="resource-hook-pattern" class="anchor"><span class="anchor-link"></span></a>Resource Hook Pattern</h3>
+<p>For managing external resources:</p>
+<pre class="prettyprint"><code class="language-scala">def useResource[T](
+  acquire: () =&gt; T,
+  release: T =&gt; Unit,
+  deps: Seq[Any] = Seq()
+): T = {
+  val (resource, setResource, _) = useState[T](null.asInstanceOf[T])
+  
+  useEffect(() =&gt; {
+    val newResource = acquire()
+    setResource(newResource)
+    
+    () =&gt; {
+      if (resource != null) {
+        release(resource)
+      }
+    }
+  }, deps)
+  
+  resource
+}
+</code></pre>
+<h3><a href="#async-hook-pattern" name="async-hook-pattern" class="anchor"><span class="anchor-link"></span></a>Async Hook Pattern</h3>
+<p>For handling asynchronous operations:</p>
+<pre class="prettyprint"><code class="language-scala">def useAsync[T](
+  asyncFn: () =&gt; Future[T],
+  immediate: Boolean = true,
+  deps: Seq[Any] = Seq()
+): (Option[T], Boolean, Option[Throwable], () =&gt; Unit) = {
+  val (value, setValue, _) = useState[Option[T]](None)
+  val (loading, setLoading, _) = useState(false)
+  val (error, setError, _) = useState[Option[Throwable]](None)
+  
+  val execute = () =&gt; {
+    setLoading(true)
+    setError(None)
+    
+    asyncFn()
+      .map { result =&gt;
+        setValue(Some(result))
+        setLoading(false)
+      }
+      .recover { case e: Throwable =&gt;
+        setError(Some(e))
+        setLoading(false)
+      }
+  }
+  
+  useEffect(() =&gt; {
+    if (immediate) {
+      execute()
+    }
+  }, deps)
+  
+  (value, loading, error, execute)
+}
+</code></pre>
+<h3><a href="#reducer-hook-pattern" name="reducer-hook-pattern" class="anchor"><span class="anchor-link"></span></a>Reducer Hook Pattern</h3>
+<p>For complex state logic:</p>
+<pre class="prettyprint"><code class="language-scala">def useReducer[S, A](
+  reducer: (S, A) =&gt; S,
+  initialState: S
+): (S, A =&gt; Unit) = {
+  val (state, setState, _) = useState(initialState)
+  
+  val dispatch = (action: A) =&gt; {
+    setState(prevState =&gt; reducer(prevState, action))
+  }
+  
+  (state, dispatch)
+}
+</code></pre>
+</div>
+<div>
+<a href="https://github.com/edadma/fluxus/tree/v0.0.30/library/src/main/paradox/hooks/custom-hooks.md" title="Edit this page" class="md-source-file md-edit">
+Edit this page
+</a>
+</div>
+<div class="print-only">
+<span class="md-source-file md-version">
+0.0.30
+</span>
+</div>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav class="md-footer-nav__inner md-grid">
+<a href="../hooks/useSignal.html" title="useSignal Hook" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Previous
+</span>
+useSignal Hook
+</span>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+Powered by
+<a href="https://github.com/lightbend/paradox">Paradox</a>
+and
+<a href="https://sbt.github.io/sbt-paradox-material-theme/">Paradox Material Theme</a>
+
+</div>
+</div>
+</div>
+</footer>
+
+</div>
+<script src="../assets/javascripts/application.583bbe55.js"></script>
+<script src="../assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"../."}})</script>
+<script type="text/javascript" src="../lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="../lib/prettify/lang-scala.js"></script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+window.prettyPrint && prettyPrint();
+});
+</script>
+</body>
+</html>
