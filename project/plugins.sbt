@@ -1,5 +1,5 @@
 addSbtPlugin("org.scala-js"   % "sbt-scalajs"                % "1.19.0")
 addSbtPlugin("com.github.sbt" % "sbt-pgp"                    % "2.2.1")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype"               % "3.10.0")
-addSbtPlugin("com.github.sbt" % "sbt-site-paradox"           % "1.5.0")
+addSbtPlugin("com.github.sbt" % "sbt-site-paradox"           % "1.7.0")
 addSbtPlugin("com.github.sbt" % "sbt-paradox-material-theme" % "0.7.0")

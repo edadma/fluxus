@@ -1,19 +1,17 @@
 ThisBuild / licenses += "ISC"      -> url("https://opensource.org/licenses/ISC")
 ThisBuild / versionScheme          := Some("semver-spec")
 ThisBuild / evictionErrorLevel     := Level.Warn
-ThisBuild / scalaVersion           := "3.6.4"
+ThisBuild / scalaVersion           := "3.7.2"
 ThisBuild / organization           := "io.github.edadma"
 ThisBuild / organizationName       := "edadma"
 ThisBuild / organizationHomepage   := Some(url("https://github.com/edadma"))
-ThisBuild / version                := "0.0.32"
-ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
-ThisBuild / sonatypeRepository     := "https://s01.oss.sonatype.org/service/local"
+ThisBuild / version                := "0.0.33"
+ThisBuild / sonatypeCredentialHost := "central.sonatype.com"
 
 ThisBuild / publishConfiguration := publishConfiguration.value.withOverwrite(true).withChecksums(Vector.empty)
-ThisBuild / resolvers ++= Seq(
-  Resolver.mavenLocal,
-)
-ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots") ++ Resolver.sonatypeOssRepos("releases")
+ThisBuild / resolvers += Resolver.mavenLocal
+ThisBuild / resolvers += Resolver.sonatypeCentralSnapshots
+ThisBuild / resolvers += Resolver.sonatypeCentralRepo("releases")
 
 ThisBuild / sonatypeProfileName := "io.github.edadma"
 
@@ -35,11 +33,13 @@ ThisBuild / developers := List(
 ThisBuild / homepage := Some(url("https://github.com/edadma/fluxus"))
 
 ThisBuild / pomIncludeRepository := { _ => false }
+
 ThisBuild / publishTo := {
-  val nexus = "https://s01.oss.sonatype.org/"
-  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
-  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+  val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+  if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+  else localStaging.value
 }
+
 ThisBuild / publishMavenStyle := true
 
 lazy val commonSettings = Seq(
@@ -62,11 +62,11 @@ lazy val library = project
     description := "A minimalist UI framework inspired by component-based design, built with Scala.js",
     libraryDependencies ++= Seq(
       "org.scalatest"    %%% "scalatest"                   % "3.2.19" % "test",
-      "com.lihaoyi"      %%% "pprint"                      % "0.9.0"  % "test",
+      "com.lihaoyi"      %%% "pprint"                      % "0.9.3"  % "test",
       "org.scala-js"     %%% "scalajs-dom"                 % "2.8.0",
       "io.github.edadma" %%% "logger"                      % "0.0.6",
-      "dev.zio"          %%% "zio-json"                    % "0.7.39",
-      "com.raquo"        %%% "airstream"                   % "17.2.0",
+      "dev.zio"          %%% "zio-json"                    % "0.7.44",
+      "com.raquo"        %%% "airstream"                   % "17.2.1",
       "org.scala-js"     %%% "scala-js-macrotask-executor" % "1.1.1",
     ),
     jsEnv                                  := new org.scalajs.jsenv.nodejs.NodeJSEnv(),
@@ -74,7 +74,6 @@ lazy val library = project
     Test / scalaJSUseMainModuleInitializer := false,
     Test / scalaJSUseTestModuleInitializer := true,
     Test / parallelExecution               := false,
-    publishMavenStyle                      := true,
     Test / publishArtifact                 := false,
   )
 
@@ -93,5 +92,7 @@ lazy val fluxus = project
   .in(file("."))
   .aggregate(library, examples)
   .settings(
-    publish / skip := true,
+    name                := "fluxus",
+    publish / skip      := true,
+    publishLocal / skip := true,
   )
