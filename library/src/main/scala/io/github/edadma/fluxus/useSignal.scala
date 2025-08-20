@@ -25,7 +25,7 @@ def useSignal[A](signal: Var[A]): A = {
       val observer = Observer[A](setValue)
 
       // Observe the signal with the observer
-      val subscription = signal.signal.addObserver(observer)(owner)
+      val subscription = signal.signal.addObserver(observer)(using owner)
 
       // Cleanup on unmount or signal change
       () => {
