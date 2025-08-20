@@ -1,4 +1,4 @@
-# Fluxus Library Guide - Internal Reference Document
+# Fluxus Handbook
 
 ## Overview
 
